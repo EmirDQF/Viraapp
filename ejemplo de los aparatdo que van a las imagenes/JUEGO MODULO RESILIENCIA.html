@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Juego de resiliencia · Guía v2</title>
+<style>
+:root{--bg:#f7f6f2;--card:#fff;--tx:#1d1d22;--mut:#63636e;--ln:#e6e4dc;--good:#15803d;--goodbg:#dcfce7;--bad:#b91c1c;--badbg:#fee2e2;--ac:#1e3a8a;--ink:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15151a;--card:#1f1f26;--tx:#f0eff5;--mut:#a3a3b0;--ln:#33333d;--goodbg:#14351f;--badbg:#3f1616;--good:#86efac;--bad:#fca5a5}}
+:root[data-theme="dark"]{--bg:#15151a;--card:#1f1f26;--tx:#f0eff5;--mut:#a3a3b0;--ln:#33333d;--goodbg:#14351f;--badbg:#3f1616;--good:#86efac;--bad:#fca5a5}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.w{max-width:860px;margin:0 auto;padding:20px 16px 60px}
+.hero{padding:28px 22px;border-radius:22px;background:linear-gradient(135deg,#1e3a8a,#7c3aed 55%,#ea580c);color:#fff}
+.hero h1{margin:0 0 6px;font-size:clamp(26px,6vw,38px);line-height:1.15}.hero p{margin:0;opacity:.92}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:18px 0}
+.blk{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:12px 14px}
+.blk b{display:block;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}.blk span{font-size:14px}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;flex-direction:column;gap:6px;overflow-x:auto;padding:10px 0;background:var(--bg)}
+.tabrow{display:flex;align-items:center;gap:8px}
+.secl{flex:none;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);min-width:96px}
+.tabgrp{display:flex;gap:8px;overflow-x:auto}
+.tab{flex:none;border:1px solid var(--ln);background:var(--card);color:var(--tx);border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:7px}
+.tab i{width:12px;height:12px;border-radius:50%;display:block}.tab.on{background:var(--tx);color:var(--bg);border-color:var(--tx)}
+.mh{border-radius:20px;padding:22px;background:var(--ac);color:var(--ink);margin:6px 0 16px}
+.mh small{opacity:.85;text-transform:uppercase;letter-spacing:.08em;font-size:12px}.mh h2{margin:4px 0 8px;font-size:28px}.mh p{margin:4px 0}
+.idea{background:rgba(255,255,255,.18);border-radius:12px;padding:10px 12px;margin-top:10px}
+.st{display:flex;gap:14px;margin:0}.rail{display:flex;flex-direction:column;align-items:center}
+.dot{width:34px;height:34px;border-radius:50%;background:var(--ac);color:var(--ink);display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
+.line{flex:1;width:3px;background:var(--ln);margin:4px 0}.st:last-child .line{display:none}
+.bd{flex:1;background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:14px 16px;margin-bottom:12px;min-width:0}
+.bd h3{margin:0 0 2px;font-size:16px}.tag{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut)}
+.new{display:inline-block;background:var(--ac);color:var(--ink);border-radius:6px;font-size:10px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.ab{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}@media(max-width:560px){.ab{grid-template-columns:1fr}}
+.ab div{border-radius:12px;padding:9px 11px;font-size:14px}.ab .a{background:var(--badbg)}.ab .b{background:var(--goodbg)}.ab b{display:block;font-size:12px}
+.op{display:block;width:100%;text-align:left;margin-top:7px;padding:10px 12px;border-radius:12px;border:1px solid var(--ln);background:transparent;color:var(--tx);font:inherit;font-size:14px;cursor:pointer}
+.op.ok{background:var(--goodbg);border-color:var(--good)}.op.no{background:var(--badbg);border-color:var(--bad)}
+.why{display:none;margin-top:8px;font-size:14px;color:var(--mut)}.why.s{display:block}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.chip{border-radius:999px;padding:4px 11px;font-size:13px}
+.g{background:var(--goodbg);color:var(--good)}.r{background:var(--badbg);color:var(--bad)}.p{background:var(--card);border:1px solid var(--ac)}
+.lb{font-size:13px;font-weight:600;margin-top:10px}.fr{margin-top:10px;font-style:italic;color:var(--mut)}
+.note{background:var(--card);border:1px dashed var(--ln);border-radius:14px;padding:12px 14px;margin-top:16px;font-size:14px;color:var(--mut)}
+.ex{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:14px 0 4px}
+.exc{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:14px}
+.exc .lb2{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin:0 0 10px}
+.mock{background:var(--bg);border:1px solid var(--ln);border-radius:12px;padding:12px}
+.sw2{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-top:10px;gap:6px}
+.sw2 .l{color:var(--bad)}.sw2 .r{color:var(--good);text-align:right}
+.bub{border-radius:12px;padding:7px 10px;font-size:13px;margin-bottom:6px;max-width:88%}
+.bub.a{background:var(--goodbg);color:var(--tx)}.bub.b{background:var(--ln);margin-left:auto}
+.bh{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin-bottom:8px}
+.bh b{color:var(--bad)}
+.bbtn{display:flex;gap:8px}.bbtn div{flex:1;text-align:center;border-radius:8px;padding:8px;font-size:12px}
+.bbtn .r{background:var(--badbg);color:var(--bad)}.bbtn .g{background:var(--goodbg);color:var(--good)}
+.rw{text-align:center}.rw .dot2{width:44px;height:44px;border-radius:50%;background:var(--ac);margin:0 auto 8px}
+.rw .pass{display:inline-block;background:var(--goodbg);color:var(--good);font-size:12px;padding:4px 10px;border-radius:8px;margin-top:6px}
+.gbtn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:16px;z-index:20;display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--ln);border-radius:999px;padding:7px 12px 7px 10px;font-size:12px;color:var(--tx);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.gbtn svg{width:14px;height:14px;flex:none}
+.pzg{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;max-width:210px;margin:0 auto}
+.pzg span{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:11px;background:var(--card);border-radius:4px;color:var(--mut)}
+.pzg span.hi{background:var(--goodbg);color:var(--good);font-weight:600}
+.rain{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:4px 0}
+.rain span{font-size:12px;padding:4px 9px;border-radius:8px}
+.drg{display:flex;flex-direction:column;gap:6px}
+.drg div{background:var(--card);border:1px solid var(--ln);border-radius:8px;padding:7px 10px;font-size:12px;display:flex;align-items:center;gap:6px}
+.qzm .bar{height:5px;background:var(--ln);border-radius:99px;overflow:hidden;margin-bottom:8px}
+.qzm .bar i{display:block;height:100%;width:35%;background:var(--ac)}
+.simm{display:flex;flex-direction:column;gap:6px}
+.simm .row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--ln);border-radius:8px;padding:8px 10px;font-size:12px}
+</style></head><body>
+<div class="gbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Borrón y cuenta nueva</div>
+<div class="w" style="padding-top:44px">
+<div class="hero"><h1>Juego de resiliencia</h1><p>Guía v2 · 4 sectores · 6 módulos · 13 etapas por módulo. Lenguaje cercano, nunca clínico: el avatar se tensa con las malas decisiones y brilla con las buenas.</p></div>
+<div class="note" style="margin-top:14px;display:flex;align-items:flex-start;gap:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex:none;margin-top:2px"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span><b>Borrón y cuenta nueva</b> ya no es un módulo del recorrido: es un botón fijo en la esquina superior izquierda de la app (visible arriba en esta página) que reinicia la conversación con el chatbot de IA en cualquier momento, sin pasar por las 13 etapas.</span></div>
+<div class="flow">
+<div class="blk"><b>1 · Descubrir</b><span>Video contexto, Ronda 1 de preguntas, Rompecabezas</span></div>
+<div class="blk"><b>2 · Practicar</b><span>Swipe, Lluvia de palabras, Simulador, Ronda 2 de preguntas</span></div>
+<div class="blk"><b>3 · Aplicar</b><span>Video conflicto, Ronda 3 de preguntas, Pupiletras, Caso Trampa</span></div>
+<div class="blk"><b>4 · Dominar</b><span>Boss contrarreloj y Rewind</span></div></div>
+<div style="margin:22px 0 6px"><h2 style="margin:0 0 4px;font-size:20px">Cómo se ven las 10 mecánicas del juego</h2>
+<p style="margin:0 0 10px;color:var(--mut);font-size:14px">En orden del recorrido. Se repiten en todos los módulos, cambiando solo el caso y el color.</p>
+<div class="ex">
+
+<div class="exc"><p class="lb2">1 · Video interactivo · el usuario decide</p><div class="mock"><div style="font-size:13px;margin-bottom:8px">El avatar no puede dormir dándole vueltas a un problema.</div><div class="sw2"><span class="l">A) Seguir pensando</span><span class="r">B) Escribirlo y soltarlo</span></div><div style="margin-top:8px;font-size:11px;color:var(--mut)">→ cada opción muestra su propio resultado</div></div></div>
+
+<div class="exc"><p class="lb2">2 · Rompecabezas causa/efecto</p><div class="mock drg"><div>1. Acumulación de problemas</div><div>2. Rumiación mental</div><div>3. Agotamiento</div><div style="font-size:11px;color:var(--mut);border:none;padding:0">Arrastrar hasta ordenar correctamente</div></div></div>
+
+<div class="exc"><p class="lb2">3 · Swipe · deslizar la tarjeta</p><div class="mock"><div style="font-size:14px">Recibes un mensaje que te molesta mucho a las 11 PM.</div><div class="sw2"><span class="l">← Responder ya</span><span class="r">Esperar y respirar →</span></div></div></div>
+
+<div class="exc"><p class="lb2">4 · Ronda de preguntas · ~10 c/u</p><div class="mock qzm"><div class="bar"><i></i></div><div style="font-size:12px;color:var(--mut);margin-bottom:6px">Pregunta 4 de 10</div><div style="font-size:13px;margin-bottom:6px">¿Qué te ayuda más ante el impulso?</div><div class="sw2"><span></span><span class="r">Esperar 20 minutos</span></div></div></div>
+
+<div class="exc"><p class="lb2">5 · Lluvia de palabras</p><div class="mock"><div class="rain"><span class="g" style="background:var(--goodbg);color:var(--good)">Pausa</span><span class="r" style="background:var(--badbg);color:var(--bad)">Gritar</span><span class="g" style="background:var(--goodbg);color:var(--good)">Calma</span><span class="r" style="background:var(--badbg);color:var(--bad)">Explotar</span><span class="g" style="background:var(--goodbg);color:var(--good)">Respirar</span></div><div style="font-size:11px;color:var(--mut);text-align:center;margin-top:4px">Caen palabras: atrapa las buenas, esquiva las malas</div></div></div>
+
+<div class="exc"><p class="lb2">6 · Simulador de interfaz</p><div class="mock simm"><div class="row"><span>Impulso anotado</span><span style="color:var(--ac)">⏱ 20:00</span></div><div class="row"><span>¿Aún lo necesitas?</span><span style="color:var(--good)">Sí / No</span></div></div></div>
+
+<div class="exc"><p class="lb2">7 · Caso «trampa» · debate con la IA</p><div class="mock"><div class="bub a">"Pedir ayuda me convierte en una carga"</div><div class="bub b">Tú explicas por qué no es cierto</div><div class="bub a">La IA responde y sigue cuestionando</div></div></div>
+
+<div class="exc"><p class="lb2">8 · Pupiletras</p><div class="mock"><div class="pzg"><span>D</span><span class="hi">E</span><span>K</span><span>M</span><span>R</span><span>T</span><span>P</span><span class="hi">S</span><span>A</span><span>B</span><span class="hi">C</span><span>N</span><span>L</span><span class="hi">A</span><span>Q</span><span>V</span><span>F</span><span class="hi">R</span><span>G</span></div><div style="font-size:11px;color:var(--mut);text-align:center;margin-top:6px">6 palabras clave con pista, sin tiempo límite</div></div></div>
+
+<div class="exc"><p class="lb2">9 · Prueba final · boss contrarreloj</p><div class="mock"><div class="bh">Clasifica rápido <b>00:08</b></div><div class="bbtn"><div class="r">Fuera de control</div><div class="g">Bajo control</div></div></div></div>
+
+<div class="exc"><p class="lb2">10 · El Rewind · recompensa final</p><div class="mock rw"><div class="dot2"></div><div style="font-size:13px">El avatar brilla con el color del módulo</div><span class="pass">Pase al siguiente módulo</span></div></div>
+
+</div></div>
+<div class="tabs" id="tabs"></div><div id="mod"></div>
+<div class="note">Videos interactivos: el usuario elige, ve el resultado y recibe una tarjeta de aprendizaje; si elige mal, puede volver a elegir. Rondas de preguntas: cada una trae unas 10 preguntas de opción múltiple (no una sola) antes de dejar avanzar al usuario; la ronda 3 es la que se puede recortar si un módulo debe ser más corto. Pupiletras: cuadrícula de 10×10 con 6 palabras, sin tiempo límite. Lluvia de palabras: 16 palabras (8 buenas, 8 malas), unos 45 s.</div>
+</div>
+<script>
+const M=[
+{s:"Sector 1 · Factores",n:"El Descarga",c:"#1e3a8a",k:"#fff",f:"Apoyo emocional, desahogo y frenar el sobrepensamiento.",i:"Sacar lo que tengo en la cabeza me devuelve energía; darle vueltas me la quita.",
+v1:["Darle vueltas en la cama: no duerme y amanece agotado.","Escribir todo en una nota: suelta la tensión y duerme."],
+pz:"Acumulación de problemas → Rumiación → Agotamiento",sw:"Quejarse mentalmente vs. escribir para vaciar la mente",sim:"Chat con un bot cercano: suelta tus frustraciones en crudo, por texto o voz",
+v2:["Obsesionarse con lo que no puede cambiar: se oscurece y se paraliza.","Usar la app: la IA separa lo controlable de lo que no y el avatar actúa."],
+tr:"“Desahogarme es una debilidad”",bo:"Clasificar una nube de pensamientos: bajo control / fuera de control",rw:"El avatar duerme y luce el azul oscuro. Pase al Sector 2.",
+q:[["Son las 2 AM y no dejas de pensar en un problema. ¿Qué te ayuda más?",["Repasarlo hasta encontrar la solución","Escribir todo en una nota para sacarlo de la cabeza","Revisar el celular hasta que llegue el sueño"],1,"Pasar los pensamientos al papel libera la mente."],
+["¿Cuál de estas cosas está fuera de tu control?",["Lo que otra persona opine de ti","La hora a la que empiezas a estudiar","Cómo te preparas para una reunión"],0,"La opinión ajena no depende de uno; el resto sí."],
+["Ya escribiste tus pensamientos, pero uno sigue dando vueltas. ¿Qué haces?",["Repetirlo hasta agotarte","Preguntarte si depende de ti y, si sí, elegir un paso pequeño","Ignorarlo por completo"],1,"Separar lo controlable te devuelve a la acción."]],
+g:"Escribir,Soltar,Respirar,Hablar,Desahogo,Descansar,Anotar,Control",b:"Rumiar,Obsesionar,Darle vueltas,Callar,Catastrofizar,Insomnio,Aguantar,Culpa ajena",fr:"Lo que sale de mi cabeza deja de pesar.",
+p:"DESAHOGO,ESCRIBIR,SOLTAR,CONTROL,DESCANSO,RESPIRAR"},
+{s:"Sector 2 · Impulsos",n:"Enfriador de Dopamina",c:"#7c3aed",k:"#fff",f:"Impulsividad, postergar la gratificación, compras impulsivas y escapismo.",i:"Un impulso no es una necesidad: si espero 20 minutos, casi siempre baja.",
+v1:["Entra a redes “un ratito”: se vuelven 3 horas y termina agotado.","Deja el celular y empieza por un paso pequeño: avanza y se relaja."],
+pz:"Ansiedad → Alivio rápido → Acción impulsiva → Culpa",sw:"Izquierda: ceder al impulso · Derecha: postergar (ej. audífonos a las 2 AM)",sim:"Buzón virtual: anota el impulso y, tras 20 min de bloqueo, la app pregunta si aún lo necesitas",
+v2:["Compra ya: siente culpa y arrepentimiento.","Lo anota en el buzón y espera: a los 20 min decide no comprar."],
+tr:"“Escapar siempre me alivia”",bo:"Ordenar los pasos del protocolo de contención con temporizador rojo",rw:"El avatar suelta lo digital y adopta un morado relajante.",
+q:[["Sientes ganas de comprar algo caro por ansiedad. ¿Mejor primera acción?",["Comprarlo antes de que se agote","Anotarlo y esperar 20 minutos","Comprarlo y devolverlo después"],1,"Esperar enfría el impulso."],
+["¿Por qué scrollear redes estresado no soluciona el problema?",["Porque las redes son malas","Porque solo posterga la tarea y suma culpa y cansancio","Porque gasta batería"],1,"Alivia un rato, pero el problema sigue."],
+["Pasaron los 20 minutos y todavía quieres comprarlo. ¿Qué haces?",["Comprarlo sin pensar más","Preguntarte si es necesidad o alivio, revisar presupuesto y decidir con calma","Buscar uno más caro"],1,"Esperar no prohíbe comprar: te deja decidir con la cabeza fría."]],
+g:"Esperar,Pausa,20 minutos,Anotar,Presupuesto,Paciencia,Meta,Calma",b:"Ya mismo,Oferta limitada,Solo un ratito,Scroll infinito,Comprar,Escapar,Antojo,Culpa",fr:"El impulso pasa; mi decisión se queda.",
+p:"IMPULSO,ESPERAR,PAUSA,BUZON,PACIENCIA,ANTOJO"},
+{s:"Sector 2 · Impulsos",n:"Freno de Mano",c:"#ea580c",k:"#fff",f:"Control de impulsos, pausa táctica y reactividad emocional.",i:"Antes de responder en caliente, pauso; la decisión mejora cuando baja la emoción.",
+v1:["Responde con cólera: la discusión escala y se enrojece.","Pausa antes de responder: baja la emoción y responde con calma."],
+pz:"Ataque percibido → Cortisol → Visión de túnel → Reacción automática",sw:"Audios gritando vs. bloc de notas temporal",sim:"Escribe cómo te sientes, luego pantalla bloqueada 10 s con respiración guiada",
+v2:["Contesta en caliente: decisión apresurada, todo empeora.","Activa la pausa táctica: respira y decide con claridad."],
+tr:"“Si no respondo ya, soy débil”",bo:"Activar pausa y respiración ante una provocación simulada",rw:"El avatar recupera el control en rojo/naranja estabilizado. Pase al Sector 3.",
+q:[["Recibes un mensaje que te molesta mucho. ¿Qué haces primero?",["Responder de inmediato","Pausar unos minutos, respirar y luego decidir si respondes","Mandar un audio gritando"],1,"La pausa deja que baje la emoción."],
+["¿Por qué se decide peor cuando estás muy enojado?",["Porque el cuerpo entra en alerta y la visión se estrecha","Porque uno se cansa","Porque falta información"],0,"En alerta, el cuerpo reacciona en automático."],
+["Ya te calmaste tras la pausa. ¿Cuál es el mejor siguiente paso?",["Responder con un mensaje claro y tranquilo","No responder nunca más","Enviar todo lo que sentías"],0,"Pausar no es evitar: es responder mejor."]],
+g:"Pausa,Respirar,Calma,Escuchar,Contar hasta 10,Claridad,Límite,Espacio",b:"Gritar,Insultar,Responder ya,Portazo,Indirecta,Rencor,Audio furioso,Explotar",fr:"Entre lo que siento y lo que hago, cabe una pausa.",
+p:"PAUSA,RESPIRAR,CALMA,CORTISOL,REACCION,EMOCION"},
+{s:"Sector 3 · Estrategia",n:"Hoy en Fácil",c:"#16a34a",k:"#fff",f:"Organización, menos carga cognitiva y dividir metas.",i:"Tres tareas bien elegidas y divididas en micropasos rinden más que quince a la vez.",
+v1:["Abre todos los proyectos: se llena de pendientes y se paraliza.","Elige 3 clave y empieza por lo más pequeño: avanza."],
+pz:"Meta gigante → Sobrecarga → Parálisis → Procrastinación",sw:"Tareas abrumadoras vs. micropasos accionables",sim:"Elige 3 tareas del día y un botón las desglosa en micropasos diminutos",
+v2:["Mira la lista completa: se bloquea otra vez.","Se enfoca en el primer micropaso: rompe la inercia."],
+tr:"“Hacer 15 tareas de golpe es más productivo”",bo:"Desglosar una tarea gigante con un filtro táctico antes de que colapse la barra mental",rw:"El avatar avanza sin fricción en un entorno verde. Pase al Sector 4.",
+q:[["Tienes 15 pendientes urgentes. ¿Qué haces?",["Empiezo todos a la vez","Elijo 3 clave y las divido en micropasos","Espero a sentirme motivado"],1,"Menos tareas, más pequeñas, se completan."],
+["¿Cuál es un micropaso bien planteado?",["Hacer el proyecto final","Abrir el documento y escribir el título","Terminar toda la investigación"],1,"Es concreto y toma un minuto."],
+["Tu primer micropaso te tomó 2 minutos. ¿Qué sigue?",["Pasar al siguiente micropaso de la misma tarea","Abrir las 15 tareas para ver cuál sigue","Descansar el resto del día"],0,"La inercia trabaja a tu favor: sigue con lo pequeño."]],
+g:"Micropaso,Prioridad,Tres tareas,Empezar,Lista corta,Enfocar,Dividir,Avance",b:"Todo a la vez,Multitarea,Perfección,Después,Mañana,Caos,Abrumar,Postergar",fr:"Lo pequeño que empiezo vale más que lo grande que espero.",
+p:"MICROPASO,PRIORIDAD,ENFOQUE,DIVIDIR,AVANCE,PLAN"},
+{s:"Sector 4 · Resiliencia",n:"Círculo Ancla",c:"#f59e0b",k:"#3a2600",f:"Red de apoyo, pedir ayuda y desescalamiento social.",i:"Pedir ayuda a tiempo y sin dramatismo es una fortaleza.",
+v1:["Se aísla: pierde perspectiva y la ansiedad empeora.","Escribe en el chat grupal de sus panas: recibe apoyo y baja la tensión."],
+pz:"Crisis → Aislamiento → Falta de perspectiva → Ansiedad severa",sw:"Pedir ayuda directo y sano vs. indirectas dramáticas (subir una historia en indirecta)",sim:"Elige 1–2 contactos de su círculo (amigos, roomie, compañeros de clase o trabajo) y envía: “Ando saturado, ¿tienes 5 min para hablar de cualquier tontería?”",
+v2:["Se calla y aguanta solo: la soledad crece.","Envía la alerta prediseñada al chat grupal: recibe desescalamiento inmediato."],
+tr:"“Pedir ayuda me convierte en una carga”",bo:"Conectar nodos para enlazar la señal del avatar con sus contactos a tiempo",rw:"El avatar conversa y baja la tensión acompañado, en amarillo cálido.",
+q:[["Estás muy ansioso y solo antes de un parcial o una entrega laboral. ¿Qué es mejor?",["Aislarte hasta que pase","Enviar un mensaje corto y directo a alguien de confianza","Publicar una indirecta en redes"],1,"Es directo, breve y llega a quien puede ayudar."],
+["¿Cuál es una forma sana de pedir ayuda?",["“Ando saturado, ¿tienes 5 min para hablar?”","“Nadie me entiende, mejor olvídalo”","No decir nada y esperar que lo noten"],0,"Es claro y sin dramatismo."],
+["Enviaste tu alerta al chat grupal y nadie responde enseguida. ¿Qué haces?",["Concluir que a nadie le importa","Escribirle a otro contacto de tu círculo y respirar mientras esperas","Borrar el mensaje"],1,"Tener más de un ancla evita quedarte solo."]],
+g:"Pedir ayuda,Confianza,Escuchar,Apoyo,Compañía,Mensaje,Abrazo,Conexión",b:"Aislarme,Callar,Aguantar solo,Indirecta,Carga,Vergüenza,Drama,Silencio",fr:"Pedir ayuda a tiempo también es fuerza.",
+p:"APOYO,CONFIANZA,CONTACTO,ESCUCHAR,CIRCULO,CERCANIA",x:"Recomendado: una pantalla discreta con líneas de ayuda profesional para malestar intenso o persistente."},
+{s:"Sector 4 · Resiliencia",n:"Muro de Evidencia",c:"#ca8a04",k:"#fff",f:"Resiliencia, autoeficacia y memoria de superación.",i:"Ya salí de cosas difíciles antes; esa evidencia me sostiene hoy.",
+v1:["Se rinde antes de intentarlo (síndrome del impostor, típico en primer trabajo o prácticas): se apaga y se encoge.","Lo intenta un paso a la vez pese a la duda: empieza a avanzar."],
+pz:"Nuevo reto → Olvidar victorias → Inseguridad → Rendición",sw:"Atribuirlo a la suerte vs. reconocer la autoeficacia",sim:"Guarda exámenes, entregas de la U o el primer día de prácticas ya superados en un registro histórico visual",
+v2:["Cree que no puede y se rinde: pierde confianza.","Abre el Muro: “El ciclo pasado pudiste con esa entrega; hoy también puedes”."],
+tr:"“Lo que logré antes no cuenta para hoy”",bo:"Elegir 3 medallas de superación para neutralizar una crisis de confianza",rw:"Final del juego: dorado brillante, maestría en resiliencia.",
+q:[["Te asignaron una tarea grande en tu primer trabajo o práctica y dudas de ti. ¿Qué ayuda más?",["Recordar retos difíciles que ya superaste (un parcial, una entrega, una entrevista)","Pensar que esos logros fueron suerte","Evitar el reto"],0,"Tu historial demuestra tu capacidad."],
+["Superaste una entrega muy difícil. ¿Cómo la registras?",["La minimizo porque fue suerte","La guardo en el Muro como evidencia","La olvido"],1,"Registrar el logro lo vuelve evidencia."],
+["Hoy dudas de ti antes de una entrevista o un examen. ¿Cuál es la evidencia más útil?",["Un logro guardado en tu Muro, con lo que hiciste","Lo que creen los demás de ti","Recordar tu peor día"],0,"La evidencia propia y concreta pesa más que la opinión."]],
+g:"Evidencia,Logro,Superé,Capacidad,Confianza,Medalla,Historial,Constancia",b:"Suerte,Impostor,No puedo,Fraude,Casualidad,Rendirme,Minimizar,Olvidar",fr:"Ya lo superé antes; hoy también puedo.",
+p:"EVIDENCIA,LOGRO,MEDALLA,CAPACIDAD,HISTORIAL,CONFIANZA"}];
+const $=id=>document.getElementById(id),chips=(s,c)=>'<div class="chips">'+s.split(',').map(x=>`<span class="chip ${c}">${x}</span>`).join('')+'</div>';
+const vid=v=>`<div class="ab"><div class="a"><b>Opción A</b>${v[0]}</div><div class="b"><b>Opción B</b>${v[1]}</div></div>`;
+function qz(m,k){const [t,o,a,w]=m.q[k];const lbl=["Ronda 1 de preguntas","Ronda 2 de preguntas","Ronda 3 de preguntas"][k];
+return `<div class="tag">${lbl} · pregunta 1 de ~10${k==2?'<span class="new" style="background:var(--ac)">nueva</span>':''}</div>
+<div style="height:5px;background:var(--ln);border-radius:99px;margin:6px 0 10px;overflow:hidden"><div style="height:100%;width:12%;background:var(--ac)"></div></div>
+<p style="margin:4px 0 0"><b>${t}</b></p>`+o.map((x,j)=>`<button class="op" data-a="${a}" data-j="${j}">${'abc'[j]}) ${x}</button>`).join('')+`<div class="why"><b>${w}</b></div><p style="font-size:12px;color:var(--mut);margin-top:10px">Ejemplo de una pregunta de la ronda; siguen ~9 más del mismo tipo, alternando dificultad, antes de pasar a la siguiente etapa.</p>`}
+function show(n){const m=M[n];document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',i==n));
+const root=document.documentElement.style;root.setProperty('--ac',m.c);root.setProperty('--ink',m.k);
+const S=[["Video · El Contexto","Decisión → resultado",vid(m.v1)],["Ronda 1 de preguntas","~10 preguntas · reconocer",qz(m,0)],["Rompecabezas causa/efecto","Ordenar bloques",m.pz],["Swipe","Casos rápidos",m.sw],
+["Lluvia de palabras","Nuevo",'<div class="lb">Atrapa las buenas:</div>'+chips(m.g,'g')+'<div class="lb">Esquiva las malas:</div>'+chips(m.b,'r')+`<div class="fr">“${m.fr}”</div>`],
+["Simulador de interfaz","Herramienta real",m.sim],["Ronda 2 de preguntas","~10 preguntas · entender",qz(m,1)],["Video · El Conflicto","Decisión → resultado",vid(m.v2)],["Ronda 3 de preguntas","~10 preguntas · aplicar",qz(m,2)],
+["Pupiletras","Nuevo · 10×10, 6 palabras",chips(m.p,'p')],["Caso «Trampa»","Debate con la IA",m.tr],["Prueba final · Boss","Contrarreloj",m.bo],["El Rewind","Recompensa",m.rw]];
+$('mod').innerHTML=`<div class="mh"><small>${m.s}</small><h2>${m.n}</h2><p>${m.f}</p><div class="idea"><b>Idea central:</b> ${m.i}</div></div>`+S.map((s,j)=>`<div class="st"><div class="rail"><div class="dot">${j+1}</div><div class="line"></div></div><div class="bd"><h3>${s[0]}${s[1]=='Nuevo'||s[1].startsWith('Nuevo')?'<span class="new">nuevo</span>':''}</h3><div class="tag">${s[1].replace('Nuevo · ','')}</div><div style="margin-top:6px;font-size:15px">${s[2]}</div></div></div>`).join('')+(m.x?`<div class="note">${m.x}</div>`:'');}
+$('tabs').innerHTML=(()=>{const gs=[];M.forEach((m,i)=>{let g=gs.find(x=>x.s==m.s);if(!g){g={s:m.s,items:[]};gs.push(g)}g.items.push(i)});
+return gs.map(g=>`<div class="tabrow"><span class="secl">${g.s.split(' · ')[1]||g.s}</span><div class="tabgrp">`+g.items.map(i=>`<button class="tab" data-i="${i}"><i style="background:${M[i].c}"></i>${M[i].n}</button>`).join('')+`</div></div>`).join('');})();
+document.addEventListener('click',e=>{const t=e.target.closest('.tab');if(t)return show(+t.dataset.i);const o=e.target.closest('.op');if(!o)return;const b=o.parentNode;b.querySelectorAll('.op').forEach(x=>{x.classList.remove('ok','no');x.disabled=false});o.classList.add(+o.dataset.j==+o.dataset.a?'ok':'no');if(+o.dataset.j==+o.dataset.a)b.querySelector('.why').classList.add('s');else b.querySelector('.why').classList.remove('s')});
+show(0);
+</script></body></html>
