@@ -1,35 +1,49 @@
 /**
- * Tokens de diseño VIRA (guía de identidad, docs/brand/image2.png).
- * Todos los colores de la interfaz salen de aquí; las ilustraciones usan sus propias constantes (REGI, LOGO).
+ * Tokens de diseño VIRA 2026 ("con más vida"): misma identidad (petróleo, menta, coral, marfil) con más
+ * saturación y luz. Todos los colores de la interfaz salen de aquí; las ilustraciones usan sus propias
+ * constantes (REGI, LOGO).
  */
+import { mix } from '@/lib/color';
 
 /** Paleta de marca. Las variantes *Deep (~15 % más oscuras) son el "labio" de los botones 3D. */
 export const brand = {
-  petrol: '#24576A',
-  petrolDeep: '#1F4A5A',
-  /** Petróleo aclarado para superficies activas en modo oscuro (texto blanco 5.9:1). */
-  petrolBright: '#2F6B80',
-  petrolNight: '#122A33',
-  petrolNightSurface: '#1B3B47',
-  petrolNightAlt: '#234A58',
-  sage: '#A8C8B5',
-  sageDeep: '#8FAA9A',
-  coral: '#E99479',
-  coralDeep: '#C67E67',
-  ivory: '#F8F6F0',
-  ivoryDeep: '#ECE8DE',
-  ink: '#24343B',
-  inkDeep: '#1F2C32',
+  petrol: '#16708F',
+  petrolDeep: '#0F5870',
+  /** Petróleo para superficies activas en modo oscuro (texto blanco 5.0:1). */
+  petrolBright: '#17789A',
+  petrolNight: '#0B2029',
+  petrolNightMid: '#102C38',
+  petrolNightSurface: '#13303C',
+  petrolNightAlt: '#1B3D4B',
+  /** Menta viva (antes salvia). Se conserva el nombre `sage` para no romper las pantallas. */
+  sage: '#5ED3A0',
+  sageDeep: '#3FB583',
+  coral: '#FF7A59',
+  coralDeep: '#E0593A',
+  /** Color de Regi (chat, mascota, espejo positivo). Texto blanco 4.7:1. */
+  lilac: '#6F5FEA',
+  lilacDeep: '#5646CC',
+  lilacSoft: '#ECEAFF',
+  lilacLight: '#B3A8FF',
+  teal: '#2FB8A8',
+  tealDeep: '#0E7C6F',
+  amber: '#FFB547',
+  goldLight: '#FDE68A',
+  ivory: '#FBF8F2',
+  ivoryDeep: '#EFEAE0',
+  ink: '#15262E',
+  inkDeep: '#0D1A20',
   white: '#FFFFFF',
+  black: '#000000',
 } as const;
 
-/** Colores de feedback de acierto/error (se conservan del diseño anterior). */
+/** Colores de feedback de acierto/error. */
 export const feedback = {
   victory: '#10B981',
   victoryDeep: '#0E9D6E',
   retry: '#DC2626',
   retryDeep: '#B91C1C',
-  gold: '#E3B341',
+  gold: '#EAB308',
   goldDeep: '#B8860B',
 } as const;
 
@@ -40,21 +54,74 @@ export interface ModuleTone {
   readonly deep: string;
   /** Texto/íconos sobre `base` con contraste AA. */
   readonly on: string;
+  /** Tinte suave (~12 %) del color sobre el fondo claro. Se usa con texto `ink` o `deep`. */
   readonly soft: string;
+  /** Tinte suave del color sobre el fondo oscuro. Se usa con texto claro. */
+  readonly softDark: string;
 }
 
-/**
- * Color propio de cada módulo (su gajo en el dial). Se parte de los colores del HTML del juego y se
- * oscurecen Freno de Mano y Hoy en Fácil para que el texto blanco cumpla AA (4.5:1).
- */
+const SOFT_TINT = 0.12;
+const SOFT_TINT_DARK = 0.24;
+const DEEP_SHADE = 0.15;
+
+function moduleTone(base: string, on: string): ModuleTone {
+  return {
+    base,
+    deep: mix(base, brand.black, DEEP_SHADE),
+    on,
+    soft: mix(brand.ivory, base, SOFT_TINT),
+    softDark: mix(brand.petrolNight, base, SOFT_TINT_DARK),
+  };
+}
+
+/** Color propio de cada módulo (su gajo en el dial), vivos como en la maqueta 2. */
 export const MODULE_COLORS: Readonly<Record<ModuleColorKey, ModuleTone>> = {
-  descarga: { base: '#1E3A8A', deep: '#1A3175', on: brand.white, soft: '#DCE4F7' },
-  enfriador: { base: '#7C3AED', deep: '#6931C9', on: brand.white, soft: '#EDE4FD' },
-  freno: { base: '#C2410C', deep: '#A5370A', on: brand.white, soft: '#FCE6DA' },
-  hoy: { base: '#15803D', deep: '#126D34', on: brand.white, soft: '#DDF3E4' },
-  ancla: { base: '#F59E0B', deep: '#D08609', on: '#3A2600', soft: '#FEF0D2' },
-  muro: { base: '#CA8A04', deep: '#AC7503', on: '#3A2600', soft: '#FBEFCB' },
+  hoy: moduleTone('#16A34A', brand.ink),
+  descarga: moduleTone('#2563EB', brand.white),
+  freno: moduleTone('#FF5A36', brand.ink),
+  enfriador: moduleTone('#7446F0', brand.white),
+  ancla: moduleTone('#F59E0B', brand.ink),
+  muro: moduleTone('#EAB308', brand.ink),
 };
+
+/** Paradas de un degradado (de arriba-izquierda a abajo-derecha). */
+export type GradientStops = readonly [string, string, ...string[]];
+
+/**
+ * Degradados de la marca. `aurora` y `regi` son decorativos (sin texto encima); para texto se usan las variantes
+ * *Button o el color de `onGradient`, que cumple AA en todas las paradas.
+ */
+export const gradients = {
+  aurora: [brand.petrol, brand.teal, brand.sage],
+  /** Aurora oscurecida para botones con texto blanco (≥ 5:1 en todas sus paradas). */
+  auroraButton: [brand.petrolDeep, brand.tealDeep],
+  sunrise: [brand.coral, brand.amber],
+  regi: [brand.lilac, brand.lilacLight],
+  regiButton: [brand.lilacDeep, brand.lilac],
+  gold: [feedback.gold, brand.goldLight],
+  nightSky: [brand.petrolNight, brand.petrolNightMid],
+  daySky: [brand.ivory, brand.ivoryDeep],
+  danger: [feedback.retry, feedback.retryDeep],
+} as const satisfies Record<string, GradientStops>;
+
+export type GradientName = keyof typeof gradients;
+
+/** Texto legible (AA) sobre todas las paradas de cada degradado. `aurora` y `regi` son decorativos: sin texto encima. */
+export const onGradient: Readonly<Record<Exclude<GradientName, 'aurora' | 'regi'>, string>> = {
+  auroraButton: brand.white,
+  sunrise: brand.ink,
+  regiButton: brand.white,
+  gold: brand.ink,
+  nightSky: brand.ivory,
+  daySky: brand.ink,
+  danger: brand.white,
+};
+
+/** Manchas difusas de los fondos vivos (se pintan con opacidad baja sobre el degradado). */
+export const blobColors = {
+  light: [brand.sage, brand.lilacLight, brand.coral],
+  dark: [brand.petrol, brand.lilac, brand.teal],
+} as const;
 
 export interface ThemeColors {
   readonly background: string;
@@ -75,6 +142,10 @@ export interface ThemeColors {
   readonly onAccent: string;
   /** Tono de énfasis para íconos/textos grandes sobre el fondo (petróleo en claro, petróleo claro en oscuro). */
   readonly highlight: string;
+  readonly regi: string;
+  readonly regiShadow: string;
+  readonly onRegi: string;
+  readonly regiSoft: string;
   readonly stable: string;
   readonly stableShadow: string;
   readonly success: string;
@@ -93,21 +164,27 @@ export interface ThemeColors {
   readonly onColor: string;
   readonly tabInactive: string;
   readonly overlay: string;
+  /** Tinte translúcido de las superficies de vidrio. */
+  readonly glass: string;
+  /** Borde de luz (1 px) de las superficies de vidrio y elevadas. */
+  readonly glassBorder: string;
+  /** Color de las sombras difusas. */
+  readonly shadow: string;
 }
 
 /*
  * Contraste (verificado en theme/__tests__/tokens.test.ts):
- * - Coral con texto blanco solo llega a 2.3:1, así que los botones coral usan texto `ink` (5.5:1).
- * - Salvia con texto blanco llega a 1.8:1: los botones salvia también usan texto `ink` (7.1:1).
+ * - Coral y menta usan texto `ink` (6.1 y 8.4:1); con blanco no llegan a AA.
+ * - Lila usa texto blanco (4.7:1).
  */
 export const lightColors: ThemeColors = {
   background: brand.ivory,
   backgroundAlt: brand.ivoryDeep,
   surface: brand.white,
-  surfaceAlt: '#EEF3F0',
-  border: '#DCE3E1',
+  surfaceAlt: '#EEF5F2',
+  border: '#DDE5E3',
   text: brand.ink,
-  textMuted: '#56666D',
+  textMuted: '#51656E',
   primary: brand.petrol,
   primaryShadow: brand.petrolDeep,
   onPrimary: brand.white,
@@ -118,6 +195,10 @@ export const lightColors: ThemeColors = {
   accentShadow: brand.coralDeep,
   onAccent: brand.ink,
   highlight: brand.petrol,
+  regi: brand.lilac,
+  regiShadow: brand.lilacDeep,
+  onRegi: brand.white,
+  regiSoft: brand.lilacSoft,
   stable: brand.petrol,
   stableShadow: brand.petrolDeep,
   success: feedback.victory,
@@ -133,18 +214,21 @@ export const lightColors: ThemeColors = {
   disabled: '#D9DEDC',
   disabledShadow: '#B9C1BE',
   onColor: brand.white,
-  tabInactive: '#56666D',
-  overlay: 'rgba(36, 52, 59, 0.55)',
+  tabInactive: '#51656E',
+  overlay: 'rgba(21, 38, 46, 0.55)',
+  glass: 'rgba(255, 255, 255, 0.72)',
+  glassBorder: 'rgba(255, 255, 255, 0.9)',
+  shadow: '#0F3A4A',
 };
 
 export const darkColors: ThemeColors = {
   background: brand.petrolNight,
-  backgroundAlt: '#0E2229',
+  backgroundAlt: '#081820',
   surface: brand.petrolNightSurface,
   surfaceAlt: brand.petrolNightAlt,
-  border: '#2E5563',
+  border: '#24505F',
   text: brand.ivory,
-  textMuted: '#A9BEC6',
+  textMuted: '#9FB9C4',
   primary: brand.petrolBright,
   primaryShadow: brand.petrolDeep,
   onPrimary: brand.white,
@@ -154,7 +238,11 @@ export const darkColors: ThemeColors = {
   accent: brand.coral,
   accentShadow: brand.coralDeep,
   onAccent: brand.ink,
-  highlight: '#7FB3C6',
+  highlight: '#7FC8E0',
+  regi: brand.lilac,
+  regiShadow: brand.lilacDeep,
+  onRegi: brand.white,
+  regiSoft: '#231F4D',
   stable: brand.petrolBright,
   stableShadow: brand.petrolDeep,
   success: feedback.victory,
@@ -167,11 +255,14 @@ export const darkColors: ThemeColors = {
   dangerSoft: '#4A1717',
   onDanger: brand.white,
   dangerText: '#FCA5A5',
-  disabled: '#2E4A55',
-  disabledShadow: '#1F3740',
+  disabled: '#24424E',
+  disabledShadow: '#17303A',
   onColor: brand.white,
-  tabInactive: '#A9BEC6',
-  overlay: 'rgba(8, 20, 25, 0.7)',
+  tabInactive: '#9FB9C4',
+  overlay: 'rgba(5, 16, 21, 0.72)',
+  glass: 'rgba(19, 48, 60, 0.72)',
+  glassBorder: 'rgba(255, 255, 255, 0.08)',
+  shadow: '#02090C',
 };
 
 /**
@@ -187,31 +278,85 @@ export const palette = {
   sageLight: brand.sage,
 } as const;
 
-export const spacing = { xxs: 2, xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 48 } as const;
+/** Escala de 4 (xxs = 2 solo para ajustes finos). Margen lateral de pantalla: `screen`. */
+export const spacing = {
+  xxs: 2,
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  screen: 20,
+  xl: 24,
+  xxl: 32,
+  xxxl: 48,
+} as const;
 
-export const radius = { sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, pill: 999 } as const;
+/** Radios 2026. `xxl` (28) es el radio de las tarjetas grandes del bento. */
+export const radius = { sm: 12, md: 18, lg: 24, xxl: 28, xl: 32, pill: 999 } as const;
 
 /** Altura del "labio" de los botones 3D estilo Duolingo. */
 export const BUTTON_LIP = 5;
 
-/** Tamaño mínimo de un objetivo táctil (WCAG / guías de iOS y Android). */
-export const MIN_TOUCH = 44;
+/** Tamaño mínimo de un objetivo táctil (48 dp, guía de Android; supera los 44 pt de iOS). */
+export const MIN_TOUCH = 48;
+
+/** Altura de los botones principales. */
+export const BUTTON_HEIGHT = 56;
+
+/**
+ * Tres niveles de elevación con sombras suaves y difusas. En oscuro se usa `elevationFor`, que tiñe la sombra
+ * y la refuerza; los componentes añaden además el borde interior `glassBorder`. `card` y `raised` son alias
+ * heredados de `md` y `lg`.
+ */
+const SHADOW_COLOR = lightColors.shadow;
+
+const elevationSm = {
+  shadowColor: SHADOW_COLOR,
+  shadowOpacity: 0.06,
+  shadowRadius: 8,
+  shadowOffset: { width: 0, height: 2 },
+  elevation: 2,
+} as const;
+
+const elevationMd = {
+  shadowColor: SHADOW_COLOR,
+  shadowOpacity: 0.1,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 8 },
+  elevation: 5,
+} as const;
+
+const elevationLg = {
+  shadowColor: SHADOW_COLOR,
+  shadowOpacity: 0.16,
+  shadowRadius: 32,
+  shadowOffset: { width: 0, height: 16 },
+  elevation: 10,
+} as const;
 
 export const elevation = {
-  card: {
-    shadowColor: brand.ink,
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-  },
-  raised: {
-    shadowColor: brand.ink,
-    shadowOpacity: 0.14,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 6,
-  },
+  sm: elevationSm,
+  md: elevationMd,
+  lg: elevationLg,
+  card: elevationMd,
+  raised: elevationLg,
 } as const;
+
+export type ElevationLevel = 'sm' | 'md' | 'lg';
+
+const DARK_SHADOW_BOOST = 2.5;
+
+/** Elevación adaptada al tema: en oscuro la sombra es más profunda para que la capa se despegue del fondo. */
+export function elevationFor(level: ElevationLevel, isDark: boolean) {
+  const base = elevation[level];
+  if (!isDark) {
+    return base;
+  }
+  return {
+    ...base,
+    shadowColor: darkColors.shadow,
+    shadowOpacity: Math.min(1, base.shadowOpacity * DARK_SHADOW_BOOST),
+  };
+}
 
 export { typography, fontFamily } from '@/theme/typography';
