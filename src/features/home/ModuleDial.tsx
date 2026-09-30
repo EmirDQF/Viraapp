@@ -1,23 +1,36 @@
 import { ChevronLeft, ChevronRight, Lock } from 'lucide-react-native';
-import { memo, useCallback, useEffect, useMemo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { memo, useCallback, useEffect, useId, useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Path, RadialGradient, Stop } from 'react-native-svg';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { ModuleIcon } from '@/components/game/ModuleIcon';
+import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { AppText } from '@/components/ui/AppText';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { ICON_STROKE, IconTile } from '@/components/ui/IconTile';
 import { MODULES } from '@/data/modules/catalog';
 import { angleFromPoint, indexForRotation, rotationForIndex, shortestDelta, snapRotation, wedgePath } from '@/features/home/dial';
+import { darken, lighten } from '@/lib/color';
 import { haptic } from '@/lib/haptics';
-import { MIN_TOUCH, MODULE_COLORS, radius } from '@/theme/tokens';
+import { brand, gradients, MIN_TOUCH, MODULE_COLORS, radius } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
-import type { ModuleId, UnlockStatus } from '@/types/game';
 import { useReduceMotion } from '@/theme/useReduceMotion';
+import type { ModuleId, UnlockStatus } from '@/types/game';
 
 const SPRING = { damping: 16, stiffness: 140 } as const;
-const WEDGE_GAP_DEG = 1.2;
+const WEDGE_GAP_DEG = 1.4;
+/** Grosor del aro metálico y del brillo neón que lo rodea. */
+const RIM = 12;
+const NEON = 10;
+/** Cuánto sobresale el gajo seleccionado ("se eleva"). */
+const LIFT = 8;
+const LOCKED_OPACITY = 0.45;
+const ICON_TILE = 38;
+const ARROW_WIDTH = MIN_TOUCH - 12;
+
 const STATUS_LABEL: Readonly<Record<UnlockStatus, string>> = {
   completed: 'completado',
   unlocked: 'disponible',
@@ -39,16 +52,31 @@ interface WedgeLabelProps {
   readonly size: number;
   readonly midRadius: number;
   readonly locked: boolean;
+  /** Color del nombre en gajos bloqueados: el gajo es translúcido, así que se usa el texto del tema. */
+  readonly lockedText: string;
 }
 
-const WedgeLabel = memo(function WedgeLabel({ id, angle, size, midRadius, locked }: WedgeLabelProps) {
+/** Ícono "3D" (squircle con degradado y brillo) y nombre del módulo, girados con su gajo. */
+const WedgeLabel = memo(function WedgeLabel({ id, angle, size, midRadius, locked, lockedText }: WedgeLabelProps) {
   const tone = MODULE_COLORS[id];
   const width = midRadius * 0.95;
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, { transform: [{ rotate: `${angle}deg` }] }]}>
-      <View style={[styles.label, { width, left: size / 2 - width / 2, top: size / 2 - midRadius - 34 }]}>
-        {locked ? <Lock color={tone.on} size={20} /> : <ModuleIcon id={id} color={tone.on} size={26} />}
-        <AppText variant="overline" color={tone.on} align="center" numberOfLines={2} style={styles.labelText}>
+      <View
+        style={[
+          styles.label,
+          { width, left: size / 2 - width / 2, top: size / 2 - midRadius - 36 },
+          locked && styles.lockedLabel,
+        ]}
+      >
+        <IconTile color={tone.base} gradient={[lighten(tone.base, 0.45), tone.base, tone.deep]} size={ICON_TILE}>
+          {locked ? (
+            <Lock color={tone.on} size={18} strokeWidth={ICON_STROKE} />
+          ) : (
+            <ModuleIcon id={id} color={tone.on} size={20} strokeWidth={ICON_STROKE} />
+          )}
+        </IconTile>
+        <AppText variant="overline" color={locked ? lockedText : tone.on} align="center" numberOfLines={2} style={styles.labelText}>
           {MODULES[id].name}
         </AppText>
       </View>
@@ -56,14 +84,129 @@ const WedgeLabel = memo(function WedgeLabel({ id, angle, size, midRadius, locked
   );
 });
 
-/** Ruleta "Mente Resiliente": gira con el dedo, encaja en el gajo y lo marca arriba. */
-export function ModuleDial({ modules, selected, statuses, onSelect, size = 300 }: ModuleDialProps) {
+interface WheelArtProps {
+  readonly modules: readonly ModuleId[];
+  readonly statuses: Readonly<Record<ModuleId, UnlockStatus>>;
+  readonly size: number;
+  readonly outer: number;
+  readonly inner: number;
+  readonly idPrefix: string;
+}
+
+/** Gajos con degradado radial del color de su módulo (claro fuera, profundo hacia el centro). */
+const WheelArt = memo(function WheelArt({ modules, statuses, size, outer, inner, idPrefix }: WheelArtProps) {
+  const center = size / 2;
+  const segment = 360 / modules.length;
+  return (
+    <Svg width={size} height={size}>
+      <Defs>
+        {modules.map((id) => {
+          const tone = MODULE_COLORS[id];
+          return (
+            <RadialGradient key={id} id={`${idPrefix}-${id}`} cx={center} cy={center} r={outer} gradientUnits="userSpaceOnUse">
+              <Stop offset={inner / outer} stopColor={tone.deep} />
+              <Stop offset="0.7" stopColor={tone.base} />
+              <Stop offset="1" stopColor={lighten(tone.base, 0.22)} />
+            </RadialGradient>
+          );
+        })}
+      </Defs>
+      {modules.map((id, index) => (
+        <Path
+          key={id}
+          d={wedgePath(
+            center,
+            center,
+            outer,
+            inner,
+            index * segment - segment / 2 + WEDGE_GAP_DEG,
+            index * segment + segment / 2 - WEDGE_GAP_DEG,
+          )}
+          fill={`url(#${idPrefix}-${id})`}
+          opacity={statuses[id] === 'locked' ? LOCKED_OPACITY : 1}
+        />
+      ))}
+    </Svg>
+  );
+});
+
+interface RimProps {
+  readonly size: number;
+  readonly outer: number;
+  readonly idPrefix: string;
+  readonly isDark: boolean;
+}
+
+/** Aro metálico con brillo neón aurora (fijo: no gira con la ruleta). */
+const Rim = memo(function Rim({ size, outer, idPrefix, isDark }: RimProps) {
+  const center = size / 2;
+  const metalTop = isDark ? lighten(brand.petrolNightAlt, 0.35) : brand.white;
+  const metalMid = isDark ? brand.petrolNightSurface : brand.ivoryDeep;
+  const metalBottom = isDark ? brand.petrolNight : darken(brand.ivoryDeep, 0.18);
+  const neon = `url(#${idPrefix}-neon)`;
+  return (
+    <Svg width={size} height={size} pointerEvents="none" style={StyleSheet.absoluteFill}>
+      <Defs>
+        <LinearGradient id={`${idPrefix}-metal`} x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={metalTop} />
+          <Stop offset="0.5" stopColor={metalMid} />
+          <Stop offset="1" stopColor={metalBottom} />
+        </LinearGradient>
+        <LinearGradient id={`${idPrefix}-neon`} x1="0" y1="0" x2="1" y2="1">
+          {gradients.aurora.map((stop, index) => (
+            <Stop key={stop} offset={index / (gradients.aurora.length - 1)} stopColor={stop} />
+          ))}
+        </LinearGradient>
+      </Defs>
+      <Circle
+        cx={center}
+        cy={center}
+        r={outer + RIM / 2 + 2}
+        stroke={neon}
+        strokeWidth={RIM + NEON}
+        strokeOpacity={isDark ? 0.35 : 0.22}
+        fill="none"
+      />
+      <Circle cx={center} cy={center} r={outer + RIM / 2} stroke={`url(#${idPrefix}-metal)`} strokeWidth={RIM} fill="none" />
+      <Circle cx={center} cy={center} r={outer + RIM - 1} stroke={neon} strokeWidth={1.5} strokeOpacity={0.9} fill="none" />
+    </Svg>
+  );
+});
+
+interface ArrowButtonProps {
+  readonly direction: 'previous' | 'next';
+  readonly onPress: () => void;
+}
+
+function ArrowButton({ direction, onPress }: ArrowButtonProps) {
   const { colors } = useTheme();
+  const Icon = direction === 'previous' ? ChevronLeft : ChevronRight;
+  return (
+    <AnimatedPressable
+      accessibilityRole="button"
+      accessibilityLabel={direction === 'previous' ? 'Módulo anterior' : 'Módulo siguiente'}
+      haptics="selection"
+      onPress={onPress}
+      hitSlop={8}
+    >
+      <GlassCard padded={false} radius={radius.pill} style={styles.arrow}>
+        <View style={styles.arrow}>
+          <Icon color={colors.text} size={22} strokeWidth={2.5} />
+        </View>
+      </GlassCard>
+    </AnimatedPressable>
+  );
+}
+
+/** Ruleta "Mente Resiliente": gira con el dedo, encaja en el gajo y lo eleva con brillo bajo el indicador. */
+export function ModuleDial({ modules, selected, statuses, onSelect, size = 300 }: ModuleDialProps) {
+  const { colors, isDark } = useTheme();
   const reduceMotion = useReduceMotion();
+  const idPrefix = `dial-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const count = modules.length;
   const segment = 360 / count;
   const center = size / 2;
-  const outer = center - 10;
+  const outer = center - RIM - NEON / 2 - 2;
   const inner = outer * 0.26;
   const midRadius = (outer + inner) / 2;
   const selectedIndex = Math.max(0, modules.indexOf(selected));
@@ -111,23 +254,15 @@ export function ModuleDial({ modules, selected, statuses, onSelect, size = 300 }
 
   const wheelStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${rotation.get()}deg` }] }));
 
-  const step = (delta: number) => {
-    haptic('selection');
-    selectIndex((selectedIndex + delta + count) % count);
-  };
+  const step = (delta: number) => selectIndex((selectedIndex + delta + count) % count);
   const current = MODULES[modules[selectedIndex]];
+  const tone = MODULE_COLORS[current.id];
+  const liftedPath = wedgePath(center, center, outer + LIFT, inner - 2, -segment / 2 + 0.5, segment / 2 - 0.5);
+  const pointerTop = NEON / 2 - 2;
 
   return (
     <View style={styles.row}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Módulo anterior"
-        onPress={() => step(-1)}
-        hitSlop={8}
-        style={[styles.arrow, { backgroundColor: colors.surface, borderColor: colors.border }]}
-      >
-        <ChevronLeft color={colors.text} size={22} />
-      </Pressable>
+      <ArrowButton direction="previous" onPress={() => step(-1)} />
       <View
         accessible
         accessibilityRole="adjustable"
@@ -137,63 +272,42 @@ export function ModuleDial({ modules, selected, statuses, onSelect, size = 300 }
         onAccessibilityAction={(event) => step(event.nativeEvent.actionName === 'increment' ? 1 : -1)}
         style={{ width: size, height: size }}
       >
+        <Rim size={size} outer={outer} idPrefix={idPrefix} isDark={isDark} />
         <GestureDetector gesture={gesture}>
           <Animated.View style={[StyleSheet.absoluteFill, wheelStyle]}>
-            <Svg width={size} height={size}>
-              <Circle cx={center} cy={center} r={outer + 6} fill={colors.surfaceAlt} stroke={colors.border} strokeWidth={4} />
-              {modules.map((id, index) => (
-                <Path
-                  key={id}
-                  d={wedgePath(center, center, outer, inner, index * segment - segment / 2 + WEDGE_GAP_DEG, index * segment + segment / 2 - WEDGE_GAP_DEG)}
-                  fill={MODULE_COLORS[id].base}
-                  opacity={statuses[id] === 'locked' ? 0.55 : 1}
-                />
-              ))}
-            </Svg>
+            <WheelArt modules={modules} statuses={statuses} size={size} outer={outer} inner={inner} idPrefix={idPrefix} />
             {modules.map((id, index) => (
-              <WedgeLabel key={id} id={id} angle={index * segment} size={size} midRadius={midRadius} locked={statuses[id] === 'locked'} />
+              <WedgeLabel key={id} id={id} angle={index * segment} size={size} midRadius={midRadius} locked={statuses[id] === 'locked'} lockedText={colors.text} />
             ))}
           </Animated.View>
         </GestureDetector>
         <Svg width={size} height={size} pointerEvents="none" style={StyleSheet.absoluteFill}>
+          <Path d={liftedPath} fill="none" stroke={tone.base} strokeOpacity={0.35} strokeWidth={12} strokeLinejoin="round" />
+          <Path d={liftedPath} fill="none" stroke={lighten(tone.base, 0.5)} strokeWidth={3.5} strokeLinejoin="round" />
           <Path
-            d={wedgePath(center, center, outer + 2, inner - 2, -segment / 2, segment / 2)}
-            fill="none"
-            stroke={colors.onColor}
-            strokeWidth={4}
+            d={`M ${center - 14} ${pointerTop} L ${center + 14} ${pointerTop} L ${center} ${pointerTop + 18} Z`}
+            fill={lighten(tone.base, 0.35)}
+            stroke={colors.surface}
+            strokeWidth={2}
             strokeLinejoin="round"
           />
-          <Path d={`M ${center - 12} 0 L ${center + 12} 0 L ${center} 16 Z`} fill={colors.accent} />
-          <Circle cx={center} cy={center} r={inner - 6} fill={colors.surface} stroke={colors.border} strokeWidth={2} />
+          <Circle cx={center} cy={center} r={inner - 4} fill={colors.surface} stroke={colors.glassBorder} strokeWidth={2} />
+          <Circle cx={center} cy={center} r={inner - 10} fill={tone.base} opacity={0.14} />
         </Svg>
         <View pointerEvents="none" style={[styles.hub, { top: center - 16, left: center - 16 }]}>
-          <ModuleIcon id={current.id} color={MODULE_COLORS[current.id].base} size={32} />
+          <ModuleIcon id={current.id} color={isDark ? lighten(tone.base, 0.3) : tone.deep} size={30} strokeWidth={ICON_STROKE} />
         </View>
       </View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Módulo siguiente"
-        onPress={() => step(1)}
-        hitSlop={8}
-        style={[styles.arrow, { backgroundColor: colors.surface, borderColor: colors.border }]}
-      >
-        <ChevronRight color={colors.text} size={22} />
-      </Pressable>
+      <ArrowButton direction="next" onPress={() => step(1)} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
-  arrow: {
-    width: MIN_TOUCH - 8,
-    height: MIN_TOUCH,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  label: { position: 'absolute', alignItems: 'center', gap: 2, height: 68, justifyContent: 'flex-start', paddingTop: 2 },
-  labelText: { fontSize: 10, lineHeight: 12, letterSpacing: 0.6 },
+  arrow: { width: ARROW_WIDTH, height: MIN_TOUCH, alignItems: 'center', justifyContent: 'center' },
+  label: { position: 'absolute', alignItems: 'center', gap: 3, height: 76, justifyContent: 'flex-start' },
+  lockedLabel: { opacity: 0.8 },
+  labelText: { fontSize: 9.5, lineHeight: 11, letterSpacing: 0.5 },
   hub: { position: 'absolute', width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
 });

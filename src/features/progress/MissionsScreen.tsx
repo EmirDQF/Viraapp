@@ -5,20 +5,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RegiSays } from '@/components/regi/RegiMascot';
 import { AppText } from '@/components/ui/AppText';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { useTabBarSpace } from '@/components/ui/GlassTabBar';
+import { ScreenBackground } from '@/components/ui/ScreenBackground';
 import { ModulePath } from '@/features/progress/ModulePath';
 import { countCompletedModules, moduleOrder } from '@/lib/gamification/progress';
 import { useAppStore } from '@/store/useAppStore';
 import { radius, spacing } from '@/theme/tokens';
-import { useTheme } from '@/theme/useTheme';
 import type { ModuleId } from '@/types/game';
-import { useTabBarSpace } from '@/components/ui/GlassTabBar';
 
 const NOTICE_MS = 3200;
 
 /** Pestaña Misiones: el camino completo (6 temas × 13 etapas). Se puede volver a cualquier tema y rejugarlo. */
 export function MissionsScreen() {
   const tabSpace = useTabBarSpace();
-  const { colors } = useTheme();
   const modules = useAppStore((state) => state.modules);
   const name = useAppStore((state) => state.user?.name ?? '');
   const start = useAppStore((state) => state.onboarding.firstModule);
@@ -50,49 +50,49 @@ export function MissionsScreen() {
       : `Llevas ${completed} de ${order.length} temas. Puedes volver a cualquiera cuando quieras.`;
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>
-      <FlatList
-        data={order}
-        keyExtractor={(item) => item}
-        renderItem={renderItem}
-        contentContainerStyle={[styles.content, { paddingBottom: tabSpace }]}
-        initialNumToRender={2}
-        windowSize={5}
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <AppText variant="title" accessibilityRole="header">
-              El Recorrido
-            </AppText>
-            <RegiSays message={greeting} size={78} />
-          </View>
-        }
-      />
-      {notice ? (
-        <Animated.View
-          entering={FadeIn}
-          exiting={FadeOut}
-          accessibilityLiveRegion="polite"
-          style={[styles.toast, { backgroundColor: colors.text }]}
-        >
-          <AppText variant="bodyStrong" color={colors.background} align="center">
-            {notice}
-          </AppText>
-        </Animated.View>
-      ) : null}
-    </SafeAreaView>
+    <ScreenBackground>
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <FlatList
+          data={order}
+          keyExtractor={(item) => item}
+          renderItem={renderItem}
+          contentContainerStyle={[styles.content, { paddingBottom: tabSpace + spacing.lg }]}
+          initialNumToRender={2}
+          windowSize={5}
+          ListHeaderComponent={
+            <View style={styles.header}>
+              <AppText variant="overline" tone="muted" uppercase>
+                {completed} de {order.length} temas completados
+              </AppText>
+              <AppText variant="display" accessibilityRole="header">
+                El Recorrido
+              </AppText>
+              <RegiSays message={greeting} size={78} />
+            </View>
+          }
+        />
+        {notice ? (
+          <Animated.View
+            entering={FadeIn}
+            exiting={FadeOut}
+            accessibilityLiveRegion="polite"
+            style={[styles.toast, { bottom: tabSpace }]}
+          >
+            <GlassCard elevation="lg" radius={radius.lg}>
+              <AppText variant="bodyStrong" align="center">
+                {notice}
+              </AppText>
+            </GlassCard>
+          </Animated.View>
+        ) : null}
+      </SafeAreaView>
+    </ScreenBackground>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: spacing.lg, paddingBottom: spacing.xxxl },
-  header: { gap: spacing.md, marginBottom: spacing.lg },
-  toast: {
-    position: 'absolute',
-    left: spacing.lg,
-    right: spacing.lg,
-    bottom: spacing.lg,
-    padding: spacing.md,
-    borderRadius: radius.lg,
-  },
+  content: { paddingHorizontal: spacing.screen, paddingTop: spacing.md },
+  header: { gap: spacing.sm, marginBottom: spacing.xl },
+  toast: { position: 'absolute', left: spacing.screen, right: spacing.screen },
 });

@@ -1,14 +1,17 @@
 import { router } from 'expo-router';
 import { X } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ProgressBar } from '@/components/ProgressBar';
+import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { AppText } from '@/components/ui/AppText';
 import { Button3D } from '@/components/ui/Button3D';
 import { EmptyState } from '@/components/ui/ComingSoon';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { ScreenBackground } from '@/components/ui/ScreenBackground';
 import { getModuleContent } from '@/data/modules';
 import { MODULES } from '@/data/modules/catalog';
 import { SECTORS, STAGES, STAGES_PER_MODULE } from '@/data/stages';
@@ -18,10 +21,11 @@ import { StageMechanic } from '@/features/game/StageMechanic';
 import type { DecisionOutcome } from '@/features/game/types';
 import { useSfx } from '@/features/game/useSfx';
 import { goBackOrHome, replaceStage } from '@/features/game/navigation';
+import { lighten } from '@/lib/color';
 import { stageStatus } from '@/lib/gamification/progress';
 import { xpForStage, type StageResult } from '@/lib/gamification/xp';
 import { useAppStore } from '@/store/useAppStore';
-import { MIN_TOUCH, MODULE_COLORS, spacing } from '@/theme/tokens';
+import { MIN_TOUCH, MODULE_COLORS, radius, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import type { ModuleContent } from '@/types/content';
 import type { ModuleId } from '@/types/game';
@@ -73,21 +77,25 @@ export function StageScreen({ moduleId, stage }: { readonly moduleId: ModuleId; 
 
   if (!content || !stageDef) {
     return (
-      <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
-        <EmptyState title="No pudimos abrir esta etapa" message="Algo salió mal al cargar el contenido. Vuelve al recorrido e inténtalo de nuevo." pose="empathetic">
-          <Button3D label="Volver" onPress={goBackOrHome} />
-        </EmptyState>
-      </SafeAreaView>
+      <ScreenBackground variant="regi">
+        <SafeAreaView style={styles.safe}>
+          <EmptyState title="No pudimos abrir esta etapa" message="Algo salió mal al cargar el contenido. Vuelve al recorrido e inténtalo de nuevo." pose="empathetic">
+            <Button3D label="Volver" onPress={goBackOrHome} />
+          </EmptyState>
+        </SafeAreaView>
+      </ScreenBackground>
     );
   }
 
   if (initialStatus === 'locked') {
     return (
-      <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
-        <EmptyState title="Esta etapa aún está bloqueada" message="Completa la etapa anterior para llegar aquí. Paso a paso." pose="empathetic">
-          <Button3D label="Volver al recorrido" onPress={goBackOrHome} />
-        </EmptyState>
-      </SafeAreaView>
+      <ScreenBackground variant="regi">
+        <SafeAreaView style={styles.safe}>
+          <EmptyState title="Esta etapa aún está bloqueada" message="Completa la etapa anterior para llegar aquí. Paso a paso." pose="empathetic">
+            <Button3D label="Volver al recorrido" onPress={goBackOrHome} />
+          </EmptyState>
+        </SafeAreaView>
+      </ScreenBackground>
     );
   }
 
@@ -95,60 +103,71 @@ export function StageScreen({ moduleId, stage }: { readonly moduleId: ModuleId; 
   const hasNext = stage + 1 < STAGES_PER_MODULE;
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      <View style={styles.header}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Salir de la etapa" onPress={goBackOrHome} hitSlop={10} style={styles.close}>
-          <X color={colors.textMuted} size={26} />
-        </Pressable>
-        <View style={styles.headerText}>
-          <AppText variant="overline" tone="muted">
-            {MODULES[moduleId].name} · {sector?.title}
-          </AppText>
-          <AppText variant="subtitle" numberOfLines={1}>
-            {stageDef.title}
+    <ScreenBackground plain>
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <View style={styles.header}>
+          <AnimatedPressable accessibilityRole="button" accessibilityLabel="Salir de la etapa" onPress={goBackOrHome} hitSlop={10}>
+            <GlassCard padded={false} radius={radius.pill} style={styles.close}>
+              <View style={styles.close}>
+                <X color={colors.text} size={22} strokeWidth={2.5} />
+              </View>
+            </GlassCard>
+          </AnimatedPressable>
+          <View style={styles.headerText}>
+            <AppText variant="overline" tone="muted" uppercase>
+              {MODULES[moduleId].name} · {sector?.title}
+            </AppText>
+            <AppText variant="subtitle" numberOfLines={1}>
+              {stageDef.title}
+            </AppText>
+          </View>
+        </View>
+        <View style={styles.progress}>
+          <ProgressBar
+            value={(stage + (phase.kind === 'complete' ? 1 : 0)) / STAGES_PER_MODULE}
+            color={tone.base}
+            gradient={[lighten(tone.base, 0.3), tone.base, tone.deep]}
+            height={18}
+          />
+          <AppText variant="numberSmall" tone="muted">
+            {stage + 1}/{STAGES_PER_MODULE}
           </AppText>
         </View>
-      </View>
-      <View style={styles.progress}>
-        <ProgressBar value={(stage + (phase.kind === 'complete' ? 1 : 0)) / STAGES_PER_MODULE} color={tone.base} height={10} />
-        <AppText variant="caption" tone="muted">
-          {stage + 1}/{STAGES_PER_MODULE}
-        </AppText>
-      </View>
-      <View style={styles.body}>
-        {phase.kind === 'play' ? (
-          <ErrorBoundary
-            fallback={
-              <EmptyState title="Esta etapa tuvo un problema" message="No es tu culpa. Vuelve al recorrido e inténtalo de nuevo." pose="empathetic">
-                <Button3D label="Volver" onPress={goBackOrHome} />
-              </EmptyState>
-            }
-          >
-            <StageMechanic key={stage} stage={stage} content={content} moduleId={moduleId} tone={tone} onComplete={finish} onDecision={onDecision} />
-          </ErrorBoundary>
-        ) : null}
-        {phase.kind === 'mirror' ? <MirrorView firstChoiceGood={phase.result.firstChoiceGood} tone={tone} onContinue={() => finish(phase.result)} /> : null}
-        {phase.kind === 'complete' ? (
-          <StageComplete
-            xp={phase.xp}
-            score={phase.result.score}
-            bestCombo={phase.result.bestCombo}
-            tone={tone}
-            hasNext={hasNext}
-            onNext={() => replaceStage({ moduleId, stage: stage + 1 })}
-            onExit={goBackOrHome}
-          />
-        ) : null}
-      </View>
-    </SafeAreaView>
+        <View style={styles.body}>
+          {phase.kind === 'play' ? (
+            <ErrorBoundary
+              fallback={
+                <EmptyState title="Esta etapa tuvo un problema" message="No es tu culpa. Vuelve al recorrido e inténtalo de nuevo." pose="empathetic">
+                  <Button3D label="Volver" onPress={goBackOrHome} />
+                </EmptyState>
+              }
+            >
+              <StageMechanic key={stage} stage={stage} content={content} moduleId={moduleId} tone={tone} onComplete={finish} onDecision={onDecision} />
+            </ErrorBoundary>
+          ) : null}
+          {phase.kind === 'mirror' ? <MirrorView firstChoiceGood={phase.result.firstChoiceGood} tone={tone} onContinue={() => finish(phase.result)} /> : null}
+          {phase.kind === 'complete' ? (
+            <StageComplete
+              xp={phase.xp}
+              score={phase.result.score}
+              bestCombo={phase.result.bestCombo}
+              tone={tone}
+              hasNext={hasNext}
+              onNext={() => replaceStage({ moduleId, stage: stage + 1 })}
+              onExit={goBackOrHome}
+            />
+          ) : null}
+        </View>
+      </SafeAreaView>
+    </ScreenBackground>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.md, paddingTop: spacing.xs },
+  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.screen, paddingTop: spacing.xs },
   close: { width: MIN_TOUCH, height: MIN_TOUCH, alignItems: 'center', justifyContent: 'center' },
   headerText: { flex: 1 },
-  progress: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingBottom: spacing.sm },
-  body: { flex: 1, paddingHorizontal: spacing.lg, paddingBottom: spacing.md },
+  progress: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.screen, paddingVertical: spacing.md },
+  body: { flex: 1, paddingHorizontal: spacing.screen, paddingBottom: spacing.md },
 });

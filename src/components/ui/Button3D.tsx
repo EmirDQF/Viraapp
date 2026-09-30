@@ -175,7 +175,8 @@ export function Button3D({
             pointerEvents="none"
           />
         ) : null}
-        {loading ? <ActivityIndicator color={resolved.text} /> : icon}
+        {/* En web, el degradado (posicionado) se pinta sobre lo estático: ícono y etiqueta van en su capa. */}
+        {loading ? <ActivityIndicator color={resolved.text} /> : icon ? <View style={styles.layer}>{icon}</View> : null}
         <AppText
           variant="button"
           color={resolved.text}
@@ -205,6 +206,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   faceSmall: { paddingHorizontal: spacing.md },
+  layer: { position: 'relative' },
   gradient: { borderRadius: radius.md - 1.5 },
   gloss: { position: 'absolute', top: 0, left: 0, right: 0, height: '50%' },
   labelSmall: { fontSize: 13 },

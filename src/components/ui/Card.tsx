@@ -179,8 +179,9 @@ function CardBox({
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.xxl, borderWidth: 1 },
+  /** zIndex crea un contexto de apilamiento: el degradado (zIndex -1) queda sobre el fondo y bajo el contenido. */
+  card: { borderRadius: radius.xxl, borderWidth: 1, zIndex: 0 },
   fill: { flexGrow: 1 },
-  gradient: { borderRadius: radius.xxl },
+  gradient: { borderRadius: radius.xxl, zIndex: -1 },
   padded: { padding: spacing.lg },
 });

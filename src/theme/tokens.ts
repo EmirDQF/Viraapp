@@ -99,6 +99,8 @@ export const gradients = {
   regi: [brand.lilac, brand.lilacLight],
   regiButton: [brand.lilacDeep, brand.lilac],
   gold: [feedback.gold, brand.goldLight],
+  /** Verde-lima del espejo emocional positivo (anillo de "buena decisión"). */
+  growth: [feedback.victory, '#A3E635'],
   nightSky: [brand.petrolNight, brand.petrolNightMid],
   daySky: [brand.ivory, brand.ivoryDeep],
   danger: [feedback.retry, feedback.retryDeep],
@@ -112,6 +114,7 @@ export const onGradient: Readonly<Record<Exclude<GradientName, 'aurora' | 'regi'
   sunrise: brand.ink,
   regiButton: brand.white,
   gold: brand.ink,
+  growth: brand.ink,
   nightSky: brand.ivory,
   daySky: brand.ink,
   danger: brand.white,
