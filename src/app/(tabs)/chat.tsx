@@ -1,5 +1,3 @@
-import { ComingSoon } from '@/components/ui/ComingSoon';
+import { ChatScreen } from '@/features/chat/ChatScreen';
 
-export default function ChatTab() {
-  return <ComingSoon title="Chat con Regi" message="Muy pronto podrás conversar con Regi aquí." pose="empathetic" />;
-}
+export default ChatScreen;

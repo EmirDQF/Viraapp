@@ -45,3 +45,8 @@ coverage/
 
 # claude local settings
 .claude/settings.local.json
+
+# variables de entorno con secretos (se versiona solo .env.example)
+.env
+.env.*
+!.env.example

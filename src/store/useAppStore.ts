@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DEFAULT_PERSISTED, STORE_VERSION, migrateState } from '@/store/migrations';
+import { createChatSlice } from '@/store/slices/chatSlice';
 import { createGamificationSlice } from '@/store/slices/gamificationSlice';
 import { createProgressSlice } from '@/store/slices/progressSlice';
 import { createSettingsSlice } from '@/store/slices/settingsSlice';
@@ -22,6 +23,7 @@ export const useAppStore = create<AppState>()(
       ...createProgressSlice(...args),
       ...createGamificationSlice(...args),
       ...createSettingsSlice(...args),
+      ...createChatSlice(...args),
       resetAll: () => args[0]({ ...DEFAULT_PERSISTED }),
     }),
     {
@@ -45,6 +47,7 @@ export const useAppStore = create<AppState>()(
         badges: state.badges,
         settings: state.settings,
         legacy: state.legacy,
+        chatMessages: state.chatMessages,
       }),
     },
   ),

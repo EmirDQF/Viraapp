@@ -27,6 +27,14 @@ export interface Settings {
   readonly dailyReminder: { readonly enabled: boolean; readonly hour: number; readonly minute: number };
 }
 
+export interface ChatMessage {
+  readonly id: string;
+  readonly role: 'user' | 'assistant';
+  readonly text: string;
+  /** Marca de tiempo ISO. */
+  readonly createdAt: string;
+}
+
 export interface LegacyData {
   readonly activeCrucible: string | null;
   readonly crucibleProgress: unknown;
@@ -47,6 +55,8 @@ export interface PersistedState {
   readonly badges: readonly string[];
   readonly settings: Settings;
   readonly legacy: LegacyData | null;
+  /** Conversación con Regi: se guarda solo en el teléfono y se borra con "Borrón y cuenta nueva". */
+  readonly chatMessages: readonly ChatMessage[];
 }
 
 export interface UserActions {
@@ -67,6 +77,13 @@ export interface GamificationActions {
   earnReward: (badge: string | null) => void;
 }
 
+export interface ChatActions {
+  addChatMessage: (message: ChatMessage) => void;
+  appendToChatMessage: (id: string, text: string) => void;
+  replaceChatMessage: (id: string, text: string) => void;
+  clearChat: () => void;
+}
+
 export interface SettingsActions {
   updateSettings: (patch: Partial<Settings>) => void;
 }
@@ -76,4 +93,10 @@ export interface RootActions {
   resetAll: () => void;
 }
 
-export type AppState = PersistedState & UserActions & ProgressActions & GamificationActions & SettingsActions & RootActions;
+export type AppState = PersistedState &
+  UserActions &
+  ProgressActions &
+  GamificationActions &
+  SettingsActions &
+  ChatActions &
+  RootActions;

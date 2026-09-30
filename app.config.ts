@@ -34,9 +34,12 @@ const config: ExpoConfig = {
   web: {
     favicon: './assets/favicon.png',
     bundler: 'metro',
+    // Salida "server" para habilitar las rutas de API (src/app/api/chat+api.ts) con la clave solo en el servidor.
+    output: 'server',
   },
   plugins: [
-    'expo-router',
+    // `origin`: dónde está desplegada la API, para que la app instalada resuelva /api/chat en producción.
+    ['expo-router', process.env.EXPO_PUBLIC_API_ORIGIN ? { origin: process.env.EXPO_PUBLIC_API_ORIGIN } : {}],
     'expo-font',
     [
       'expo-splash-screen',

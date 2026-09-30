@@ -35,13 +35,23 @@ export const DEFAULT_PERSISTED: PersistedState = {
   badges: [],
   settings: DEFAULT_SETTINGS,
   legacy: null,
+  chatMessages: [],
 };
+
+/** Máximo de mensajes de chat guardados en el teléfono. */
+export const MAX_CHAT_MESSAGES = 100;
 
 const isoDay = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const moduleId = z.enum(MODULE_ORDER as [string, ...string[]]);
 const permission = z.enum(['granted', 'denied', 'skipped', 'unknown']);
 
 const userSchema = z.object({ name: z.string().min(1).max(40), birthDate: isoDay, createdAt: z.string() });
+const chatMessageSchema = z.object({
+  id: z.string().min(1),
+  role: z.enum(['user', 'assistant']),
+  text: z.string().max(8000),
+  createdAt: z.string(),
+});
 const streakSchema = z.object({ count: z.number().int().min(0), lastActiveDate: isoDay.nullable() });
 const moduleProgressSchema = z.object({
   completedStages: z.array(z.number().int().min(0).max(12)),
@@ -117,6 +127,7 @@ function readV2(raw: Record<string, unknown>): PersistedState {
     badges: safe(z.array(z.string()), raw.badges, []),
     settings: readSettings(raw.settings),
     legacy,
+    chatMessages: safe(z.array(chatMessageSchema), raw.chatMessages, []).slice(-MAX_CHAT_MESSAGES),
   };
 }
 
