@@ -17,7 +17,7 @@ import { isModuleComplete } from '@/lib/gamification/progress';
 import { MODULE_COMPLETE_BONUS, levelInfo } from '@/lib/gamification/xp';
 import { haptic } from '@/lib/haptics';
 import { useAppStore } from '@/store/useAppStore';
-import { MODULE_COLORS, feedback, radius, spacing } from '@/theme/tokens';
+import { MODULE_COLORS, brand, feedback, radius, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import type { ModuleId } from '@/types/game';
 
@@ -35,7 +35,7 @@ function LevelLine({ level }: { readonly level: number }) {
         return (
           <View key={index} style={styles.levelItem}>
             <View style={[styles.levelIcon, { backgroundColor: reached ? feedback.gold : colors.disabled }]}>
-              <Icon color={reached ? colors.text : colors.textMuted} size={16} />
+              <Icon color={reached ? brand.ink : colors.textMuted} size={16} />
             </View>
             <AppText variant="caption" tone={reached ? 'default' : 'muted'}>
               {index + 1}

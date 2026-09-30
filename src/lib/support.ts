@@ -24,6 +24,8 @@ export function whatsappUrl(phone: string, text: string): string {
   return `https://wa.me/${normalizePhone(phone).replace('+', '')}?text=${encodeURIComponent(text)}`;
 }
 
-export function smsUrl(phones: readonly string[], text: string): string {
-  return `sms:${phones.map(normalizePhone).join(',')}?body=${encodeURIComponent(text)}`;
+/** Enlace sms: con el texto ya escrito. iOS separa el cuerpo con "&" y Android con "?". */
+export function smsUrl(phones: readonly string[], text: string, platform: 'ios' | 'other' = 'other'): string {
+  const separator = platform === 'ios' ? '&' : '?';
+  return `sms:${phones.map(normalizePhone).join(',')}${separator}body=${encodeURIComponent(text)}`;
 }

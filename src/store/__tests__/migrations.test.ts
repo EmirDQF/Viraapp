@@ -60,4 +60,55 @@ describe('migrateState', () => {
     const v2 = { ...DEFAULT_PERSISTED, xp: 50, dailyGoalMinutes: 15 };
     expect(migrateState(v2, 2)).toEqual(v2);
   });
+  test('bienestar: descarta solo los registros corruptos y conserva los válidos', () => {
+    const impulse = {
+      id: 'i1',
+      title: 'Comprar',
+      minutes: 20,
+      createdAt: '2026-09-30T10:00:00.000Z',
+      endsAt: '2026-09-30T10:20:00.000Z',
+      status: 'waiting',
+      resolvedAt: null,
+      notificationId: null,
+    };
+    const raw = {
+      ...DEFAULT_PERSISTED,
+      impulses: [impulse, { ...impulse, id: 'i2', endsAt: 'no-es-fecha' }, { ...impulse, id: 'i3', status: 'otro' }, { ...impulse, id: 'i4', minutes: 500 }],
+      evidence: [
+        { id: 'e1', title: 'Aprobé', icon: 'trophy', date: '2026-09-01', source: 'manual' },
+        { id: 'e2', title: 'Mal ícono', icon: 'bomba', date: '2026-09-01', source: 'manual' },
+      ],
+      contacts: [
+        { id: 'c1', name: 'Mamá', phone: '+51987654321' },
+        { id: 'c2', name: 'Raro', phone: 'sms:1;evil' },
+        { id: 'c3', name: 'B', phone: '987654322' },
+        { id: 'c4', name: 'C', phone: '987654323' },
+        { id: 'c5', name: 'D', phone: '987654324' },
+      ],
+      anchorPhotoUri: 42,
+    };
+    const migrated = migrateState(raw, 2);
+    expect(migrated.impulses.map((item) => item.id)).toEqual(['i1']);
+    expect(migrated.evidence.map((item) => item.id)).toEqual(['e1']);
+    expect(migrated.contacts.map((item) => item.id)).toEqual(['c1', 'c3', 'c4']);
+    expect(migrated.anchorPhotoUri).toBeNull();
+  });
+
+  test('ajustes: streakRisk falta en datos antiguos y se asume apagado', () => {
+    const { streakRisk: _omit, ...oldSettings } = DEFAULT_PERSISTED.settings;
+    const migrated = migrateState({ ...DEFAULT_PERSISTED, settings: { ...oldSettings, sounds: false } }, 2);
+    expect(migrated.settings.streakRisk).toBe(false);
+    expect(migrated.settings.sounds).toBe(false);
+  });
+
+  test('legacy corrupto se descarta en lugar de pasar sin validar', () => {
+    const migrated = migrateState({ ...DEFAULT_PERSISTED, legacy: 'basura' }, 2);
+    expect(migrated.legacy).toBeNull();
+  });
+
+  test('legacy válido se conserva en v2', () => {
+    const legacy = { activeCrucible: 'academic', crucibleProgress: { academic: {} } };
+    const migrated = migrateState({ ...DEFAULT_PERSISTED, legacy }, 2);
+    expect(migrated.legacy).toEqual(legacy);
+  });
 });

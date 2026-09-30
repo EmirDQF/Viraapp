@@ -5,13 +5,27 @@ export type HapticKind = 'light' | 'medium' | 'selection' | 'success' | 'error' 
 
 const isSupported = Platform.OS === 'ios' || Platform.OS === 'android';
 
+/**
+ * Interruptor global que refleja el ajuste "Vibración". Lo sincroniza el layout raíz con el store, para
+ * que cualquier `haptic()` (botones, juego, dial) respete la preferencia sin leer el store desde `lib/`.
+ */
+let enabled = true;
+
+export function setHapticsEnabled(value: boolean): void {
+  enabled = value;
+}
+
+export function hapticsEnabled(): boolean {
+  return enabled;
+}
+
 function run(effect: () => Promise<void>): void {
   // La vibración es un extra: si el dispositivo no la soporta, se ignora sin interrumpir al usuario.
   effect().catch(() => undefined);
 }
 
 export function haptic(kind: HapticKind): void {
-  if (!isSupported || kind === 'none') {
+  if (!isSupported || !enabled || kind === 'none') {
     return;
   }
   switch (kind) {

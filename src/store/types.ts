@@ -27,6 +27,8 @@ export interface Settings {
   readonly sounds: boolean;
   readonly haptics: boolean;
   readonly dailyReminder: { readonly enabled: boolean; readonly hour: number; readonly minute: number };
+  /** Aviso a las 20:00 si hay racha y aún no practicaste hoy (opcional, apagado por defecto). */
+  readonly streakRisk: boolean;
 }
 
 export interface ChatMessage {

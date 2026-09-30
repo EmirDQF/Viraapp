@@ -4,7 +4,6 @@ import Animated, {
   Easing,
   cancelAnimation,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withDelay,
   withTiming,
@@ -21,6 +20,7 @@ import { shuffle } from '@/lib/shuffle';
 import { MIN_TOUCH, radius, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import type { WordRainContent } from '@/types/content';
+import { useReduceMotion } from '@/theme/useReduceMotion';
 
 /** 16 palabras en ~45 s: una nueva cada 2,5 s y cada una tarda 6 s en caer. */
 const SPAWN_EVERY_MS = 2500;
@@ -88,7 +88,7 @@ const FallingWord = memo(function FallingWord({ drop, height, left, fallMs, stat
 /** Lluvia de palabras: atrapa las buenas, esquiva las malas. */
 export function WordRainMechanic({ content, tone, onComplete }: MechanicProps<WordRainContent>) {
   const { colors } = useTheme();
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const score = useStageScore();
   const [started, setStarted] = useState(false);
   const [size, setSize] = useState({ width: 0, height: 0 });

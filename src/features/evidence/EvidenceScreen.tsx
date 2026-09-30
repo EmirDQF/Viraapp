@@ -83,6 +83,7 @@ function AddEvidenceSheet({ visible, onClose }: { readonly visible: boolean; rea
               key={key}
               accessibilityRole="radio"
               accessibilityState={{ checked: icon === key }}
+              aria-checked={icon === key}
               accessibilityLabel={`Ícono ${key}`}
               onPress={() => setIcon(key)}
               style={[styles.iconPick, { borderColor: icon === key ? GOLD.deep : feedback.gold, backgroundColor: icon === key ? feedback.gold : GOLD.soft }]}

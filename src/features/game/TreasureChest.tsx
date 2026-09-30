@@ -1,6 +1,7 @@
+import { useReduceMotion } from '@/theme/useReduceMotion';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 /** Colores de ilustración del cofre (constante de ilustración, como REGI y LOGO). */
@@ -20,7 +21,7 @@ interface TreasureChestProps {
 
 /** Cofre animado: la tapa se levanta y aparece un brillo dorado suave. */
 export function TreasureChest({ open, size = 180 }: TreasureChestProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const progress = useSharedValue(0);
 
   useEffect(() => {

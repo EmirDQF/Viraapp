@@ -2,10 +2,11 @@ import { useEffect, useMemo } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 
-import { palette } from '@/theme/tokens';
+import { MODULE_COLORS, brand, feedback } from '@/theme/tokens';
+import { useReduceMotion } from '@/theme/useReduceMotion';
 
 const PIECES = 36;
-const COLORS = [palette.amber, palette.phoenix, palette.victory, palette.sageLight, '#F7A8C0', '#60A5FA'];
+const COLORS = [feedback.gold, brand.coral, feedback.victory, brand.sage, MODULE_COLORS.enfriador.base, brand.petrolBright];
 
 interface PieceSpec {
   readonly x: number;
@@ -69,6 +70,9 @@ function buildPieces(width: number): readonly PieceSpec[] {
 export function Confetti() {
   const { width, height } = useWindowDimensions();
   const pieces = useMemo(() => buildPieces(width), [width]);
+  const reduceMotion = useReduceMotion();
+  // Con "reducir movimiento" el confeti no aporta información: se omite.
+  if (reduceMotion) return null;
 
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>

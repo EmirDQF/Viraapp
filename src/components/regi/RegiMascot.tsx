@@ -4,7 +4,6 @@ import Animated, {
   Easing,
   cancelAnimation,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withRepeat,
   withTiming,
@@ -20,6 +19,7 @@ import { Hands } from '@/components/regi/Hands';
 import { REGI, clampGlow, regiAccessibilityLabel, regiPalette, type RegiColors, type RegiPose } from '@/lib/regi';
 import { radius, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
+import { useReduceMotion } from '@/theme/useReduceMotion';
 
 export type { RegiPose } from '@/lib/regi';
 
@@ -75,7 +75,7 @@ const RegiBackdrop = memo(function RegiBackdrop({
 
 /** Regi, el ajolote guía de VIRA. Respira despacio y respeta "reducir movimiento". */
 export function RegiMascot({ pose = 'calm', size = 160, glow = 0, glowColor = REGI.leafHalo }: RegiMascotProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const value = clampGlow(glow);
   // Id único por instancia: en web los <defs> de SVG son globales y colisionarían entre varios Regi.
   const gradientId = `regiGlow-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;

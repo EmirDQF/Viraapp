@@ -17,7 +17,8 @@ async function open(url: string): Promise<void> {
   }
 }
 
-function HelplineRow({ line }: { readonly line: Helpline }) {
+/** Una línea de ayuda con botón de llamada (y WhatsApp si existe). También la usa "Sobre VIRA". */
+export function HelplineRow({ line }: { readonly line: Helpline }) {
   const { colors } = useTheme();
   return (
     <View style={[styles.line, { borderColor: colors.border, backgroundColor: colors.surface }]}>

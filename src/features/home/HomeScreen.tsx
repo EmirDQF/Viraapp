@@ -30,7 +30,7 @@ const DIAL_ORDER: readonly ModuleId[] = ['hoy', 'freno', 'descarga', 'enfriador'
 
 
 function StatsRow() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const xp = useAppStore((state) => state.xp);
   const streak = visibleStreak(useAppStore((state) => state.streak));
   return (
@@ -40,7 +40,7 @@ function StatsRow() {
         accessibilityLabel={`Racha de ${streak} ${streak === 1 ? 'día' : 'días'}`}
         icon={<Flame color={colors.accentShadow} size={16} fill={streak > 0 ? colors.accent : 'none'} />}
       />
-      <ViraLogo size={64} />
+      <ViraLogo size={64} tone={isDark ? 'onDark' : 'onLight'} />
       <Badge label={`${xp} XP`} accessibilityLabel={`${xp} puntos de experiencia`} icon={<Zap color={colors.highlight} size={16} />} />
     </View>
   );

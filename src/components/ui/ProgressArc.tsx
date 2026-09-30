@@ -1,10 +1,11 @@
 import { useEffect, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { Easing, useAnimatedProps, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedProps, useSharedValue, withTiming } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
 
 import { clampProgress } from '@/components/ui/ProgressRing';
 import { useTheme } from '@/theme/useTheme';
+import { useReduceMotion } from '@/theme/useReduceMotion';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
@@ -38,7 +39,7 @@ export function arcPath(size: number, strokeWidth: number): string {
 /** Arco de progreso que rodea a Regi en el Inicio: cuánto falta para desbloquear el siguiente tema. */
 export function ProgressArc({ value, size = 280, strokeWidth = 16, color, trackColor, children, accessibilityLabel }: ProgressArcProps) {
   const { colors } = useTheme();
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const progress = useSharedValue(0);
   const r = size / 2 - strokeWidth / 2;
   const length = (2 * Math.PI * r * SWEEP_DEG) / 360;

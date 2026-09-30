@@ -51,7 +51,7 @@ function Stats({ impulses }: { readonly impulses: readonly Impulse[] }) {
   ] as const;
   return (
     <View style={styles.stats}>
-      <Card tone="color" color={TONE.soft}>
+      <Card tone="color" color={TONE.soft} accessibilityLabel={`${Math.round(stats.resistRate * 100)}% de las veces esperaste y el impulso pasó`}>
         <AppText variant="display" color={TONE.deep} align="center">
           {Math.round(stats.resistRate * 100)}%
         </AppText>

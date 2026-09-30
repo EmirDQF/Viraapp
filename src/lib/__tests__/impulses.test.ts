@@ -54,4 +54,10 @@ describe('buzón de impulsos', () => {
     expect(impulseStats(list)).toEqual({ total: 4, waiting: 1, resisted: 2, gaveIn: 1, discarded: 0, resistRate: 2 / 3 });
     expect(impulseStats([]).resistRate).toBe(0);
   });
+  test('una fecha de fin ilegible cuenta como vencida, nunca "NaN:NaN"', () => {
+    const broken = { ...createImpulse('i9', 'Algo', 10, now), endsAt: 'no-es-fecha' };
+    expect(remainingMs(broken, now)).toBe(0);
+    expect(isDue(broken, now)).toBe(true);
+    expect(formatCountdown(remainingMs(broken, now))).toBe('00:00');
+  });
 });

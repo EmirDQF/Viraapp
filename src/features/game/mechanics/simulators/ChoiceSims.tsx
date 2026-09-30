@@ -23,6 +23,7 @@ function Toggle({ label, detail, selected, onPress }: { readonly label: string; 
     <Pressable
       accessibilityRole="checkbox"
       accessibilityState={{ checked: selected }}
+      aria-checked={selected}
       accessibilityLabel={label}
       onPress={onPress}
       style={[styles.toggle, { borderColor: selected ? colors.highlight : colors.border, backgroundColor: selected ? colors.surfaceAlt : colors.surface }]}

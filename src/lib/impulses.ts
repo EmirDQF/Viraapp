@@ -16,8 +16,8 @@ export interface Impulse {
 
 export const TIMER_OPTIONS: readonly number[] = [5, 10, 20, 30];
 export const DEFAULT_TIMER = 20;
-const MIN_MINUTES = 1;
-const MAX_MINUTES = 120;
+export const MIN_MINUTES = 1;
+export const MAX_MINUTES = 120;
 const MINUTE_MS = 60 * 1000;
 export const IMPULSE_TITLE_MAX = 60;
 
@@ -42,7 +42,10 @@ export function createImpulse(id: string, title: string, minutes: number, now: D
 }
 
 export function remainingMs(impulse: Impulse, now: Date = new Date()): number {
-  return Math.max(0, Date.parse(impulse.endsAt) - now.getTime());
+  const end = Date.parse(impulse.endsAt);
+  // Una fecha ilegible cuenta como vencida: mejor pedir la decisión que mostrar "NaN:NaN".
+  if (!Number.isFinite(end)) return 0;
+  return Math.max(0, end - now.getTime());
 }
 
 export function isDue(impulse: Impulse, now: Date = new Date()): boolean {

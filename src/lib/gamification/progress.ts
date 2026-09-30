@@ -51,6 +51,11 @@ export function countCompletedModules(modules: ModulesProgress): number {
   return MODULE_ORDER.filter((id) => isModuleComplete(id, modules)).length;
 }
 
+/** Total de etapas completadas en todos los módulos (estadística de la pestaña Mi). */
+export function countCompletedStages(modules: ModulesProgress): number {
+  return MODULE_ORDER.reduce((total, id) => total + progressOf(id, modules).completedStages.length, 0);
+}
+
 /** Primer módulo sin completar (el que el usuario está trabajando); null si terminó todo. */
 export function currentModule(modules: ModulesProgress, start: ModuleId | null = null): ModuleId | null {
   return moduleOrder(start).find((id) => !isModuleComplete(id, modules)) ?? null;

@@ -37,7 +37,12 @@ export function Card({
   ];
 
   if (!onPress) {
-    return <View style={baseStyle}>{children}</View>;
+    // Con etiqueta, la tarjeta se anuncia como un solo elemento (p. ej. "62% de las veces…").
+    return (
+      <View style={baseStyle} accessible={accessibilityLabel !== undefined} accessibilityLabel={accessibilityLabel}>
+        {children}
+      </View>
+    );
   }
   return (
     <Pressable

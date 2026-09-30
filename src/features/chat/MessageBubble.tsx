@@ -4,7 +4,6 @@ import Animated, {
   FadeInUp,
   cancelAnimation,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withRepeat,
   withTiming,
@@ -15,10 +14,11 @@ import { AppText } from '@/components/ui/AppText';
 import type { ChatMessage } from '@/store/types';
 import { radius, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
+import { useReduceMotion } from '@/theme/useReduceMotion';
 
 function TypingDots() {
   const { colors } = useTheme();
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const pulse = useSharedValue(0.4);
   useEffect(() => {
     if (reduceMotion) return;

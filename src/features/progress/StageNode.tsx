@@ -4,7 +4,6 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   cancelAnimation,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withRepeat,
   withTiming,
@@ -15,6 +14,7 @@ import { AppText } from '@/components/ui/AppText';
 import { MODULE_COLORS, type ModuleTone } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import type { ModuleId, StageDef, UnlockStatus } from '@/types/game';
+import { useReduceMotion } from '@/theme/useReduceMotion';
 
 const NODE = 66;
 const LIP = 6;
@@ -35,7 +35,7 @@ interface StageNodeProps {
 }
 
 function PulseRing({ tone }: { readonly tone: ModuleTone }) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const pulse = useSharedValue(0);
   useEffect(() => {
     if (reduceMotion) return;

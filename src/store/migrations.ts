@@ -5,6 +5,7 @@
 import { z } from 'zod';
 
 import { MODULE_ORDER } from '@/data/modules/catalog';
+import { MAX_MINUTES, MIN_MINUTES } from '@/lib/impulses';
 import { MAX_CONTACTS } from '@/lib/support';
 import { EVIDENCE_ICONS, type PersistedState, type Settings } from '@/store/types';
 
@@ -16,6 +17,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sounds: true,
   haptics: true,
   dailyReminder: { enabled: false, hour: 19, minute: 0 },
+  streakRisk: false,
 };
 
 export const DEFAULT_PERSISTED: PersistedState = {
@@ -57,14 +59,16 @@ const chatMessageSchema = z.object({
   text: z.string().max(8000),
   createdAt: z.string(),
 });
+/** Marca de tiempo legible por Date.parse: una fecha corrupta no debe llegar a la cuenta atrás. */
+const isoDateTime = z.string().refine((value) => !Number.isNaN(Date.parse(value)));
 const impulseSchema = z.object({
   id: z.string().min(1),
   title: z.string().max(80),
-  minutes: z.number().int().min(1).max(120),
-  createdAt: z.string(),
-  endsAt: z.string(),
+  minutes: z.number().int().min(MIN_MINUTES).max(MAX_MINUTES),
+  createdAt: isoDateTime,
+  endsAt: isoDateTime,
   status: z.enum(['waiting', 'resisted', 'gave_in', 'discarded']),
-  resolvedAt: z.string().nullable(),
+  resolvedAt: isoDateTime.nullable(),
   notificationId: z.string().nullable(),
 });
 const evidenceSchema = z.object({
@@ -74,7 +78,8 @@ const evidenceSchema = z.object({
   date: isoDay,
   source: z.enum(['manual', 'game']),
 });
-const contactSchema = z.object({ id: z.string().min(1), name: z.string().min(1).max(40), phone: z.string().min(3).max(20) });
+const contactSchema = z.object({ id: z.string().min(1), name: z.string().min(1).max(40), phone: z.string().regex(/^\+?\d{3,15}$/) });
+const legacySchema = z.object({ activeCrucible: z.string().nullable(), crucibleProgress: z.unknown() }).nullable();
 const streakSchema = z.object({ count: z.number().int().min(0), lastActiveDate: isoDay.nullable() });
 const moduleProgressSchema = z.object({
   // Se eliminan duplicados: datos corruptos como [0,0,0…] no deben contar como módulo completo.
@@ -89,6 +94,15 @@ const moduleProgressSchema = z.object({
 function safe<T>(schema: z.ZodType<T>, value: unknown, fallback: T): T {
   const result = schema.safeParse(value);
   return result.success ? result.data : fallback;
+}
+
+/** Lista validada elemento a elemento: un registro corrupto se descarta sin perder los demás. */
+function safeList<T>(schema: z.ZodType<T>, value: unknown): T[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    const result = schema.safeParse(item);
+    return result.success ? [result.data] : [];
+  });
 }
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -117,6 +131,7 @@ function readSettings(value: unknown): Settings {
       hour: safe(z.number().int().min(0).max(23), reminder.hour, DEFAULT_SETTINGS.dailyReminder.hour),
       minute: safe(z.number().int().min(0).max(59), reminder.minute, DEFAULT_SETTINGS.dailyReminder.minute),
     },
+    streakRisk: safe(z.boolean(), raw.streakRisk, DEFAULT_SETTINGS.streakRisk),
   };
 }
 
@@ -140,7 +155,7 @@ function readOnboarding(value: unknown, hasUser: boolean): PersistedState['onboa
 function readV2(raw: Record<string, unknown>): PersistedState {
   const user = safe(userSchema.nullable(), raw.user, null);
   const lastPlayed = safe(z.object({ moduleId, stage: z.number().int().min(0).max(12) }).nullable(), raw.lastPlayed, null);
-  const legacy = raw.legacy === undefined || raw.legacy === null ? null : (raw.legacy as PersistedState['legacy']);
+  const legacy = safe(legacySchema, raw.legacy, null);
   return {
     user,
     onboarding: readOnboarding(raw.onboarding, user !== null),
@@ -156,9 +171,9 @@ function readV2(raw: Record<string, unknown>): PersistedState {
     settings: readSettings(raw.settings),
     legacy,
     chatMessages: safe(z.array(chatMessageSchema), raw.chatMessages, []).slice(-MAX_CHAT_MESSAGES),
-    impulses: safe(z.array(impulseSchema), raw.impulses, []),
-    evidence: safe(z.array(evidenceSchema), raw.evidence, []),
-    contacts: safe(z.array(contactSchema), raw.contacts, []).slice(0, MAX_CONTACTS),
+    impulses: safeList(impulseSchema, raw.impulses),
+    evidence: safeList(evidenceSchema, raw.evidence),
+    contacts: safeList(contactSchema, raw.contacts).slice(0, MAX_CONTACTS),
     anchorPhotoUri: safe(z.string().nullable(), raw.anchorPhotoUri, null),
   };
 }

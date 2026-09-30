@@ -97,6 +97,11 @@ export async function cancelStreakRisk(): Promise<void> {
   await cancelNotification(STREAK_ID);
 }
 
+/** "Borrar mis datos": ningún aviso programado debe sobrevivir al borrado. */
+export async function cancelAllNotifications(): Promise<void> {
+  await safely(() => Notifications.cancelAllScheduledNotificationsAsync());
+}
+
 /** Pantalla ancla: una invitación a mirar tu foto feliz dentro de unos minutos. */
 export async function scheduleAnchorNudge(minutes: number): Promise<string | null> {
   return safely(() =>

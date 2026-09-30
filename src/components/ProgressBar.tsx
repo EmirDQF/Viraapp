@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { withAlpha } from '@/lib/color';
 import { brand, radius } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
+import { useReduceMotion } from '@/theme/useReduceMotion';
 
 interface ProgressBarProps {
   readonly value: number; // 0..1
@@ -17,7 +18,7 @@ const clamp = (value: number) => Math.min(1, Math.max(0, Number.isFinite(value) 
 /** Barra de progreso animada con brillo; en 0 no muestra relleno. */
 export function ProgressBar({ value, color, height = 16 }: ProgressBarProps) {
   const { colors } = useTheme();
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const progress = useSharedValue(clamp(value));
 
   useEffect(() => {

@@ -21,5 +21,6 @@ describe('apoyo cercano', () => {
 
   test('arma el enlace SMS para uno o varios contactos', () => {
     expect(smsUrl(['+51987', '+51988'], 'Hola')).toBe('sms:+51987,+51988?body=Hola');
+    expect(smsUrl(['+51987'], 'Hola', 'ios')).toBe('sms:+51987&body=Hola');
   });
 });

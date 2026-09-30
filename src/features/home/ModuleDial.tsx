@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight, Lock } from 'lucide-react-native';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { scheduleOnRN } from 'react-native-worklets';
 
@@ -14,6 +14,7 @@ import { haptic } from '@/lib/haptics';
 import { MIN_TOUCH, MODULE_COLORS, radius } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import type { ModuleId, UnlockStatus } from '@/types/game';
+import { useReduceMotion } from '@/theme/useReduceMotion';
 
 const SPRING = { damping: 16, stiffness: 140 } as const;
 const WEDGE_GAP_DEG = 1.2;
@@ -58,7 +59,7 @@ const WedgeLabel = memo(function WedgeLabel({ id, angle, size, midRadius, locked
 /** Ruleta "Mente Resiliente": gira con el dedo, encaja en el gajo y lo marca arriba. */
 export function ModuleDial({ modules, selected, statuses, onSelect, size = 300 }: ModuleDialProps) {
   const { colors } = useTheme();
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const count = modules.length;
   const segment = 360 / count;
   const center = size / 2;

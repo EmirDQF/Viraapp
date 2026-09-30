@@ -100,7 +100,7 @@ export function SupportScreen() {
   const [adding, setAdding] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const message = alertMessage(userName);
-  const phones = contacts.map((contact) => contact.phone);
+  const phones = contacts.map((contact) => normalizePhone(contact.phone)).filter(Boolean);
 
   const sendSms = async () => {
     haptic('medium');
@@ -112,7 +112,7 @@ export function SupportScreen() {
     } catch {
       // Si el compositor de SMS falla, probamos con el enlace sms: estándar.
     }
-    if (!(await openUrl(smsUrl(phones, message)))) setStatus('No se pudo abrir los mensajes. Prueba con WhatsApp o llama directamente.');
+    if (!(await openUrl(smsUrl(phones, message, Platform.OS === 'ios' ? 'ios' : 'other')))) setStatus('No se pudo abrir los mensajes. Prueba con WhatsApp o llama directamente.');
   };
 
   return (

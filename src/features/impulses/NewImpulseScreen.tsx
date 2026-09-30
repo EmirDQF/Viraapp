@@ -64,6 +64,7 @@ export function NewImpulseScreen() {
               key={preset.title}
               accessibilityRole="button"
               accessibilityLabel={`Usar: ${preset.title}`}
+              accessibilityState={{ selected: title === preset.title }}
               onPress={() => setTitle(preset.title)}
               style={[styles.chip, { borderColor: title === preset.title ? TONE.base : colors.border, backgroundColor: title === preset.title ? TONE.soft : colors.surface }]}
             >
@@ -87,6 +88,7 @@ export function NewImpulseScreen() {
               key={option}
               accessibilityRole="radio"
               accessibilityState={{ checked: minutes === option }}
+              aria-checked={minutes === option}
               accessibilityLabel={`${option} minutos`}
               onPress={() => setMinutes(option)}
               style={[styles.timer, { backgroundColor: minutes === option ? TONE.base : colors.surface, borderColor: minutes === option ? TONE.base : colors.border }]}

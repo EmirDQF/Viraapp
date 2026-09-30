@@ -40,6 +40,7 @@ export function FirstModuleStep({ selected, onSelect, onBack, onFinish }: FirstM
               key={id}
               accessibilityRole="radio"
               accessibilityState={{ checked: isSelected }}
+              aria-checked={isSelected}
               accessibilityLabel={`${meta.name}. ${meta.tagline}`}
               onPress={() => {
                 haptic('selection');

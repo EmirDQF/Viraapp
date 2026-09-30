@@ -5,7 +5,6 @@ import Animated, {
   FadeIn,
   cancelAnimation,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withRepeat,
   withTiming,
@@ -19,6 +18,7 @@ import { haptic } from '@/lib/haptics';
 import { radius, spacing } from '@/theme/tokens';
 import { fontFamily } from '@/theme/typography';
 import { useTheme } from '@/theme/useTheme';
+import { useReduceMotion } from '@/theme/useReduceMotion';
 
 /** En el simulador, 20 minutos reales se representan con 20 segundos. */
 const IMPULSE_SECONDS = 20;
@@ -113,7 +113,7 @@ export function ImpulseTimerSim({ content, tone, onDone }: SimProps) {
 
 /** Freno de Mano: escribir cómo te sientes y hacer una pausa guiada de 10 segundos. */
 export function PauseBreathSim({ content, tone, onDone }: SimProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const [feeling, setFeeling] = useState('');
   const [running, setRunning] = useState(false);
   const remaining = useCountdown(PAUSE_SECONDS, running);

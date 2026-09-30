@@ -1,9 +1,10 @@
 import { useEffect, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { Easing, useAnimatedProps, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedProps, useSharedValue, withTiming } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 
 import { useTheme } from '@/theme/useTheme';
+import { useReduceMotion } from '@/theme/useReduceMotion';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -32,7 +33,7 @@ export function ProgressRing({
   durationMs = 500,
 }: ProgressRingProps) {
   const { colors } = useTheme();
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const progress = useSharedValue(clampProgress(value));
   const r = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * r;

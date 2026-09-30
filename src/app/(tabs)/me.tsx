@@ -1,5 +1,5 @@
-import { ComingSoon } from '@/components/ui/ComingSoon';
+import { ProfileScreen } from '@/features/profile/ProfileScreen';
 
 export default function MeTab() {
-  return <ComingSoon title="Mi espacio" message="Tu perfil, tus logros y tus ajustes vivirán aquí." />;
+  return <ProfileScreen />;
 }

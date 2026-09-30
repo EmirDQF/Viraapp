@@ -10,16 +10,20 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ReduceMotion, ReducedMotionConfig } from 'react-native-reanimated';
 
 import { RegiMascot } from '@/components/regi/RegiMascot';
 import { useNotificationRouting } from '@/features/notifications/useNotificationRouting';
-import { useStoreHydrated } from '@/store/useAppStore';
+import { usePreferencesSync } from '@/features/settings/usePreferencesSync';
+import { useAppStore, useStoreHydrated } from '@/store/useAppStore';
 import { spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 export default function RootLayout() {
   const hydrated = useStoreHydrated();
   useNotificationRouting();
+  usePreferencesSync();
+  const reduceMotion = useAppStore((state) => state.settings.reduceMotion);
   const { colors, isDark } = useTheme();
   // Si la fuente falla (sin red en web, por ejemplo) seguimos con la del sistema en lugar de bloquear la app.
   const [fontsLoaded, fontError] = useFonts({
@@ -43,10 +47,12 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.root}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
+      {/* El ajuste "Reducir movimiento" acorta todas las animaciones de reanimated (entradas y with*). */}
+      {reduceMotion ? <ReducedMotionConfig mode={ReduceMotion.Always} /> : null}
       <Stack
         screenOptions={{
           headerShown: false,
-          animation: 'slide_from_right',
+          animation: reduceMotion ? 'none' : 'slide_from_right',
           contentStyle: { backgroundColor: colors.background },
         }}
       />
