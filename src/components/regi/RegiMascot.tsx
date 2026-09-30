@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useId } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
@@ -17,7 +17,7 @@ import { EmpatheticAura, GlowHalo, TensionOutline } from '@/components/regi/Extr
 import { Face } from '@/components/regi/Face';
 import { Gills } from '@/components/regi/Gills';
 import { Hands } from '@/components/regi/Hands';
-import { REGI, clampGlow, regiAccessibilityLabel, regiPalette, type RegiPose } from '@/lib/regi';
+import { REGI, clampGlow, regiAccessibilityLabel, regiPalette, type RegiColors, type RegiPose } from '@/lib/regi';
 import { radius, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
@@ -36,8 +36,7 @@ interface RegiMascotProps {
   readonly glowColor?: string;
 }
 
-const RegiFigure = memo(function RegiFigure({ pose, glow }: { readonly pose: RegiPose; readonly glow: number }) {
-  const colors = regiPalette(glow);
+const RegiFigure = memo(function RegiFigure({ pose, colors }: { readonly pose: RegiPose; readonly colors: RegiColors }) {
   return (
     <Svg viewBox="0 0 200 200" width="100%" height="100%">
       <G>
@@ -56,15 +55,18 @@ const RegiBackdrop = memo(function RegiBackdrop({
   pose,
   glow,
   glowColor,
+  colors,
+  gradientId,
 }: {
   readonly pose: RegiPose;
   readonly glow: number;
   readonly glowColor: string;
+  readonly colors: RegiColors;
+  readonly gradientId: string;
 }) {
-  const colors = regiPalette(glow);
   return (
     <Svg viewBox="0 0 200 200" width="100%" height="100%">
-      {glow > 0 ? <GlowHalo color={glowColor} intensity={glow} /> : null}
+      {glow > 0 ? <GlowHalo id={gradientId} color={glowColor} intensity={glow} /> : null}
       {glow < 0 ? <TensionOutline colors={colors} intensity={-glow} /> : null}
       {pose === 'empathetic' ? <EmpatheticAura colors={colors} /> : null}
     </Svg>
@@ -75,6 +77,10 @@ const RegiBackdrop = memo(function RegiBackdrop({
 export function RegiMascot({ pose = 'calm', size = 160, glow = 0, glowColor = REGI.leafHalo }: RegiMascotProps) {
   const reduceMotion = useReducedMotion();
   const value = clampGlow(glow);
+  // Id único por instancia: en web los <defs> de SVG son globales y colisionarían entre varios Regi.
+  const gradientId = `regiGlow-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  const colors = regiPalette(value);
+  const hasBackdrop = value !== 0 || pose === 'empathetic';
   const breath = useSharedValue(0);
   const pulse = useSharedValue(0);
   const sway = useSharedValue(0);
@@ -88,14 +94,15 @@ export function RegiMascot({ pose = 'calm', size = 160, glow = 0, glowColor = RE
     }
     const ease = Easing.inOut(Easing.sin);
     breath.value = withRepeat(withTiming(1, { duration: BREATH_MS, easing: ease }), -1, true);
-    pulse.value = withRepeat(withTiming(1, { duration: BREATH_MS * 1.5, easing: ease }), -1, true);
+    // El pulso solo corre si hay halo o contorno que mostrar (evita trabajo continuo en el hilo de UI).
+    pulse.value = hasBackdrop ? withRepeat(withTiming(1, { duration: BREATH_MS * 1.5, easing: ease }), -1, true) : 0;
     sway.value = pose === 'growth' ? withRepeat(withTiming(1, { duration: BREATH_MS, easing: ease }), -1, true) : 0;
     return () => {
       cancelAnimation(breath);
       cancelAnimation(pulse);
       cancelAnimation(sway);
     };
-  }, [breath, pose, pulse, reduceMotion, sway]);
+  }, [breath, hasBackdrop, pose, pulse, reduceMotion, sway]);
 
   const figureStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: breath.value * BREATH_LIFT }, { rotate: `${(sway.value * 2 - 1) * SWAY_DEG * (pose === 'growth' ? 1 : 0)}deg` }],
@@ -113,10 +120,12 @@ export function RegiMascot({ pose = 'calm', size = 160, glow = 0, glowColor = RE
       style={{ width: size, height: size }}
     >
       <Animated.View style={[StyleSheet.absoluteFill, haloStyle]}>
-        <RegiBackdrop pose={pose} glow={value} glowColor={glowColor} />
+        {hasBackdrop ? (
+          <RegiBackdrop pose={pose} glow={value} glowColor={glowColor} colors={colors} gradientId={gradientId} />
+        ) : null}
       </Animated.View>
       <Animated.View style={[StyleSheet.absoluteFill, figureStyle]}>
-        <RegiFigure pose={pose} glow={value} />
+        <RegiFigure pose={pose} colors={colors} />
       </Animated.View>
     </View>
   );

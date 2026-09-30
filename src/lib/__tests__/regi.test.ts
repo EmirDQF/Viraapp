@@ -48,6 +48,16 @@ describe('regi', () => {
     expect(Math.abs(relativeLuminance(tense.body) - relativeLuminance(REGI.body))).toBeLessThan(0.08);
   });
 
+  test('REGI está congelado para que nadie mute la paleta base compartida', () => {
+    expect(Object.isFrozen(REGI)).toBe(true);
+  });
+
+  test('tensionPath no falla con un número de picos inválido', () => {
+    expect(() => tensionPath(100, 100, 80, 0)).not.toThrow();
+    expect(() => tensionPath(100, 100, 80, Number.NaN)).not.toThrow();
+    expect(tensionPath(100, 100, 80, -4).match(/L/g)).toHaveLength(3 * 2 - 1);
+  });
+
   test('tensionPath genera un contorno cerrado con el número de picos pedido', () => {
     const path = tensionPath(100, 100, 80, 12);
     expect(path.startsWith('M')).toBe(true);

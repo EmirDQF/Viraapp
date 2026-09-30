@@ -38,8 +38,8 @@ export function AppText({
   };
   return (
     <Text
-      maxFontSizeMultiplier={MAX_FONT_SCALE}
       {...rest}
+      maxFontSizeMultiplier={MAX_FONT_SCALE}
       style={[
         typography[variant],
         { color: color ?? toneColor[tone] },

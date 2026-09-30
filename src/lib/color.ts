@@ -6,13 +6,23 @@ const HEX_PATTERN = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i;
 const CHANNEL_MAX = 255;
 const LUMA_WEIGHTS: Rgb = [0.2126, 0.7152, 0.0722];
 
+/** Limita un valor a [0, 1]; NaN o infinito se tratan como 0 para no generar colores inválidos. */
+function clampUnit(value: number): number {
+  return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0;
+}
+
+function mapRgb(rgb: Rgb, fn: (channel: number, index: number) => number): Rgb {
+  return [fn(rgb[0], 0), fn(rgb[1], 1), fn(rgb[2], 2)];
+}
+
 function parseHex(hex: string): Rgb {
   const match = HEX_PATTERN.exec(hex.trim());
   if (!match) {
     throw new Error(`Color hex inválido: "${hex}"`);
   }
   const raw = match[1].length === 3 ? [...match[1]].map((char) => char + char).join('') : match[1];
-  return [0, 2, 4].map((offset) => parseInt(raw.slice(offset, offset + 2), 16)) as unknown as Rgb;
+  const channel = (offset: number): number => parseInt(raw.slice(offset, offset + 2), 16);
+  return [channel(0), channel(2), channel(4)];
 }
 
 function toHex(rgb: Rgb): string {
@@ -38,22 +48,21 @@ export function contrastRatio(foreground: string, background: string): number {
 
 /** Oscurece un color en la proporción indicada (0 = igual, 1 = negro). */
 export function darken(hex: string, amount: number): string {
-  const factor = 1 - Math.min(1, Math.max(0, amount));
-  return toHex(parseHex(hex).map((channel) => channel * factor) as unknown as Rgb);
+  const factor = 1 - clampUnit(amount);
+  return toHex(mapRgb(parseHex(hex), (channel) => channel * factor));
 }
 
 /** Aclara un color mezclándolo con blanco (0 = igual, 1 = blanco). */
 export function lighten(hex: string, amount: number): string {
-  const factor = Math.min(1, Math.max(0, amount));
-  return toHex(parseHex(hex).map((channel) => channel + (CHANNEL_MAX - channel) * factor) as unknown as Rgb);
+  const factor = clampUnit(amount);
+  return toHex(mapRgb(parseHex(hex), (channel) => channel + (CHANNEL_MAX - channel) * factor));
 }
 
 /** Mezcla dos colores: t = 0 devuelve `from`, t = 1 devuelve `to`. */
 export function mix(from: string, to: string, t: number): string {
-  const amount = Math.min(1, Math.max(0, t));
-  const a = parseHex(from);
+  const amount = clampUnit(t);
   const b = parseHex(to);
-  return toHex(a.map((channel, index) => channel + (b[index] - channel) * amount) as unknown as Rgb);
+  return toHex(mapRgb(parseHex(from), (channel, index) => channel + (b[index] - channel) * amount));
 }
 
 /** Desatura un color hacia su gris equivalente (misma luminancia percibida). */
@@ -66,5 +75,5 @@ export function desaturate(hex: string, amount: number): string {
 /** Convierte un hex en rgba con la opacidad indicada. */
 export function withAlpha(hex: string, alpha: number): string {
   const [r, g, b] = parseHex(hex);
-  return `rgba(${r}, ${g}, ${b}, ${Math.min(1, Math.max(0, alpha))})`;
+  return `rgba(${r}, ${g}, ${b}, ${clampUnit(alpha)})`;
 }

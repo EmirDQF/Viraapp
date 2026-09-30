@@ -9,7 +9,7 @@ export type RegiPose = 'calm' | 'empathetic' | 'growth' | 'resilient';
 export const REGI_POSES: readonly RegiPose[] = ['calm', 'empathetic', 'growth', 'resilient'];
 
 /** Colores de ilustración de Regi (fieles a docs/brand/image6.png). */
-export const REGI = {
+export const REGI = Object.freeze({
   body: '#C9C6F0',
   shade: '#A7A2DE',
   belly: '#E4E2FA',
@@ -24,7 +24,7 @@ export const REGI = {
   heart: '#F4A7B9',
   soil: '#9C7A5B',
   tension: '#8A8F98',
-} as const;
+} as const);
 
 export type RegiColors = { readonly [K in keyof typeof REGI]: string };
 
@@ -67,9 +67,10 @@ export function regiPalette(glow: number): RegiColors {
 
 /** Contorno en zigzag alrededor de Regi que representa la tensión (glow negativo). */
 export function tensionPath(cx: number, cy: number, radius: number, spikes: number): string {
+  const count = Math.max(3, Math.trunc(Number.isFinite(spikes) ? spikes : 3));
   const inner = radius * 0.9;
-  const points = Array.from({ length: spikes * 2 }, (_, index) => {
-    const angle = (Math.PI * index) / spikes;
+  const points = Array.from({ length: count * 2 }, (_, index) => {
+    const angle = (Math.PI * index) / count;
     const r = index % 2 === 0 ? radius : inner;
     return `${(cx + r * Math.cos(angle)).toFixed(1)} ${(cy + r * Math.sin(angle)).toFixed(1)}`;
   });

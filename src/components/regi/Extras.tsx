@@ -27,17 +27,17 @@ export function EmpatheticAura({ colors }: { readonly colors: RegiColors }) {
 }
 
 /** Halo del color del módulo cuando Regi "brilla" por una buena decisión (glow > 0). */
-export function GlowHalo({ color, intensity }: { readonly color: string; readonly intensity: number }) {
+export function GlowHalo({ id, color, intensity }: { readonly id: string; readonly color: string; readonly intensity: number }) {
   return (
     <G>
       <Defs>
-        <RadialGradient id="regiGlow" cx="50%" cy="55%" r="50%">
+        <RadialGradient id={id} cx="50%" cy="55%" r="50%">
           <Stop offset="0%" stopColor={color} stopOpacity={0.55 * intensity} />
           <Stop offset="70%" stopColor={color} stopOpacity={0.2 * intensity} />
           <Stop offset="100%" stopColor={color} stopOpacity={0} />
         </RadialGradient>
       </Defs>
-      <Circle cx={100} cy={104} r={94} fill="url(#regiGlow)" />
+      <Circle cx={100} cy={104} r={94} fill={`url(#${id})`} />
     </G>
   );
 }

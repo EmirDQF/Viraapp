@@ -1,4 +1,4 @@
-import { contrastRatio, darken, withAlpha } from '@/lib/color';
+import { contrastRatio, darken, desaturate, lighten, mix, withAlpha } from '@/lib/color';
 
 describe('color', () => {
   test('contraste blanco sobre negro es 21:1', () => {
@@ -20,6 +20,19 @@ describe('color', () => {
 
   test('withAlpha devuelve rgba con la opacidad pedida', () => {
     expect(withAlpha('#24576A', 0.5)).toBe('rgba(36, 87, 106, 0.5)');
+  });
+
+  test('NaN o infinito en el parámetro numérico no generan un hex inválido', () => {
+    expect(darken('#24576A', Number.NaN)).toBe('#24576A');
+    expect(lighten('#24576A', Number.POSITIVE_INFINITY)).toBe('#24576A');
+    expect(mix('#000000', '#FFFFFF', Number.NaN)).toBe('#000000');
+    expect(withAlpha('#000000', Number.NaN)).toBe('rgba(0, 0, 0, 0)');
+  });
+
+  test('mix y desaturate interpolan correctamente', () => {
+    expect(mix('#000000', '#FFFFFF', 0.5)).toBe('#808080');
+    expect(desaturate('#FF0000', 1)).toBe('#4C4C4C');
+    expect(desaturate('#FF0000', 0)).toBe('#FF0000');
   });
 
   test('lanza un error claro ante un color inválido', () => {
