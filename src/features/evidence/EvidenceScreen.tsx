@@ -1,18 +1,24 @@
 import { ArrowLeft, BookOpen, Compass, Handshake, Heart, Lightbulb, Medal, MountainSnow, Plus, Star, Sun, Trophy, type LucideIcon } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/ui/AppText';
+import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { Button3D } from '@/components/ui/Button3D';
 import { EmptyState } from '@/components/ui/ComingSoon';
+import { ICON_STROKE, IconTile } from '@/components/ui/IconTile';
 import { Sheet } from '@/components/ui/Sheet';
 import { goBackOrHome } from '@/features/game/navigation';
 import { toIsoDate } from '@/lib/age';
 import { haptic } from '@/lib/haptics';
 import { useAppStore } from '@/store/useAppStore';
 import { EVIDENCE_ICONS, type EvidenceIcon, type EvidenceItem } from '@/store/types';
-import { MIN_TOUCH, MODULE_COLORS, feedback, radius, spacing } from '@/theme/tokens';
+import { enterAnimation } from '@/theme/motion';
+import { MIN_TOUCH, MODULE_COLORS, brand, elevation, feedback, gradients, radius, spacing } from '@/theme/tokens';
+import { useReduceMotion } from '@/theme/useReduceMotion';
 import { fontFamily } from '@/theme/typography';
 
 /** Paleta dorada solo en esta pantalla (maqueta 8). */
@@ -36,20 +42,26 @@ function formatDate(iso: string): string {
   return `${day} ${MONTHS[Number(month) - 1] ?? ''} ${year}`;
 }
 
-function EvidenceTile({ item }: { readonly item: EvidenceItem }) {
+function EvidenceTile({ item, index }: { readonly item: EvidenceItem; readonly index: number }) {
+  const reduceMotion = useReduceMotion();
   const Icon = ICONS[item.icon];
   return (
-    <View style={[styles.tile, { backgroundColor: GOLD.soft, borderColor: feedback.gold }]} accessible accessibilityLabel={`${item.title}, ${formatDate(item.date)}`}>
-      <View style={[styles.tileIcon, { borderColor: feedback.gold }]}>
-        <Icon color={feedback.goldDeep} size={30} />
-      </View>
+    <Animated.View
+      entering={enterAnimation(index, reduceMotion)}
+      style={[styles.tile, elevation.sm, { backgroundColor: brand.white, borderColor: feedback.gold }]}
+      accessible
+      accessibilityLabel={`${item.title}, ${formatDate(item.date)}`}
+    >
+      <IconTile color={feedback.gold} gradient={gradients.gold} size={52}>
+        <Icon color={brand.ink} size={26} strokeWidth={ICON_STROKE} />
+      </IconTile>
       <AppText variant="caption" color={GOLD.on} align="center" uppercase numberOfLines={3}>
         {item.title}
       </AppText>
       <AppText variant="caption" color={GOLD.on} align="center" style={styles.date}>
         {formatDate(item.date)}
       </AppText>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -102,53 +114,74 @@ export function EvidenceScreen() {
   const evidence = useAppStore((state) => state.evidence);
   const [adding, setAdding] = useState(false);
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: GOLD.soft }]} edges={['top', 'bottom']}>
-      <View style={styles.header}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Volver" onPress={goBackOrHome} hitSlop={10} style={styles.back}>
-          <ArrowLeft color={GOLD.on} size={24} />
-        </Pressable>
-        <View style={styles.flex}>
-          <AppText variant="title" color={GOLD.on} uppercase accessibilityRole="header">
-            Muro de evidencia
-          </AppText>
-          <AppText color={GOLD.on}>Tus victorias sobre momentos difíciles</AppText>
+    <View style={styles.safe}>
+      <LinearGradient colors={[GOLD.soft, brand.ivory, GOLD.soft]} style={StyleSheet.absoluteFill} />
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <View style={styles.header}>
+          <AnimatedPressable accessibilityRole="button" accessibilityLabel="Volver" onPress={goBackOrHome} hitSlop={10} style={styles.back}>
+            <ArrowLeft color={GOLD.on} size={24} strokeWidth={ICON_STROKE} />
+          </AnimatedPressable>
+          <View style={styles.flex}>
+            <AppText variant="title" color={GOLD.on} uppercase accessibilityRole="header">
+              Muro de evidencia
+            </AppText>
+            <AppText color={GOLD.on}>Tus victorias sobre momentos difíciles</AppText>
+          </View>
+          <IconTile color={feedback.gold} gradient={gradients.gold} size={52}>
+            <Trophy color={brand.ink} size={26} strokeWidth={ICON_STROKE} />
+          </IconTile>
         </View>
-        <Trophy color={feedback.goldDeep} size={36} />
-      </View>
-      <View style={[styles.ribbon, { backgroundColor: GOLD.base }]} accessible accessibilityLabel={`${evidence.length} crisis superadas`}>
-        <Medal color={GOLD.on} size={20} />
-        <AppText variant="subtitle" color={GOLD.on}>
-          {evidence.length} {evidence.length === 1 ? 'crisis superada' : 'crisis superadas'}
-        </AppText>
-      </View>
-      <View style={styles.add}>
-        <Button3D label="Añadir logro" icon={<Plus color={GOLD.on} size={18} />} tone={{ face: feedback.gold, shadow: GOLD.deep, text: GOLD.on }} onPress={() => setAdding(true)} />
-      </View>
-      <FlatList
-        data={evidence}
-        keyExtractor={(item) => item.id}
-        numColumns={3}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.grid}
-        renderItem={({ item }) => <EvidenceTile item={item} />}
-        ListEmptyComponent={<EmptyState title="Tu muro te espera" message="Cada módulo completado, cada impulso resistido y cada logro que añadas quedarán aquí como evidencia." pose="resilient" />}
-      />
-      <AddEvidenceSheet visible={adding} onClose={() => setAdding(false)} />
-    </SafeAreaView>
+        <View style={[styles.ribbon, elevation.md]} accessible accessibilityLabel={`${evidence.length} crisis superadas`}>
+          <LinearGradient colors={gradients.gold} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={[StyleSheet.absoluteFill, styles.ribbonFill]} />
+          <Medal color={GOLD.on} size={20} />
+          <AppText variant="subtitle" color={GOLD.on}>
+            {evidence.length} {evidence.length === 1 ? 'crisis superada' : 'crisis superadas'}
+          </AppText>
+        </View>
+        <View style={styles.add}>
+          <Button3D
+            label="Añadir logro"
+            icon={<Plus color={GOLD.on} size={18} />}
+            tone={{ face: feedback.gold, shadow: GOLD.deep, text: GOLD.on }}
+            gradient={gradients.gold}
+            onPress={() => setAdding(true)}
+          />
+        </View>
+        <FlatList
+          data={evidence}
+          keyExtractor={(item) => item.id}
+          numColumns={3}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.grid}
+          renderItem={({ item, index }) => <EvidenceTile item={item} index={index} />}
+          ListEmptyComponent={<EmptyState title="Tu muro te espera" message="Cada módulo completado, cada impulso resistido y cada logro que añadas quedarán aquí como evidencia." pose="resilient" />}
+        />
+        <AddEvidenceSheet visible={adding} onClose={() => setAdding(false)} />
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   flex: { flex: 1 },
-  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md },
+  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.screen, paddingVertical: spacing.md },
   back: { width: MIN_TOUCH, height: MIN_TOUCH, justifyContent: 'center' },
-  ribbon: { flexDirection: 'row', alignSelf: 'center', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: radius.pill },
+  ribbon: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    zIndex: 0,
+  },
+  ribbonFill: { borderRadius: radius.pill, zIndex: -1 },
   add: { paddingHorizontal: spacing.xxl, paddingTop: spacing.md },
-  grid: { padding: spacing.md, gap: spacing.sm, flexGrow: 1 },
+  grid: { paddingHorizontal: spacing.screen, paddingVertical: spacing.lg, gap: spacing.sm, flexGrow: 1 },
   row: { gap: spacing.sm },
-  tile: { flex: 1 / 3, alignItems: 'center', gap: spacing.xs, padding: spacing.sm, borderRadius: radius.lg, borderWidth: 2, minHeight: 150 },
-  tileIcon: { width: 54, height: 54, borderRadius: 27, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  tile: { flex: 1 / 3, alignItems: 'center', gap: spacing.xs, padding: spacing.sm, borderRadius: radius.lg, borderWidth: 1.5, minHeight: 156 },
   date: { marginTop: 'auto' },
   input: { borderWidth: 2, borderRadius: radius.lg, padding: spacing.md, fontFamily: fontFamily.semibold, fontSize: 16 },
   icons: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
