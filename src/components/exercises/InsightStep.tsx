@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { InsightExercise } from '@/types';
 import { typography } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
-import { AxoMascot } from '@/components/AxoMascot';
+import { RegiMascot } from '@/components/regi/RegiMascot';
 import { Button3D } from '@/components/ui/Button3D';
 import { ExerciseCard } from '@/components/ExerciseCard';
 import { StepLayout } from '@/components/exercises/StepLayout';
@@ -13,8 +13,8 @@ export function InsightStep({ exercise, onComplete }: StepProps<InsightExercise>
   const { colors } = useTheme();
   return (
     <StepLayout footer={<Button3D label="Entendido" onPress={() => onComplete()} haptics="medium" />}>
-      <View style={styles.axo}>
-        <AxoMascot mood="thinking" size={150} />
+      <View style={styles.mascot}>
+        <RegiMascot pose="resilient" size={150} />
       </View>
       <ExerciseCard title={exercise.title}>
         <Text style={[styles.body, { color: colors.text }]}>{exercise.body}</Text>
@@ -24,6 +24,6 @@ export function InsightStep({ exercise, onComplete }: StepProps<InsightExercise>
 }
 
 const styles = StyleSheet.create({
-  axo: { alignItems: 'center' },
+  mascot: { alignItems: 'center' },
   body: { ...typography.body },
 });

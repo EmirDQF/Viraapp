@@ -69,7 +69,7 @@ export function BreathingStep({ exercise, onComplete }: StepProps<BreathingExerc
     status === 'done' ? (
       <Button3D label="Continuar" onPress={() => onComplete()} variant="success" haptics="success" />
     ) : status === 'running' ? (
-      <Button3D label="Respira con Axo…" onPress={() => haptic('light')} disabled />
+      <Button3D label="Respira con Regi…" onPress={() => haptic('light')} disabled />
     ) : (
       <Button3D label="Comenzar respiración" onPress={start} haptics="medium" />
     );

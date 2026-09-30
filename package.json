@@ -13,6 +13,7 @@
     "expo-linear-gradient": "~57.0.2",
     "expo-linking": "~57.0.10",
     "expo-router": "~57.0.22",
+    "expo-splash-screen": "~57.0.9",
     "expo-status-bar": "~57.0.1",
     "lucide-react-native": "^1.47.0",
     "react": "19.2.3",
@@ -27,6 +28,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@testing-library/react-native": "^14.0.1",
     "@types/jest": "29.5.14",
     "@types/react": "~19.2.2",
@@ -43,7 +45,8 @@
     "web": "expo start --web",
     "test": "jest",
     "lint": "expo lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "icons": "node scripts/generate-icons.mjs"
   },
   "private": true,
   "jest": {

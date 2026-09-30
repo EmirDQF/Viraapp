@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
-import { AxoMascot, AxoSays } from '@/components/AxoMascot';
+import { RegiMascot, RegiSays } from '@/components/regi/RegiMascot';
 import { Button3D } from '@/components/ui/Button3D';
 import { ProgressBar } from '@/components/ProgressBar';
 import { Screen } from '@/components/Screen';
+import { ViraLogo } from '@/components/brand/ViraLogo';
 import { MAX_AGE, MIN_AGE, validateBirthDate, type DateParts } from '@/lib/age';
 import { haptic } from '@/lib/haptics';
 import { useResilienceStore } from '@/store/useResilienceStore';
@@ -34,19 +35,19 @@ function Welcome({ onStart }: { readonly onStart: () => void }) {
     <Screen footer={<Button3D label="Empezar mi entrenamiento" onPress={onStart} haptics="medium" />}>
       <View style={styles.welcome}>
         <Animated.View entering={FadeInDown.duration(600)}>
-          <AxoMascot mood="neutral" size={220} />
+          <RegiMascot pose="calm" size={220} />
         </Animated.View>
-        <Animated.Text entering={FadeInUp.delay(200)} style={[styles.brand, { color: colors.primary }]}>
-          TENAZ
-        </Animated.Text>
+        <Animated.View entering={FadeInUp.delay(200)}>
+          <ViraLogo size={132} framed />
+        </Animated.View>
         <Animated.Text entering={FadeInUp.delay(350)} style={[styles.promise, { color: colors.text }]}>
-          Entrena tu mente para doblarte sin romperte en 5 minutos al día.
+          Nuevas formas de seguir.
         </Animated.Text>
         <Animated.Text entering={FadeInUp.delay(500)} style={[styles.greeting, { color: colors.textMuted }]}>
-          Soy Axo, un ajolote. Mi especie regenera lo que pierde. Te voy a enseñar a hacer lo mismo.
+          Soy Regi, un ajolote. Mi nombre viene de regenerar: mi especie se recupera de lo que pierde. Te acompaño a encontrar nuevas formas de seguir.
         </Animated.Text>
         <Text style={[styles.disclaimer, { color: colors.textMuted }]}>
-          TENAZ es entrenamiento psicoeducativo y no sustituye la atención profesional. Si estás en crisis, contacta a
+          VIRA es un espacio de reflexión y práctica, y no sustituye la atención profesional. Si estás en crisis, contacta a
           los servicios de emergencia o a una línea de ayuda de tu país.
         </Text>
       </View>
@@ -115,7 +116,7 @@ export default function OnboardingScreen() {
         }
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.form}>
-          <AxoSays mood="neutral" message="¡Hola! ¿Cómo quieres que te llame durante el entrenamiento?" />
+          <RegiSays pose="calm" message="¡Hola! ¿Cómo quieres que te llame durante el entrenamiento?" />
           <TextInput
             value={name}
             onChangeText={setName}
@@ -140,7 +141,7 @@ export default function OnboardingScreen() {
   let birthMessage = `Rango admitido: ${MIN_AGE} a ${MAX_AGE} años.`;
   let birthColor = colors.textMuted;
   if (birthStarted && birthResult.valid) {
-    birthMessage = `Perfecto: tienes ${birthResult.age} años.`;
+    birthMessage = birthResult.notice ?? `Perfecto: tienes ${birthResult.age} años.`;
     birthColor = colors.success;
   } else if (birthStarted && !birthResult.valid) {
     birthMessage = birthResult.reason;
@@ -153,7 +154,7 @@ export default function OnboardingScreen() {
       footer={<Button3D label="Crear mi perfil" onPress={finish} disabled={!birthResult.valid} haptics="none" />}
     >
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.form}>
-        <AxoSays mood="thinking" message={`${name.trim()}, ¿cuándo naciste? TENAZ está calibrada para adultos de ${MIN_AGE} a ${MAX_AGE} años.`} />
+        <RegiSays pose="calm" message={`${name.trim()}, ¿cuándo naciste? VIRA está pensada para jóvenes de ${MIN_AGE} a ${MAX_AGE} años.`} />
         <View style={styles.dateRow}>
           {(
             [
@@ -195,7 +196,6 @@ export default function OnboardingScreen() {
 
 const styles = StyleSheet.create({
   welcome: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
-  brand: { ...typography.display, fontSize: 52, letterSpacing: 8 },
   promise: { ...typography.title, textAlign: 'center', fontSize: 22, lineHeight: 30 },
   greeting: { ...typography.body, textAlign: 'center' },
   disclaimer: { ...typography.caption, fontWeight: '500', textAlign: 'center', marginTop: spacing.md, lineHeight: 18 },

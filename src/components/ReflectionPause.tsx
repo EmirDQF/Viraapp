@@ -3,7 +3,7 @@ import { Modal, StyleSheet, Text, View } from 'react-native';
 
 import { radius, spacing, typography } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
-import { AxoMascot } from '@/components/AxoMascot';
+import { RegiMascot } from '@/components/regi/RegiMascot';
 import { Button3D } from '@/components/ui/Button3D';
 
 const READING_SECONDS = 8;
@@ -36,7 +36,7 @@ function PauseContent({ concept, onRefill }: Omit<ReflectionPauseProps, 'visible
   return (
     <View style={[styles.backdrop, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
-        <AxoMascot mood="supportive" size={150} />
+        <RegiMascot pose="empathetic" size={150} />
         <Text style={[styles.title, { color: colors.text }]}>Pausa de relectura consciente</Text>
         <Text style={[styles.body, { color: colors.textMuted }]}>
           Tu energía reflexiva se agotó. No es un castigo: equivocarse es parte de entrenar la mente. Lee con calma

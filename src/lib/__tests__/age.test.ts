@@ -13,9 +13,24 @@ describe('calculateAge', () => {
 });
 
 describe('validateBirthDate', () => {
-  it('acepta una edad dentro del rango 18-40', () => {
+  it('acepta una edad dentro del rango 18-25 sin aviso', () => {
+    const result = validateBirthDate({ day: '15', month: '3', year: '2004' }, today);
+    expect(result).toEqual({ valid: true, age: 22, isoDate: '2004-03-15' });
+  });
+
+  it('acepta exactamente 25 años sin aviso', () => {
+    const result = validateBirthDate({ day: '22', month: '9', year: '2001' }, today);
+    expect(result).toEqual({ valid: true, age: 25, isoDate: '2001-09-22' });
+  });
+
+  it('no bloquea a mayores de 25: los acepta con un aviso amable', () => {
     const result = validateBirthDate({ day: '15', month: '3', year: '1998' }, today);
-    expect(result).toEqual({ valid: true, age: 28, isoDate: '1998-03-15' });
+    expect(result).toEqual({
+      valid: true,
+      age: 28,
+      isoDate: '1998-03-15',
+      notice: expect.stringContaining('18 a 25'),
+    });
   });
 
   it('rechaza menores de 18', () => {
@@ -27,8 +42,13 @@ describe('validateBirthDate', () => {
     expect(validateBirthDate({ day: '22', month: '9', year: '2008' }, today).valid).toBe(true);
   });
 
-  it('rechaza mayores de 40', () => {
-    expect(validateBirthDate({ day: '1', month: '1', year: '1980' }, today).valid).toBe(false);
+  it('el aviso de menores de 18 menciona VIRA y no TENAZ', () => {
+    const result = validateBirthDate({ day: '23', month: '9', year: '2008' }, today);
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.reason).toContain('VIRA');
+      expect(result.reason).not.toContain('TENAZ');
+    }
   });
 
   it('rechaza fechas inexistentes', () => {

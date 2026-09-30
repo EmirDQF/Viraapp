@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { AxoSays } from '@/components/AxoMascot';
+import { RegiSays } from '@/components/regi/RegiMascot';
 import { Button3D } from '@/components/ui/Button3D';
 import { CrucibleIcon } from '@/components/CrucibleIcon';
 import { Screen } from '@/components/Screen';
@@ -50,8 +50,8 @@ export default function SelectCrucibleScreen() {
         </>
       }
     >
-      <AxoSays
-        mood="thinking"
+      <RegiSays
+        pose="calm"
         message={`${user.name}, ¿qué crisol te está poniendo a prueba ahora? Elige uno: ahí empieza tu entrenamiento.`}
       />
       {CRUCIBLES.map((crucible, index) => {

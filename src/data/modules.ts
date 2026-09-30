@@ -130,7 +130,7 @@ export function buildModules(crucible: CrucibleCategory): readonly Module[] {
           id: 'm5-insight',
           title: 'Decide hoy por tu yo de mañana',
           body:
-            'Vas a elegir tres reglas no negociables. TENAZ las unirá con tu diagnóstico, tu mantra y tu micro-acción para construir tu Plan de Resiliencia de 7 días.',
+            'Vas a elegir tres reglas no negociables. VIRA las unirá con tu diagnóstico, tu mantra y tu micro-acción para construir tu Plan de Resiliencia de 7 días.',
         },
         {
           kind: 'plan-synthesis',

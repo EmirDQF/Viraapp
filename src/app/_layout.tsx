@@ -10,7 +10,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { AxoMascot } from '@/components/AxoMascot';
+import { RegiMascot } from '@/components/regi/RegiMascot';
 import { useStoreHydrated } from '@/store/useResilienceStore';
 import { spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
@@ -31,7 +31,7 @@ export default function RootLayout() {
   if (!hydrated || !fontsReady) {
     return (
       <View style={[styles.loading, { backgroundColor: colors.background }]}>
-        <AxoMascot mood="thinking" size={140} />
+        <RegiMascot pose="calm" size={140} />
         <ActivityIndicator color={colors.primary} size="large" />
       </View>
     );

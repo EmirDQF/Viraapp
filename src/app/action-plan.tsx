@@ -4,7 +4,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { Share, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { AxoMascot, AxoSays } from '@/components/AxoMascot';
+import { RegiMascot, RegiSays } from '@/components/regi/RegiMascot';
 import { Button3D } from '@/components/ui/Button3D';
 import { Screen } from '@/components/Screen';
 import { getCrucible } from '@/data/crucibles';
@@ -56,8 +56,8 @@ export default function ActionPlanScreen() {
   if (!isPathComplete(progress.completedModules)) {
     return (
       <Screen footer={<Button3D label="Ir a mi ruta" onPress={() => router.replace('/modules')} />}>
-        <AxoSays
-          mood="supportive"
+        <RegiSays
+          pose="empathetic"
           message={`Tu plan se construye con tus propias respuestas. Completa los 5 módulos (llevas ${progress.completedModules.length}/5) y aquí lo verás.`}
         />
       </Screen>
@@ -66,7 +66,7 @@ export default function ActionPlanScreen() {
 
   const share = async () => {
     try {
-      await Share.share({ title: 'Mi Plan de Resiliencia · TENAZ', message: formatPlanText(plan, user.name) });
+      await Share.share({ title: 'Mi Plan de Resiliencia · VIRA', message: formatPlanText(plan, user.name) });
       haptic('success');
       setShareNotice(null);
     } catch (error: unknown) {
@@ -102,7 +102,7 @@ export default function ActionPlanScreen() {
       }
     >
       <View style={styles.hero}>
-        <AxoMascot mood="celebrating" size={130} />
+        <RegiMascot pose="growth" size={130} />
         <Text style={[styles.heroTitle, { color: colors.text }]}>Plan de Resiliencia Personal</Text>
         <Text style={[styles.heroSubtitle, { color: colors.textMuted }]}>
           {user.name} · {plan.crucibleTitle}

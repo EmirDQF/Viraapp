@@ -48,6 +48,21 @@ export function lighten(hex: string, amount: number): string {
   return toHex(parseHex(hex).map((channel) => channel + (CHANNEL_MAX - channel) * factor) as unknown as Rgb);
 }
 
+/** Mezcla dos colores: t = 0 devuelve `from`, t = 1 devuelve `to`. */
+export function mix(from: string, to: string, t: number): string {
+  const amount = Math.min(1, Math.max(0, t));
+  const a = parseHex(from);
+  const b = parseHex(to);
+  return toHex(a.map((channel, index) => channel + (b[index] - channel) * amount) as unknown as Rgb);
+}
+
+/** Desatura un color hacia su gris equivalente (misma luminancia percibida). */
+export function desaturate(hex: string, amount: number): string {
+  const [r, g, b] = parseHex(hex);
+  const gray = r * 0.299 + g * 0.587 + b * 0.114;
+  return mix(hex, toHex([gray, gray, gray]), amount);
+}
+
 /** Convierte un hex en rgba con la opacidad indicada. */
 export function withAlpha(hex: string, alpha: number): string {
   const [r, g, b] = parseHex(hex);

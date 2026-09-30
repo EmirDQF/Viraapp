@@ -34,7 +34,7 @@ export function buildSchedule(crucible: CrucibleCategory, progress: CrucibleProg
 /** Texto plano del plan, listo para compartir. */
 export function formatPlanText(plan: ActionPlan, name: string): string {
   const lines = [
-    `PLAN DE RESILIENCIA PERSONAL · TENAZ`,
+    `PLAN DE RESILIENCIA PERSONAL · VIRA`,
     `${name} · ${plan.crucibleTitle}`,
     '',
     `DIAGNÓSTICO: ${plan.diagnosis.headline}`,

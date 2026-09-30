@@ -11,7 +11,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { AxoSays } from '@/components/AxoMascot';
+import { RegiSays } from '@/components/regi/RegiMascot';
 import { Button3D } from '@/components/ui/Button3D';
 import { CrucibleIcon } from '@/components/CrucibleIcon';
 import { HudBar } from '@/components/HudBar';
@@ -162,7 +162,7 @@ export default function ModulesMapScreen() {
         </View>
       </View>
 
-      <AxoSays mood={pathDone ? 'celebrating' : 'neutral'} message={greeting} size={84} />
+      <RegiSays pose={pathDone ? 'growth' : 'calm'} message={greeting} size={84} />
 
       {notice ? (
         <Animated.View entering={FadeIn} style={[styles.notice, { backgroundColor: colors.surfaceAlt, borderColor: colors.accent }]}>

@@ -74,6 +74,8 @@ export const useResilienceStore = create<ResilienceState>()(
       resetAll: () => set({ ...INITIAL_DATA }),
     }),
     {
+      // Se conserva el nombre antiguo a propósito: es la clave en AsyncStorage. Renombrarla a "vira-…"
+      // haría que la app no encontrara el progreso guardado y lo perdiera.
       name: 'tenaz-resilience-store',
       version: 1,
       storage: createJSONStorage(() => AsyncStorage),

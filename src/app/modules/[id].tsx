@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AxoSays } from '@/components/AxoMascot';
+import { RegiSays } from '@/components/regi/RegiMascot';
 import { Button3D } from '@/components/ui/Button3D';
 import { ExerciseRenderer } from '@/components/exercises/ExerciseRenderer';
 import { ProgressBar } from '@/components/ProgressBar';
@@ -55,8 +55,8 @@ export default function ModuleEngineScreen() {
   if (!module || moduleStatus(module.id, progress.completedModules) === 'locked') {
     return (
       <Screen footer={<Button3D label="Volver a la ruta" onPress={backToMap} />}>
-        <AxoSays
-          mood="supportive"
+        <RegiSays
+          pose="empathetic"
           message={
             module
               ? `"${module.title}" todavía está bloqueado. Completa el módulo anterior para llegar aquí.`

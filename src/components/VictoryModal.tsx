@@ -4,7 +4,7 @@ import Animated, { ZoomIn } from 'react-native-reanimated';
 
 import { palette, radius, spacing, typography } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
-import { AxoMascot } from '@/components/AxoMascot';
+import { RegiMascot } from '@/components/regi/RegiMascot';
 import { Button3D } from '@/components/ui/Button3D';
 import { Confetti } from '@/components/Confetti';
 
@@ -25,7 +25,7 @@ export function VictoryModal({ visible, moduleTitle, skill, xp, streak, continue
       <View style={[styles.backdrop, { backgroundColor: colors.background }]}>
         <Confetti />
         <Animated.View entering={ZoomIn.springify().damping(14)} style={styles.content}>
-          <AxoMascot mood="celebrating" size={190} />
+          <RegiMascot pose="growth" size={190} />
           <Text style={[styles.title, { color: palette.phoenix }]}>¡Módulo superado!</Text>
           <Text style={[styles.subtitle, { color: colors.textMuted }]}>{moduleTitle}</Text>
 

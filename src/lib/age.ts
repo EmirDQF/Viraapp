@@ -1,5 +1,9 @@
 export const MIN_AGE = 18;
-export const MAX_AGE = 40;
+/**
+ * VIRA está pensada para jóvenes de 18 a 25 años (docs/brand/image1.png). Decisión: a partir de 25 no se
+ * bloquea el acceso (el contenido es útil y no clínico); solo se muestra un aviso amable.
+ */
+export const MAX_AGE = 25;
 
 export interface DateParts {
   readonly day: string;
@@ -8,7 +12,7 @@ export interface DateParts {
 }
 
 export type AgeValidation =
-  | { readonly valid: true; readonly age: number; readonly isoDate: string }
+  | { readonly valid: true; readonly age: number; readonly isoDate: string; readonly notice?: string }
   | { readonly valid: false; readonly reason: string };
 
 const pad = (value: number): string => String(value).padStart(2, '0');
@@ -50,10 +54,16 @@ export function validateBirthDate(parts: DateParts, today: Date = new Date()): A
   }
   const age = calculateAge(birth, today);
   if (age < MIN_AGE) {
-    return { valid: false, reason: `TENAZ está diseñada para personas de ${MIN_AGE} a ${MAX_AGE} años. Tienes ${age}.` };
+    return { valid: false, reason: `VIRA está pensada para personas de ${MIN_AGE} a ${MAX_AGE} años. Tienes ${age}.` };
   }
+  const isoDate = toIsoDate(birth);
   if (age > MAX_AGE) {
-    return { valid: false, reason: `Este programa está calibrado para ${MIN_AGE}–${MAX_AGE} años. Tienes ${age}.` };
+    return {
+      valid: true,
+      age,
+      isoDate,
+      notice: `VIRA está pensada para jóvenes de ${MIN_AGE} a ${MAX_AGE} años, pero puedes usarla igual: los ejercicios también te pueden servir.`,
+    };
   }
-  return { valid: true, age, isoDate: toIsoDate(birth) };
+  return { valid: true, age, isoDate };
 }
