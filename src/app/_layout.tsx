@@ -12,12 +12,14 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { RegiMascot } from '@/components/regi/RegiMascot';
+import { useNotificationRouting } from '@/features/notifications/useNotificationRouting';
 import { useStoreHydrated } from '@/store/useAppStore';
 import { spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 export default function RootLayout() {
   const hydrated = useStoreHydrated();
+  useNotificationRouting();
   const { colors, isDark } = useTheme();
   // Si la fuente falla (sin red en web, por ejemplo) seguimos con la del sistema en lugar de bloquear la app.
   const [fontsLoaded, fontError] = useFonts({

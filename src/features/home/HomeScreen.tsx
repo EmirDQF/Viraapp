@@ -1,4 +1,5 @@
-import { Flame, Lock, Target, Zap } from 'lucide-react-native';
+import { router } from 'expo-router';
+import { ChevronRight, Flame, Hourglass, Lock, Target, Zap } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -153,6 +154,18 @@ export function HomeScreen() {
         <StatsRow />
         <ProgressHero />
         <DailyGoal />
+        <Card onPress={() => router.push('/impulses')} accessibilityLabel="Abrir el Buzón de Impulsos" style={styles.quick}>
+          <View style={[styles.quickIcon, { backgroundColor: MODULE_COLORS.enfriador.base }]}>
+            <Hourglass color={MODULE_COLORS.enfriador.on} size={24} />
+          </View>
+          <View style={styles.moduleText}>
+            <AppText variant="subtitle">Buzón de Impulsos</AppText>
+            <AppText variant="caption" tone="muted">
+              ¿Ganas de comprar, scrollear o picar algo? Anótalo y espera un poco.
+            </AppText>
+          </View>
+          <ChevronRight color={colors.textMuted} size={22} />
+        </Card>
         <View style={styles.section}>
           <AppText variant="title" align="center" accessibilityRole="header">
             Mente Resiliente
@@ -182,4 +195,6 @@ const styles = StyleSheet.create({
   moduleHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   moduleIcon: { width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   moduleText: { flex: 1, gap: 2 },
+  quick: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  quickIcon: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
 });

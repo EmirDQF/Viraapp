@@ -1,3 +1,5 @@
+import type { Impulse, ImpulseStatus } from '@/lib/impulses';
+import type { TrustedContact } from '@/lib/support';
 import type { ModuleId, ModulesProgress, StagePointer } from '@/types/game';
 import type { Streak, User } from '@/types/user';
 
@@ -35,6 +37,18 @@ export interface ChatMessage {
   readonly createdAt: string;
 }
 
+export const EVIDENCE_ICONS = ['trophy', 'mountain', 'lightbulb', 'handshake', 'heart', 'compass', 'star', 'sun', 'medal', 'book'] as const;
+export type EvidenceIcon = (typeof EVIDENCE_ICONS)[number];
+
+export interface EvidenceItem {
+  readonly id: string;
+  readonly title: string;
+  readonly icon: EvidenceIcon;
+  /** Día del logro (yyyy-mm-dd). */
+  readonly date: string;
+  readonly source: 'manual' | 'game';
+}
+
 export interface LegacyData {
   readonly activeCrucible: string | null;
   readonly crucibleProgress: unknown;
@@ -57,6 +71,11 @@ export interface PersistedState {
   readonly legacy: LegacyData | null;
   /** Conversación con Regi: solo en memoria (no se persiste); se borra con "Borrón y cuenta nueva". */
   readonly chatMessages: readonly ChatMessage[];
+  readonly impulses: readonly Impulse[];
+  readonly evidence: readonly EvidenceItem[];
+  readonly contacts: readonly TrustedContact[];
+  /** Foto feliz elegida para la Pantalla Ancla (URI local; nunca sale del teléfono). */
+  readonly anchorPhotoUri: string | null;
 }
 
 export interface UserActions {
@@ -84,6 +103,17 @@ export interface ChatActions {
   clearChat: () => void;
 }
 
+export interface WellbeingActions {
+  addImpulse: (impulse: Impulse) => void;
+  setImpulseNotification: (id: string, notificationId: string | null) => void;
+  resolveImpulse: (id: string, status: Exclude<ImpulseStatus, 'waiting'>) => void;
+  addEvidence: (item: Omit<EvidenceItem, 'id'>) => void;
+  removeEvidence: (id: string) => void;
+  addContact: (contact: TrustedContact) => void;
+  removeContact: (id: string) => void;
+  setAnchorPhoto: (uri: string | null) => void;
+}
+
 export interface SettingsActions {
   updateSettings: (patch: Partial<Settings>) => void;
 }
@@ -99,4 +129,5 @@ export type AppState = PersistedState &
   GamificationActions &
   SettingsActions &
   ChatActions &
+  WellbeingActions &
   RootActions;

@@ -5,7 +5,8 @@
 import { z } from 'zod';
 
 import { MODULE_ORDER } from '@/data/modules/catalog';
-import type { PersistedState, Settings } from '@/store/types';
+import { MAX_CONTACTS } from '@/lib/support';
+import { EVIDENCE_ICONS, type PersistedState, type Settings } from '@/store/types';
 
 export const STORE_VERSION = 2;
 
@@ -36,6 +37,10 @@ export const DEFAULT_PERSISTED: PersistedState = {
   settings: DEFAULT_SETTINGS,
   legacy: null,
   chatMessages: [],
+  impulses: [],
+  evidence: [],
+  contacts: [],
+  anchorPhotoUri: null,
 };
 
 /** Máximo de mensajes de chat guardados en el teléfono. */
@@ -52,6 +57,24 @@ const chatMessageSchema = z.object({
   text: z.string().max(8000),
   createdAt: z.string(),
 });
+const impulseSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().max(80),
+  minutes: z.number().int().min(1).max(120),
+  createdAt: z.string(),
+  endsAt: z.string(),
+  status: z.enum(['waiting', 'resisted', 'gave_in', 'discarded']),
+  resolvedAt: z.string().nullable(),
+  notificationId: z.string().nullable(),
+});
+const evidenceSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1).max(80),
+  icon: z.enum(EVIDENCE_ICONS),
+  date: isoDay,
+  source: z.enum(['manual', 'game']),
+});
+const contactSchema = z.object({ id: z.string().min(1), name: z.string().min(1).max(40), phone: z.string().min(3).max(20) });
 const streakSchema = z.object({ count: z.number().int().min(0), lastActiveDate: isoDay.nullable() });
 const moduleProgressSchema = z.object({
   // Se eliminan duplicados: datos corruptos como [0,0,0…] no deben contar como módulo completo.
@@ -133,6 +156,10 @@ function readV2(raw: Record<string, unknown>): PersistedState {
     settings: readSettings(raw.settings),
     legacy,
     chatMessages: safe(z.array(chatMessageSchema), raw.chatMessages, []).slice(-MAX_CHAT_MESSAGES),
+    impulses: safe(z.array(impulseSchema), raw.impulses, []),
+    evidence: safe(z.array(evidenceSchema), raw.evidence, []),
+    contacts: safe(z.array(contactSchema), raw.contacts, []).slice(0, MAX_CONTACTS),
+    anchorPhotoUri: safe(z.string().nullable(), raw.anchorPhotoUri, null),
   };
 }
 

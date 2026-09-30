@@ -7,7 +7,9 @@ import { AppText } from '@/components/ui/AppText';
 import { Button3D } from '@/components/ui/Button3D';
 import { Card } from '@/components/ui/Card';
 import type { SimProps } from '@/features/game/mechanics/SimulatorMechanic';
+import { toIsoDate } from '@/lib/age';
 import { haptic } from '@/lib/haptics';
+import { useAppStore } from '@/store/useAppStore';
 import { MIN_TOUCH, feedback, radius, spacing } from '@/theme/tokens';
 import { fontFamily } from '@/theme/typography';
 import { useTheme } from '@/theme/useTheme';
@@ -132,6 +134,7 @@ export function EvidenceSim({ content, tone, onDone }: SimProps) {
   const { colors } = useTheme();
   const [text, setText] = useState('');
   const [saved, setSaved] = useState<string | null>(null);
+  const addEvidence = useAppStore((state) => state.addEvidence);
   const button = { face: tone.base, shadow: tone.deep, text: tone.on };
   if (saved) {
     return (
@@ -160,7 +163,11 @@ export function EvidenceSim({ content, tone, onDone }: SimProps) {
         accessibilityLabel="Logro que ya superaste"
         style={[styles.input, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
       />
-      <Button3D label="Guardar medalla" tone={button} disabled={text.trim().length < 3} onPress={() => setSaved(text.trim())} haptics="success" />
+      <Button3D label="Guardar medalla" tone={button} disabled={text.trim().length < 3} onPress={() => {
+          setSaved(text.trim());
+          // El logro también queda en el Muro de Evidencia real.
+          addEvidence({ title: text.trim(), icon: 'medal', date: toIsoDate(new Date()), source: 'game' });
+        }} haptics="success" />
     </View>
   );
 }

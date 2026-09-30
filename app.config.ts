@@ -59,6 +59,7 @@ const config: ExpoConfig = {
         microphonePermission: false,
       },
     ],
+    ['expo-contacts', { contactsPermission: 'VIRA usa tus contactos solo para que elijas hasta 3 personas de confianza. No se envía nada sin tu permiso.' }],
     [
       'expo-calendar',
       {

@@ -12,6 +12,7 @@ import { Button3D } from '@/components/ui/Button3D';
 import { EmptyState } from '@/components/ui/ComingSoon';
 import { MODULES } from '@/data/modules/catalog';
 import { TreasureChest } from '@/features/game/TreasureChest';
+import { toIsoDate } from '@/lib/age';
 import { isModuleComplete } from '@/lib/gamification/progress';
 import { MODULE_COMPLETE_BONUS, levelInfo } from '@/lib/gamification/xp';
 import { haptic } from '@/lib/haptics';
@@ -54,6 +55,7 @@ export function RewardScreen({ moduleId }: { readonly moduleId: ModuleId }) {
   const badges = useAppStore((state) => state.badges);
   const earnReward = useAppStore((state) => state.earnReward);
   const addXp = useAppStore((state) => state.addXp);
+  const addEvidence = useAppStore((state) => state.addEvidence);
   const [open, setOpen] = useState(false);
   const tone = MODULE_COLORS[moduleId];
   const claimed = badges.includes(moduleBadge(moduleId));
@@ -77,6 +79,7 @@ export function RewardScreen({ moduleId }: { readonly moduleId: ModuleId }) {
     if (!claimed) {
       earnReward(moduleBadge(moduleId));
       addXp(MODULE_COMPLETE_BONUS);
+      addEvidence({ title: `Completaste ${MODULES[moduleId].name}`, icon: 'trophy', date: toIsoDate(new Date()), source: 'game' });
       haptic('success');
     }
     router.replace('/(tabs)/missions');

@@ -9,6 +9,7 @@ import { createGamificationSlice } from '@/store/slices/gamificationSlice';
 import { createProgressSlice } from '@/store/slices/progressSlice';
 import { createSettingsSlice } from '@/store/slices/settingsSlice';
 import { createUserSlice } from '@/store/slices/userSlice';
+import { createWellbeingSlice } from '@/store/slices/wellbeingSlice';
 import type { AppState, PersistedState } from '@/store/types';
 
 /**
@@ -24,6 +25,7 @@ export const useAppStore = create<AppState>()(
       ...createGamificationSlice(...args),
       ...createSettingsSlice(...args),
       ...createChatSlice(...args),
+      ...createWellbeingSlice(...args),
       resetAll: () => args[0]({ ...DEFAULT_PERSISTED }),
     }),
     {
@@ -50,6 +52,10 @@ export const useAppStore = create<AppState>()(
         // La conversación con Regi NO se guarda en disco (puede contener temas de salud mental y
         // AsyncStorage no está cifrado): vive solo en memoria durante la sesión.
         chatMessages: [],
+        impulses: state.impulses,
+        evidence: state.evidence,
+        contacts: state.contacts,
+        anchorPhotoUri: state.anchorPhotoUri,
       }),
     },
   ),
