@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { Flame, Lock, Target, Zap } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -15,9 +14,10 @@ import { Card } from '@/components/ui/Card';
 import { ProgressArc } from '@/components/ui/ProgressArc';
 import { MODULE_ORDER, MODULES } from '@/data/modules/catalog';
 import { STAGES_PER_MODULE } from '@/data/stages';
+import { openModule, openStage } from '@/features/game/navigation';
 import { ModuleDial } from '@/features/home/ModuleDial';
 import { dailyGoalProgress, minutesToday } from '@/lib/gamification/daily';
-import { currentModule, moduleCompletion, moduleStatus, nextStage } from '@/lib/gamification/progress';
+import { currentModule, followingModule, moduleCompletion, moduleStatus, moduleOrder, nextStage } from '@/lib/gamification/progress';
 import { visibleStreak } from '@/lib/streak';
 import { useAppStore } from '@/store/useAppStore';
 import { MODULE_COLORS, spacing } from '@/theme/tokens';
@@ -27,9 +27,6 @@ import type { ModuleId, UnlockStatus } from '@/types/game';
 /** Orden de los gajos en la ruleta, en sentido horario desde arriba (docs/IMAGENES 2.jpg). */
 const DIAL_ORDER: readonly ModuleId[] = ['hoy', 'freno', 'descarga', 'enfriador', 'muro', 'ancla'];
 
-function openModule(id: ModuleId) {
-  router.push({ pathname: '/module/[id]', params: { id } });
-}
 
 function StatsRow() {
   const { colors } = useTheme();
@@ -50,12 +47,13 @@ function StatsRow() {
 
 function ProgressHero() {
   const modules = useAppStore((state) => state.modules);
-  const current = currentModule(modules);
-  const next = nextStage(modules);
+  const start = useAppStore((state) => state.onboarding.firstModule);
+  const current = currentModule(modules, start);
+  const next = nextStage(modules, start);
   const fraction = current ? moduleCompletion(current, modules) : 1;
   const remaining = current ? Math.round(STAGES_PER_MODULE * (1 - fraction)) : 0;
-  const nextIndex = current ? MODULE_ORDER.indexOf(current) + 1 : -1;
-  const nextName = nextIndex > 0 && nextIndex < MODULE_ORDER.length ? MODULES[MODULE_ORDER[nextIndex]].name : null;
+  const following = followingModule(modules, start);
+  const nextName = following ? MODULES[following].name : null;
   let caption = '¡Completaste todo el recorrido! Puedes volver a jugar cualquier tema.';
   if (current && nextName) caption = `Te ${remaining === 1 ? 'falta 1 etapa' : `faltan ${remaining} etapas`} para desbloquear ${nextName}.`;
   else if (current) caption = `Te ${remaining === 1 ? 'falta 1 etapa' : `faltan ${remaining} etapas`} para completar el recorrido.`;
@@ -79,7 +77,7 @@ function ProgressHero() {
         size="lg"
         haptics="medium"
         accessibilityHint={next ? `Retoma ${MODULES[next.moduleId].name} en la etapa ${next.stage + 1}` : undefined}
-        onPress={() => (next ? openModule(next.moduleId) : openModule(MODULE_ORDER[0]))}
+        onPress={() => (next ? openStage(next) : openModule(moduleOrder(start)[0]))}
       />
     </View>
   );
@@ -105,10 +103,12 @@ function DailyGoal() {
 }
 
 function SelectedModuleCard({ id, status }: { readonly id: ModuleId; readonly status: UnlockStatus }) {
+  const start = useAppStore((state) => state.onboarding.firstModule);
   const meta = MODULES[id];
   const tone = MODULE_COLORS[id];
   const locked = status === 'locked';
-  const previous = MODULE_ORDER[MODULE_ORDER.indexOf(id) - 1];
+  const order = moduleOrder(start);
+  const previous = order[order.indexOf(id) - 1];
   return (
     <Card style={styles.moduleCard}>
       <View style={styles.moduleHeader}>
@@ -140,11 +140,12 @@ function SelectedModuleCard({ id, status }: { readonly id: ModuleId; readonly st
 export function HomeScreen() {
   const { colors } = useTheme();
   const modules = useAppStore((state) => state.modules);
+  const start = useAppStore((state) => state.onboarding.firstModule);
   const statuses = useMemo(
-    () => Object.fromEntries(MODULE_ORDER.map((id) => [id, moduleStatus(id, modules)])) as Record<ModuleId, UnlockStatus>,
-    [modules],
+    () => Object.fromEntries(MODULE_ORDER.map((id) => [id, moduleStatus(id, modules, start)])) as Record<ModuleId, UnlockStatus>,
+    [modules, start],
   );
-  const [selected, setSelected] = useState<ModuleId>(() => currentModule(modules) ?? 'descarga');
+  const [selected, setSelected] = useState<ModuleId>(() => currentModule(modules, start) ?? moduleOrder(start)[0]);
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>

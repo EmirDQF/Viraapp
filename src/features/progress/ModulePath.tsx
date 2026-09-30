@@ -19,20 +19,21 @@ const ZIGZAG = [0, 48, 72, 48, 0, -48, -72, -48] as const;
 interface ModulePathProps {
   readonly id: ModuleId;
   readonly modules: ModulesProgress;
+  readonly start: ModuleId | null;
   readonly onLockedPress: (message: string) => void;
 }
 
 /** Tramo del recorrido de un módulo: cabecera de color + 13 etapas agrupadas por sector. */
-export const ModulePath = memo(function ModulePath({ id, modules, onLockedPress }: ModulePathProps) {
+export const ModulePath = memo(function ModulePath({ id, modules, start, onLockedPress }: ModulePathProps) {
   const meta = MODULES[id];
   const tone = MODULE_COLORS[id];
-  const status = moduleStatus(id, modules);
-  const next = nextStage(modules);
+  const status = moduleStatus(id, modules, start);
+  const next = nextStage(modules, start);
   const percent = Math.round(moduleCompletion(id, modules) * 100);
 
   const pressStage = useCallback(
     (stage: number) => {
-      const state = stageStatus(id, stage, modules);
+      const state = stageStatus(id, stage, modules, start);
       if (state === 'locked') {
         haptic('warning');
         onLockedPress(
@@ -45,7 +46,7 @@ export const ModulePath = memo(function ModulePath({ id, modules, onLockedPress 
       haptic('medium');
       openStage({ moduleId: id, stage });
     },
-    [id, meta.name, modules, onLockedPress, status],
+    [id, meta.name, modules, onLockedPress, start, status],
   );
 
   return (
@@ -82,7 +83,7 @@ export const ModulePath = memo(function ModulePath({ id, modules, onLockedPress 
             <StageNode
               moduleId={id}
               stage={stage}
-              status={stageStatus(id, stage.index, modules)}
+              status={stageStatus(id, stage.index, modules, start)}
               isCurrent={next?.moduleId === id && next.stage === stage.index}
               offset={ZIGZAG[stage.index % ZIGZAG.length]}
               onPress={pressStage}

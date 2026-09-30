@@ -3,6 +3,7 @@ import {
   countCompletedModules,
   currentModule,
   moduleCompletion,
+  moduleOrder,
   moduleStatus,
   nextStage,
   stageStatus,
@@ -83,6 +84,25 @@ describe('moduleCompletion y currentModule', () => {
   test('el módulo actual es el primero sin completar', () => {
     expect(currentModule({ descarga: done() })).toBe('enfriador');
     expect(currentModule({})).toBe('descarga');
+  });
+});
+
+describe('módulo inicial elegido en el onboarding', () => {
+  test('moduleOrder pone primero el módulo elegido y mantiene el resto en orden', () => {
+    expect(moduleOrder('hoy')).toEqual(['hoy', 'descarga', 'enfriador', 'freno', 'ancla', 'muro']);
+    expect(moduleOrder(null)).toEqual(['descarga', 'enfriador', 'freno', 'hoy', 'ancla', 'muro']);
+  });
+
+  test('el módulo elegido queda desbloqueado y el primero por defecto pasa a ser el segundo', () => {
+    expect(moduleStatus('hoy', {}, 'hoy')).toBe('unlocked');
+    expect(moduleStatus('descarga', {}, 'hoy')).toBe('locked');
+    expect(moduleStatus('descarga', { hoy: done() }, 'hoy')).toBe('unlocked');
+  });
+
+  test('INICIAR empieza por el módulo elegido', () => {
+    expect(nextStage({}, 'freno')).toEqual({ moduleId: 'freno', stage: 0 });
+    expect(currentModule({}, 'freno')).toBe('freno');
+    expect(stageStatus('freno', 0, {}, 'freno')).toBe('unlocked');
   });
 });
 

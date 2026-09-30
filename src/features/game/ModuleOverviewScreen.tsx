@@ -20,10 +20,11 @@ import type { ModuleId } from '@/types/game';
 export function ModuleOverviewScreen({ id }: { readonly id: ModuleId }) {
   const { colors } = useTheme();
   const modules = useAppStore((state) => state.modules);
+  const start = useAppStore((state) => state.onboarding.firstModule);
   const meta = MODULES[id];
   const tone = MODULE_COLORS[id];
-  const status = moduleStatus(id, modules);
-  const firstPending = STAGES.find((stage) => stageStatus(id, stage.index, modules) === 'unlocked');
+  const status = moduleStatus(id, modules, start);
+  const firstPending = STAGES.find((stage) => stageStatus(id, stage.index, modules, start) === 'unlocked');
   const percent = Math.round(moduleCompletion(id, modules) * 100);
 
   return (
@@ -57,7 +58,7 @@ export function ModuleOverviewScreen({ id }: { readonly id: ModuleId }) {
               {sector.summary}
             </AppText>
             {STAGES.filter((stage) => stage.sector === sector.id).map((stage) => {
-              const state = stageStatus(id, stage.index, modules);
+              const state = stageStatus(id, stage.index, modules, start);
               const locked = state === 'locked';
               return (
                 <Pressable

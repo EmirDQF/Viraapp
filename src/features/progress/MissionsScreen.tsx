@@ -5,9 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RegiSays } from '@/components/regi/RegiMascot';
 import { AppText } from '@/components/ui/AppText';
-import { MODULE_ORDER } from '@/data/modules/catalog';
 import { ModulePath } from '@/features/progress/ModulePath';
-import { countCompletedModules } from '@/lib/gamification/progress';
+import { countCompletedModules, moduleOrder } from '@/lib/gamification/progress';
 import { useAppStore } from '@/store/useAppStore';
 import { radius, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
@@ -20,6 +19,8 @@ export function MissionsScreen() {
   const { colors } = useTheme();
   const modules = useAppStore((state) => state.modules);
   const name = useAppStore((state) => state.user?.name ?? '');
+  const start = useAppStore((state) => state.onboarding.firstModule);
+  const order = moduleOrder(start);
   const [notice, setNotice] = useState<string | null>(null);
   const completed = countCompletedModules(modules);
 
@@ -29,19 +30,21 @@ export function MissionsScreen() {
   }, []);
 
   const renderItem = useCallback(
-    ({ item }: { readonly item: ModuleId }) => <ModulePath id={item} modules={modules} onLockedPress={showNotice} />,
-    [modules, showNotice],
+    ({ item }: { readonly item: ModuleId }) => (
+      <ModulePath id={item} modules={modules} start={start} onLockedPress={showNotice} />
+    ),
+    [modules, showNotice, start],
   );
 
   const greeting =
     completed === 0
       ? `${name ? `${name}, este` : 'Este'} es tu recorrido. Cada etapa toma pocos minutos.`
-      : `Llevas ${completed} de ${MODULE_ORDER.length} temas. Puedes volver a cualquiera cuando quieras.`;
+      : `Llevas ${completed} de ${order.length} temas. Puedes volver a cualquiera cuando quieras.`;
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>
       <FlatList
-        data={MODULE_ORDER}
+        data={order}
         keyExtractor={(item) => item}
         renderItem={renderItem}
         contentContainerStyle={styles.content}

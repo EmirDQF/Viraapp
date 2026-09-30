@@ -47,6 +47,21 @@ const config: ExpoConfig = {
         dark: { backgroundColor: PETROL_NIGHT, image: './assets/splash-icon.png' },
       },
     ],
+    ['expo-notifications', { color: PETROL }],
+    [
+      'expo-image-picker',
+      {
+        photosPermission: 'VIRA usa tus fotos solo para que elijas momentos felices que te sirvan de ancla. Nunca salen de tu teléfono.',
+        cameraPermission: false,
+        microphonePermission: false,
+      },
+    ],
+    [
+      'expo-calendar',
+      {
+        calendarPermission: 'VIRA revisa tu calendario para anticipar días exigentes y recordarte cuidarte. Nada sale de tu teléfono.',
+      },
+    ],
   ],
 };
 
