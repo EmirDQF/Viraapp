@@ -1,4 +1,4 @@
-import type { Streak } from '@/types';
+import type { Streak } from '@/types/user';
 import { toIsoDate } from '@/lib/age';
 
 const DAY_MS = 24 * 60 * 60 * 1000;

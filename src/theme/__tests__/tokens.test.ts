@@ -12,6 +12,11 @@ describe('tokens VIRA: contraste WCAG AA', () => {
     expect(contrastRatio(colors.text, colors.surface)).toBeGreaterThanOrEqual(AA_NORMAL);
     expect(contrastRatio(colors.textMuted, colors.background)).toBeGreaterThanOrEqual(AA_NORMAL);
     expect(contrastRatio(colors.textMuted, colors.surface)).toBeGreaterThanOrEqual(AA_NORMAL);
+    expect(contrastRatio(colors.successText, colors.background)).toBeGreaterThanOrEqual(AA_NORMAL);
+    expect(contrastRatio(colors.successText, colors.surface)).toBeGreaterThanOrEqual(AA_NORMAL);
+    expect(contrastRatio(colors.dangerText, colors.background)).toBeGreaterThanOrEqual(AA_NORMAL);
+    expect(contrastRatio(colors.dangerText, colors.surface)).toBeGreaterThanOrEqual(AA_NORMAL);
+    expect(contrastRatio(colors.highlight, colors.background)).toBeGreaterThanOrEqual(AA_NORMAL);
   });
 
   test.each([

@@ -81,10 +81,13 @@ export interface ThemeColors {
   readonly successShadow: string;
   readonly successSoft: string;
   readonly onSuccess: string;
+  /** Verde para texto sobre fondo/superficie (el verde de feedback no llega a AA como texto). */
+  readonly successText: string;
   readonly danger: string;
   readonly dangerShadow: string;
   readonly dangerSoft: string;
   readonly onDanger: string;
+  readonly dangerText: string;
   readonly disabled: string;
   readonly disabledShadow: string;
   readonly onColor: string;
@@ -121,10 +124,12 @@ export const lightColors: ThemeColors = {
   successShadow: feedback.victoryDeep,
   successSoft: '#D5F5E8',
   onSuccess: brand.ink,
+  successText: '#047857',
   danger: feedback.retry,
   dangerShadow: feedback.retryDeep,
   dangerSoft: '#FDE3E3',
   onDanger: brand.white,
+  dangerText: feedback.retryDeep,
   disabled: '#D9DEDC',
   disabledShadow: '#B9C1BE',
   onColor: brand.white,
@@ -156,10 +161,12 @@ export const darkColors: ThemeColors = {
   successShadow: feedback.victoryDeep,
   successSoft: '#0F3B30',
   onSuccess: brand.ink,
+  successText: '#34D399',
   danger: feedback.retry,
   dangerShadow: feedback.retryDeep,
   dangerSoft: '#4A1717',
   onDanger: brand.white,
+  dangerText: '#FCA5A5',
   disabled: '#2E4A55',
   disabledShadow: '#1F3740',
   onColor: brand.white,

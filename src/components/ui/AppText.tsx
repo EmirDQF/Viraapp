@@ -33,8 +33,8 @@ export function AppText({
     muted: colors.textMuted,
     primary: colors.highlight,
     onColor: colors.onColor,
-    danger: colors.danger,
-    success: colors.success,
+    danger: colors.dangerText,
+    success: colors.successText,
   };
   return (
     <Text

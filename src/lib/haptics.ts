@@ -1,16 +1,13 @@
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 
-export type HapticKind = 'light' | 'medium' | 'success' | 'error' | 'warning' | 'none';
+export type HapticKind = 'light' | 'medium' | 'selection' | 'success' | 'error' | 'warning' | 'none';
 
 const isSupported = Platform.OS === 'ios' || Platform.OS === 'android';
 
 function run(effect: () => Promise<void>): void {
-  effect().catch((error: unknown) => {
-    if (__DEV__) {
-      console.warn('[haptics] no disponible', error);
-    }
-  });
+  // La vibración es un extra: si el dispositivo no la soporta, se ignora sin interrumpir al usuario.
+  effect().catch(() => undefined);
 }
 
 export function haptic(kind: HapticKind): void {
@@ -20,6 +17,9 @@ export function haptic(kind: HapticKind): void {
   switch (kind) {
     case 'light':
       run(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light));
+      return;
+    case 'selection':
+      run(() => Haptics.selectionAsync());
       return;
     case 'medium':
       run(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium));

@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
@@ -32,6 +33,8 @@ interface Button3DProps {
   readonly accessibilityLabel?: string;
   readonly accessibilityHint?: string;
   readonly testID?: string;
+  /** Degradado opcional para la cara del botón (dos colores con contraste AA frente a `tone.text`). */
+  readonly gradient?: readonly [string, string];
 }
 
 interface ResolvedTone extends ButtonTone {
@@ -75,6 +78,7 @@ export function Button3D({
   accessibilityLabel,
   accessibilityHint,
   testID,
+  gradient,
 }: Button3DProps) {
   const { colors } = useTheme();
   const pressed = useSharedValue(0);
@@ -119,6 +123,14 @@ export function Button3D({
           faceStyle,
         ]}
       >
+        {gradient && !inactive ? (
+          <LinearGradient
+            colors={gradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[StyleSheet.absoluteFill, styles.gradient]}
+          />
+        ) : null}
         {loading ? <ActivityIndicator color={resolved.text} /> : icon}
         <AppText
           variant="button"
@@ -139,6 +151,7 @@ const styles = StyleSheet.create({
   withLip: { paddingBottom: BUTTON_LIP },
   lip: { position: 'absolute', left: 0, right: 0, top: BUTTON_LIP, bottom: 0, borderRadius: radius.lg },
   face: {
+    overflow: 'hidden',
     borderRadius: radius.lg,
     borderWidth: 2,
     paddingHorizontal: spacing.lg,
@@ -148,6 +161,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   faceSmall: { paddingHorizontal: spacing.md },
+  gradient: { borderRadius: radius.lg - 2 },
   labelSmall: { fontSize: 13 },
   labelLarge: { fontSize: 18 },
 });
