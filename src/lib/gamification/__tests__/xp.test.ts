@@ -36,5 +36,12 @@ describe('niveles', () => {
     expect(levelInfo(0)).toEqual({ level: 1, floor: 0, ceil: 60, progress: 0 });
     expect(levelInfo(90)).toEqual({ level: 2, floor: 60, ceil: 180, progress: 0.25 });
     expect(levelInfo(180).level).toBe(3);
+    expect(levelInfo(179).level).toBe(2);
+  });
+
+  test('levelInfo es instantáneo y correcto incluso con XP enorme', () => {
+    const info = levelInfo(1e12);
+    expect(xpForLevel(info.level)).toBeLessThanOrEqual(1e12);
+    expect(xpForLevel(info.level + 1)).toBeGreaterThan(1e12);
   });
 });

@@ -51,6 +51,11 @@ describe('migrateState', () => {
     expect(partial.streak).toEqual(DEFAULT_PERSISTED.streak);
   });
 
+  test('etapas duplicadas en datos corruptos no cuentan como módulo completo', () => {
+    const corrupt = { ...DEFAULT_PERSISTED, modules: { descarga: { completedStages: Array(13).fill(0), bestScores: {}, completedAt: null } } };
+    expect(migrateState(corrupt, 2).modules.descarga?.completedStages).toEqual([0]);
+  });
+
   test('un estado ya en v2 se valida y se conserva', () => {
     const v2 = { ...DEFAULT_PERSISTED, xp: 50, dailyGoalMinutes: 15 };
     expect(migrateState(v2, 2)).toEqual(v2);

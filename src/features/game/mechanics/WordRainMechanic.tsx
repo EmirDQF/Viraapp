@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated, {
   Easing,
@@ -101,27 +101,23 @@ export function WordRainMechanic({ content, tone, onComplete }: MechanicProps<Wo
     return words.map((word, id) => ({ id, ...word, lane: random() }));
   }, [content]);
 
-  const resolve = useCallback((drop: Drop, next: DropState) => {
-    setStates((current) => (current[drop.id] && current[drop.id] !== 'falling' ? current : { ...current, [drop.id]: next }));
-  }, []);
+  /** Palabras ya resueltas: evita contar dos veces si el toque y el aterrizaje coinciden. */
+  const resolved = useRef<Set<number>>(new Set());
 
-  const onTap = useCallback(
-    (drop: Drop) => {
-      score.answer(drop.good);
-      if (drop.good) setCaughtGood((value) => value + 1);
-      resolve(drop, 'caught');
+  const settle = useCallback(
+    (drop: Drop, next: DropState, correct: boolean) => {
+      if (resolved.current.has(drop.id)) return;
+      resolved.current.add(drop.id);
+      score.answer(correct);
+      if (next === 'caught' && drop.good) setCaughtGood((value) => value + 1);
+      setStates((current) => ({ ...current, [drop.id]: next }));
     },
-    [resolve, score],
+    [score],
   );
 
-  const onLanded = useCallback(
-    (drop: Drop) => {
-      // Dejar caer una palabra mala es esquivarla bien; dejar caer una buena es perderla (sin castigo extra).
-      score.answer(!drop.good);
-      resolve(drop, 'landed');
-    },
-    [resolve, score],
-  );
+  // Dejar caer una palabra mala es esquivarla bien; dejar caer una buena es perderla (sin castigo extra).
+  const onTap = useCallback((drop: Drop) => settle(drop, 'caught', drop.good), [settle]);
+  const onLanded = useCallback((drop: Drop) => settle(drop, 'landed', !drop.good), [settle]);
 
   const onLayout = (event: LayoutChangeEvent) => setSize({ width: event.nativeEvent.layout.width, height: event.nativeEvent.layout.height });
   const finished = Object.values(states).filter((state) => state !== 'falling').length >= drops.length;

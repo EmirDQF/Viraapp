@@ -1,4 +1,4 @@
-import { createRateLimiter } from '@/lib/chat/rateLimit';
+import { clientKey, createRateLimiter } from '@/lib/chat/rateLimit';
 
 describe('createRateLimiter', () => {
   test('permite hasta el límite dentro de la ventana y luego bloquea', () => {
@@ -16,6 +16,12 @@ describe('createRateLimiter', () => {
     expect(limiter.check('ip', 0).allowed).toBe(true);
     expect(limiter.check('ip', 999).allowed).toBe(false);
     expect(limiter.check('ip', 1000).allowed).toBe(true);
+  });
+
+  test('clientKey solo confía en X-Forwarded-For si se indica que hay un proxy de confianza', () => {
+    const request = new Request('http://x/api/chat', { headers: { 'x-forwarded-for': '1.2.3.4, 10.0.0.1' } });
+    expect(clientKey(request, false)).toBe('anonymous');
+    expect(clientKey(request, true)).toBe('1.2.3.4');
   });
 
   test('cada clave tiene su propio cupo', () => {

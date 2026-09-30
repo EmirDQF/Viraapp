@@ -3,7 +3,7 @@ import { fetch as expoFetch } from 'expo/fetch';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 
-import { detectCrisis } from '@/lib/chat/crisis';
+import { detectCrisis, mentionsHelpline } from '@/lib/chat/crisis';
 import { offlineReply } from '@/lib/chat/offline';
 import { MAX_HISTORY, MAX_MESSAGE_CHARS } from '@/lib/chat/schema';
 import { useAppStore } from '@/store/useAppStore';
@@ -62,15 +62,17 @@ export function useChat(): ChatController {
       if (response.headers.get('x-vira-crisis') === '1') setCrisis(true);
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let received = 0;
+      let reply = '';
       for (;;) {
         const { done, value } = await reader.read();
         if (done) break;
         const text = decoder.decode(value, { stream: true });
-        received += text.length;
+        reply += text;
         if (text) appendToMessage(replyId, text);
       }
-      if (received === 0) throw new Error('chat_empty');
+      if (reply.length === 0) throw new Error('chat_empty');
+      // Si Regi (la IA) detectó riesgo por el contexto y remite a líneas de ayuda, mostramos la tarjeta.
+      if (mentionsHelpline(reply)) setCrisis(true);
     },
     [appendToMessage],
   );

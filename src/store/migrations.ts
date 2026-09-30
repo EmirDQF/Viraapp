@@ -54,7 +54,10 @@ const chatMessageSchema = z.object({
 });
 const streakSchema = z.object({ count: z.number().int().min(0), lastActiveDate: isoDay.nullable() });
 const moduleProgressSchema = z.object({
-  completedStages: z.array(z.number().int().min(0).max(12)),
+  // Se eliminan duplicados: datos corruptos como [0,0,0…] no deben contar como módulo completo.
+  completedStages: z
+    .array(z.number().int().min(0).max(12))
+    .transform((stages) => [...new Set(stages)].sort((a, b) => a - b)),
   bestScores: z.record(z.string(), z.number().min(0).max(1)),
   completedAt: z.string().nullable(),
 });
@@ -70,9 +73,11 @@ function asRecord(value: unknown): Record<string, unknown> {
 }
 
 function readModules(value: unknown): PersistedState['modules'] {
-  const entries = Object.entries(asRecord(value)).filter(
-    ([key, progress]) => moduleId.safeParse(key).success && moduleProgressSchema.safeParse(progress).success,
-  );
+  const entries = Object.entries(asRecord(value)).flatMap(([key, progress]) => {
+    const parsed = moduleProgressSchema.safeParse(progress);
+    // Se guarda el valor ya normalizado por el esquema (p. ej. sin etapas duplicadas).
+    return moduleId.safeParse(key).success && parsed.success ? [[key, parsed.data] as const] : [];
+  });
   return Object.fromEntries(entries) as PersistedState['modules'];
 }
 

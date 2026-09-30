@@ -55,7 +55,7 @@ export interface PersistedState {
   readonly badges: readonly string[];
   readonly settings: Settings;
   readonly legacy: LegacyData | null;
-  /** Conversación con Regi: se guarda solo en el teléfono y se borra con "Borrón y cuenta nueva". */
+  /** Conversación con Regi: solo en memoria (no se persiste); se borra con "Borrón y cuenta nueva". */
   readonly chatMessages: readonly ChatMessage[];
 }
 

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,9 +24,15 @@ export function MissionsScreen() {
   const [notice, setNotice] = useState<string | null>(null);
   const completed = countCompletedModules(modules);
 
+  const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (noticeTimer.current) clearTimeout(noticeTimer.current);
+  }, []);
+
   const showNotice = useCallback((message: string) => {
+    if (noticeTimer.current) clearTimeout(noticeTimer.current);
     setNotice(message);
-    setTimeout(() => setNotice((current) => (current === message ? null : current)), NOTICE_MS);
+    noticeTimer.current = setTimeout(() => setNotice(null), NOTICE_MS);
   }, []);
 
   const renderItem = useCallback(

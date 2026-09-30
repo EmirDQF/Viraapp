@@ -8,6 +8,7 @@ import { ProgressBar } from '@/components/ProgressBar';
 import { AppText } from '@/components/ui/AppText';
 import { Button3D } from '@/components/ui/Button3D';
 import { EmptyState } from '@/components/ui/ComingSoon';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { getModuleContent } from '@/data/modules';
 import { MODULES } from '@/data/modules/catalog';
 import { SECTORS, STAGES, STAGES_PER_MODULE } from '@/data/stages';
@@ -116,7 +117,15 @@ export function StageScreen({ moduleId, stage }: { readonly moduleId: ModuleId; 
       </View>
       <View style={styles.body}>
         {phase.kind === 'play' ? (
-          <StageMechanic key={stage} stage={stage} content={content} moduleId={moduleId} tone={tone} onComplete={finish} onDecision={onDecision} />
+          <ErrorBoundary
+            fallback={
+              <EmptyState title="Esta etapa tuvo un problema" message="No es tu culpa. Vuelve al recorrido e inténtalo de nuevo." pose="empathetic">
+                <Button3D label="Volver" onPress={goBackOrHome} />
+              </EmptyState>
+            }
+          >
+            <StageMechanic key={stage} stage={stage} content={content} moduleId={moduleId} tone={tone} onComplete={finish} onDecision={onDecision} />
+          </ErrorBoundary>
         ) : null}
         {phase.kind === 'mirror' ? <MirrorView firstChoiceGood={phase.result.firstChoiceGood} tone={tone} onContinue={() => finish(phase.result)} /> : null}
         {phase.kind === 'complete' ? (

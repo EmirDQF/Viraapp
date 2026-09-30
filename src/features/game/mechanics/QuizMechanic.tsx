@@ -70,7 +70,7 @@ export function QuizMechanic({ content, tone, onComplete }: MechanicProps<readon
         </AppText>
         {question.options.map((option, index) => (
           <ChoiceButton
-            key={option}
+            key={`${questionIndex}-${index}`}
             label={option}
             badge={LETTERS[index]}
             state={stateOf(index)}

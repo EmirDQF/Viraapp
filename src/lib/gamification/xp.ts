@@ -43,8 +43,9 @@ export interface LevelInfo {
 
 export function levelInfo(xp: number): LevelInfo {
   const safeXp = Math.max(0, finiteOrZero(xp));
-  let level = 1;
-  while (xpForLevel(level + 1) <= safeXp) level += 1;
+  // xpForLevel(L) = 30·L·(L-1) ≤ xp  ⇒  L ≤ (1 + √(1 + 4·xp/30)) / 2  (sin bucles, aunque xp sea enorme)
+  let level = Math.max(1, Math.floor((1 + Math.sqrt(1 + (4 * safeXp) / LEVEL_STEP)) / 2));
+  if (xpForLevel(level) > safeXp) level -= 1;
   const floor = xpForLevel(level);
   const ceil = xpForLevel(level + 1);
   return { level, floor, ceil, progress: (safeXp - floor) / (ceil - floor) };

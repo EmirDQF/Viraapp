@@ -47,7 +47,9 @@ export const useAppStore = create<AppState>()(
         badges: state.badges,
         settings: state.settings,
         legacy: state.legacy,
-        chatMessages: state.chatMessages,
+        // La conversación con Regi NO se guarda en disco (puede contener temas de salud mental y
+        // AsyncStorage no está cifrado): vive solo en memoria durante la sesión.
+        chatMessages: [],
       }),
     },
   ),

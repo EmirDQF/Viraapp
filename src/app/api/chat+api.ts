@@ -5,7 +5,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 
 import { detectCrisis } from '@/lib/chat/crisis';
-import { createRateLimiter } from '@/lib/chat/rateLimit';
+import { clientKey, createRateLimiter } from '@/lib/chat/rateLimit';
 import { chatRequestSchema } from '@/lib/chat/schema';
 import { REGI_SYSTEM_PROMPT } from '@/lib/chat/systemPrompt';
 
@@ -13,18 +13,18 @@ import { REGI_SYSTEM_PROMPT } from '@/lib/chat/systemPrompt';
 const MODEL = 'claude-sonnet-5';
 const MAX_TOKENS = 2048;
 const MAX_BODY_BYTES = 80_000;
-const limiter = createRateLimiter({ limit: 20, windowMs: 5 * 60 * 1000 });
+const WINDOW_MS = 5 * 60 * 1000;
+/** Límite por cliente (solo significativo detrás de un proxy de confianza, ver clientKey). */
+const perClient = createRateLimiter({ limit: 20, windowMs: WINDOW_MS });
+/** Límite global por instancia: acota el costo aunque se falsifiquen IPs. */
+const globalLimiter = createRateLimiter({ limit: 120, windowMs: WINDOW_MS });
+const GLOBAL_KEY = 'all';
 
 const CRISIS_HEADER = 'X-Vira-Crisis';
 const REFUSAL_FALLBACK = 'Prefiero no responder eso, pero sigo aquí contigo. ¿Quieres contarme cómo te sientes?';
 
 function json(status: number, body: Record<string, unknown>, headers: Record<string, string> = {}): Response {
   return Response.json(body, { status, headers });
-}
-
-function clientKey(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
-  return forwarded || request.headers.get('x-real-ip') || 'anonymous';
 }
 
 async function readBody(request: Request): Promise<unknown> {
@@ -65,8 +65,9 @@ export async function POST(request: Request): Promise<Response> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return json(503, { error: 'offline' });
 
-  const rate = limiter.check(clientKey(request));
-  if (!rate.allowed) {
+  const trustProxy = process.env.TRUST_PROXY_HEADERS === 'true';
+  const rate = [globalLimiter.check(GLOBAL_KEY), perClient.check(clientKey(request, trustProxy))].find((result) => !result.allowed);
+  if (rate) {
     return json(429, { error: 'rate_limited' }, { 'Retry-After': String(Math.ceil(rate.retryAfterMs / 1000)) });
   }
 

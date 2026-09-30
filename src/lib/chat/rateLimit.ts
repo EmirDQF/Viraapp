@@ -14,6 +14,17 @@ interface Options {
   readonly windowMs: number;
 }
 
+/**
+ * Clave de cliente para el límite. Las cabeceras X-Forwarded-For / X-Real-IP las puede falsificar el cliente,
+ * así que solo se usan si el despliegue está detrás de un proxy de confianza que las reescribe
+ * (TRUST_PROXY_HEADERS=true). Si no, todos comparten la clave "anonymous" y manda el límite global.
+ */
+export function clientKey(request: Request, trustProxyHeaders: boolean): string {
+  if (!trustProxyHeaders) return 'anonymous';
+  const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+  return forwarded || request.headers.get('x-real-ip') || 'anonymous';
+}
+
 /** Máximo de claves recordadas, para que la memoria no crezca sin límite. */
 const MAX_KEYS = 5000;
 

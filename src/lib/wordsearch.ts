@@ -69,7 +69,23 @@ function tryPlace(grid: readonly (readonly string[])[], word: string, random: Ra
   return null;
 }
 
+/** Semillas alternativas que se prueban si una distribución no cabe, antes de rendirse. */
+const SEED_RETRIES = 12;
+
 export function generateWordSearch(words: readonly string[], size = 10, seed = 1): WordSearchGrid {
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < SEED_RETRIES; attempt += 1) {
+    try {
+      return generateWithSeed(words, size, seed + attempt * 7919);
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes('no cabe en una cuadrícula')) throw error;
+      lastError = error;
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('No se pudo generar el pupiletras.');
+}
+
+function generateWithSeed(words: readonly string[], size: number, seed: number): WordSearchGrid {
   const random = seededRandom(seed);
   const normalized = words.map(normalizeWord).sort((a, b) => b.length - a.length);
   let grid: string[][] = Array.from({ length: size }, () => Array.from({ length: size }, () => ''));

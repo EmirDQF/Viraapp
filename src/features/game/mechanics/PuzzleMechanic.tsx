@@ -23,13 +23,16 @@ export function PuzzleMechanic({ content, tone, onComplete }: MechanicProps<Puzz
   const bank = useMemo(() => shuffle(content.steps, seededRandom(seedFrom(content.prompt))), [content]);
   const [chain, setChain] = useState<readonly string[]>([]);
   const [hint, setHint] = useState<string | null>(null);
+  const [missedSlots, setMissedSlots] = useState<ReadonlySet<number>>(() => new Set());
   const shake = useSharedValue(0);
   const complete = chain.length === content.steps.length;
 
   const place = (step: string) => {
     const correct = content.steps[chain.length] === step;
-    score.answer(correct);
+    // Solo cuenta el primer intento de cada posición: tantear no resta (sin castigos).
+    score.answer(correct, !missedSlots.has(chain.length));
     if (!correct) {
+      setMissedSlots(new Set([...missedSlots, chain.length]));
       shake.set(withSequence(withTiming(-8, { duration: 50 }), withTiming(8, { duration: 50 }), withTiming(0, { duration: 50 })));
       setHint(`"${step}" va más adelante (o antes) en la cadena. ¿Qué pasa justo después de "${chain.at(-1) ?? 'el inicio'}"?`);
       return;
