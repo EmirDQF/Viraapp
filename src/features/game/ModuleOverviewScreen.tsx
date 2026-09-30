@@ -15,6 +15,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { MIN_TOUCH, MODULE_COLORS, radius, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import type { ModuleId } from '@/types/game';
+import { ScreenBackground } from '@/components/ui/ScreenBackground';
 
 /** Portada de un tema: idea central, sectores y etapas. Desde aquí se juega o se rejuega. */
 export function ModuleOverviewScreen({ id }: { readonly id: ModuleId }) {
@@ -28,73 +29,75 @@ export function ModuleOverviewScreen({ id }: { readonly id: ModuleId }) {
   const percent = Math.round(moduleCompletion(id, modules) * 100);
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      <View style={[styles.hero, { backgroundColor: tone.base }]}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Volver" onPress={goBackOrHome} hitSlop={12} style={styles.back}>
-          <ArrowLeft color={tone.on} size={26} />
-        </Pressable>
-        <RegiMascot pose={status === 'completed' ? 'growth' : 'resilient'} size={120} glow={status === 'completed' ? 0.8 : 0} glowColor={tone.soft} />
-        <AppText variant="overline" color={tone.on}>
-          {meta.track}
-        </AppText>
-        <AppText variant="title" color={tone.on} align="center" accessibilityRole="header">
-          {meta.name}
-        </AppText>
-        <AppText color={tone.on} align="center">
-          {meta.focus}
-        </AppText>
-      </View>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Card tone="alt">
-          <AppText variant="overline" tone="muted">
-            Idea central
+    <ScreenBackground>
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <View style={[styles.hero, { backgroundColor: tone.base }]}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Volver" onPress={goBackOrHome} hitSlop={12} style={styles.back}>
+            <ArrowLeft color={tone.on} size={26} />
+          </Pressable>
+          <RegiMascot pose={status === 'completed' ? 'growth' : 'resilient'} size={120} glow={status === 'completed' ? 0.8 : 0} glowColor={tone.soft} />
+          <AppText variant="overline" color={tone.on}>
+            {meta.track}
           </AppText>
-          <AppText variant="bodyStrong">{meta.idea}</AppText>
-        </Card>
-        {SECTORS.map((sector) => (
-          <View key={sector.id} style={styles.sector}>
-            <AppText variant="subtitle">{sector.title}</AppText>
-            <AppText variant="caption" tone="muted">
-              {sector.summary}
+          <AppText variant="title" color={tone.on} align="center" accessibilityRole="header">
+            {meta.name}
+          </AppText>
+          <AppText color={tone.on} align="center">
+            {meta.focus}
+          </AppText>
+        </View>
+        <ScrollView contentContainerStyle={styles.content}>
+          <Card tone="alt">
+            <AppText variant="overline" tone="muted">
+              Idea central
             </AppText>
-            {STAGES.filter((stage) => stage.sector === sector.id).map((stage) => {
-              const state = stageStatus(id, stage.index, modules, start);
-              const locked = state === 'locked';
-              return (
-                <Pressable
-                  key={stage.index}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Etapa ${stage.index + 1}: ${stage.title}${locked ? ', bloqueada' : ''}${state === 'completed' ? ', completada' : ''}`}
-                  accessibilityState={{ disabled: locked }}
-                  disabled={locked}
-                  onPress={() => openStage({ moduleId: id, stage: stage.index })}
-                  style={[styles.stage, { backgroundColor: colors.surface, borderColor: colors.border, opacity: locked ? 0.6 : 1 }]}
-                >
-                  <View style={[styles.stageIcon, { backgroundColor: locked ? colors.disabled : tone.base }]}>
-                    {locked ? <Lock color={colors.textMuted} size={18} /> : <MechanicIcon kind={stage.kind} color={tone.on} size={20} />}
-                  </View>
-                  <AppText variant="bodyStrong" style={styles.stageTitle}>
-                    {stage.index + 1}. {stage.title}
-                  </AppText>
-                  <AppText variant="caption" tone={state === 'completed' ? 'success' : 'muted'}>
-                    {state === 'completed' ? 'Hecha' : `${stage.minutes} min`}
-                  </AppText>
-                </Pressable>
-              );
-            })}
-          </View>
-        ))}
-      </ScrollView>
-      <View style={[styles.footer, { borderTopColor: colors.border }]}>
-        <Button3D
-          label={status === 'locked' ? 'Tema bloqueado' : firstPending ? `Jugar etapa ${firstPending.index + 1}` : `Rejugar (${percent}%)`}
-          disabled={status === 'locked'}
-          tone={{ face: tone.base, shadow: tone.deep, text: tone.on }}
-          haptics="medium"
-          onPress={() => openStage({ moduleId: id, stage: firstPending?.index ?? 0 })}
-        />
-      </View>
-    </SafeAreaView>
+            <AppText variant="bodyStrong">{meta.idea}</AppText>
+          </Card>
+          {SECTORS.map((sector) => (
+            <View key={sector.id} style={styles.sector}>
+              <AppText variant="subtitle">{sector.title}</AppText>
+              <AppText variant="caption" tone="muted">
+                {sector.summary}
+              </AppText>
+              {STAGES.filter((stage) => stage.sector === sector.id).map((stage) => {
+                const state = stageStatus(id, stage.index, modules, start);
+                const locked = state === 'locked';
+                return (
+                  <Pressable
+                    key={stage.index}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Etapa ${stage.index + 1}: ${stage.title}${locked ? ', bloqueada' : ''}${state === 'completed' ? ', completada' : ''}`}
+                    accessibilityState={{ disabled: locked }}
+                    disabled={locked}
+                    onPress={() => openStage({ moduleId: id, stage: stage.index })}
+                    style={[styles.stage, { backgroundColor: colors.surface, borderColor: colors.border, opacity: locked ? 0.6 : 1 }]}
+                  >
+                    <View style={[styles.stageIcon, { backgroundColor: locked ? colors.disabled : tone.base }]}>
+                      {locked ? <Lock color={colors.textMuted} size={18} /> : <MechanicIcon kind={stage.kind} color={tone.on} size={20} />}
+                    </View>
+                    <AppText variant="bodyStrong" style={styles.stageTitle}>
+                      {stage.index + 1}. {stage.title}
+                    </AppText>
+                    <AppText variant="caption" tone={state === 'completed' ? 'success' : 'muted'}>
+                      {state === 'completed' ? 'Hecha' : `${stage.minutes} min`}
+                    </AppText>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ))}
+        </ScrollView>
+        <View style={[styles.footer, { borderTopColor: colors.border }]}>
+          <Button3D
+            label={status === 'locked' ? 'Tema bloqueado' : firstPending ? `Jugar etapa ${firstPending.index + 1}` : `Rejugar (${percent}%)`}
+            disabled={status === 'locked'}
+            tone={{ face: tone.base, shadow: tone.deep, text: tone.on }}
+            haptics="medium"
+            onPress={() => openStage({ moduleId: id, stage: firstPending?.index ?? 0 })}
+          />
+        </View>
+      </SafeAreaView>
+    </ScreenBackground>
   );
 }
 
@@ -108,7 +111,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: radius.xxl,
   },
   back: { position: 'absolute', left: spacing.md, top: spacing.md, width: MIN_TOUCH, height: MIN_TOUCH, justifyContent: 'center' },
-  content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
+  content: { paddingHorizontal: spacing.screen, paddingVertical: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   sector: { gap: spacing.sm },
   stage: {
     flexDirection: 'row',

@@ -1,7 +1,9 @@
 import { ChevronRight, type LucideIcon } from 'lucide-react-native';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { AppText } from '@/components/ui/AppText';
+import { ICON_STROKE, IconTile } from '@/components/ui/IconTile';
 import { MIN_TOUCH, radius, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
@@ -9,25 +11,25 @@ interface MenuRowProps {
   readonly icon: LucideIcon;
   readonly title: string;
   readonly subtitle?: string;
-  /** Color del círculo del ícono (por defecto, el de énfasis del tema). */
+  /** Color del squircle del ícono (por defecto, el petróleo de la marca). */
   readonly color?: string;
   readonly iconColor?: string;
   readonly onPress: () => void;
 }
 
-/** Fila de navegación con ícono, título, detalle opcional y flecha. */
+/** Fila de menú: ícono en IconTile, título, detalle opcional y chevron; responde con resorte y vibración. */
 export function MenuRow({ icon: Icon, title, subtitle, color, iconColor, onPress }: MenuRowProps) {
   const { colors } = useTheme();
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityRole="button"
       accessibilityLabel={subtitle ? `${title}. ${subtitle}` : title}
       onPress={onPress}
-      style={({ pressed }) => [styles.row, { backgroundColor: pressed ? colors.surfaceAlt : 'transparent' }]}
+      style={styles.row}
     >
-      <View style={[styles.icon, { backgroundColor: color ?? colors.surfaceAlt }]}>
-        <Icon color={iconColor ?? colors.highlight} size={20} />
-      </View>
+      <IconTile color={color ?? colors.primary} size={42}>
+        <Icon color={iconColor ?? colors.onPrimary} size={20} strokeWidth={ICON_STROKE} />
+      </IconTile>
       <View style={styles.text}>
         <AppText variant="bodyStrong">{title}</AppText>
         {subtitle ? (
@@ -36,13 +38,19 @@ export function MenuRow({ icon: Icon, title, subtitle, color, iconColor, onPress
           </AppText>
         ) : null}
       </View>
-      <ChevronRight color={colors.textMuted} size={20} />
-    </Pressable>
+      <ChevronRight color={colors.textMuted} size={20} strokeWidth={2.5} />
+    </AnimatedPressable>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: MIN_TOUCH + 12, paddingHorizontal: spacing.sm, borderRadius: radius.lg },
-  icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  text: { flex: 1 },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    minHeight: MIN_TOUCH + 16,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
+  },
+  text: { flex: 1, gap: 2 },
 });

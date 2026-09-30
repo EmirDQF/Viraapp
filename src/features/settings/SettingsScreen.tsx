@@ -17,6 +17,7 @@ import { useAppStore } from '@/store/useAppStore';
 import type { DailyGoalMinutes, ThemePreference } from '@/store/types';
 import { MIN_TOUCH, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
+import { ScreenBackground } from '@/components/ui/ScreenBackground';
 
 const THEME_OPTIONS: readonly { value: ThemePreference; label: string }[] = [
   { value: 'system', label: 'Sistema' },
@@ -116,42 +117,44 @@ export function SettingsScreen() {
   const [deleting, setDeleting] = useState(false);
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.header}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Volver" onPress={goBackOrHome} hitSlop={10} style={styles.back}>
-            <ArrowLeft color={colors.text} size={24} />
-          </Pressable>
-          <AppText variant="title" accessibilityRole="header">
-            Ajustes
-          </AppText>
-        </View>
-        <SettingSection title="Apariencia">
-          <ChoiceGroup label="Tema" options={THEME_OPTIONS} value={settings.theme} onChange={(theme) => updateSettings({ theme })} />
-        </SettingSection>
-        <SettingSection title="Tu meta">
-          <ChoiceGroup label="Minutos de práctica al día" options={GOAL_OPTIONS} value={dailyGoal} onChange={setDailyGoal} />
-        </SettingSection>
-        <NotificationSettings />
-        <SettingSection title="Experiencia">
-          <SettingSwitch label="Sonidos" detail="Efectos al acertar y al completar etapas." value={settings.sounds} onChange={(sounds) => updateSettings({ sounds })} />
-          <SettingSwitch label="Vibración" detail="Respuesta táctil al tocar y al acertar." value={settings.haptics} onChange={(haptics) => updateSettings({ haptics })} />
-          <SettingSwitch label="Reducir movimiento" detail="Menos animaciones y transiciones más simples." value={settings.reduceMotion} onChange={(reduceMotion) => updateSettings({ reduceMotion })} />
-        </SettingSection>
-        <SettingSection title="Privacidad">
-          <AppText tone="muted">Todo lo que haces en VIRA se guarda solo en este teléfono.</AppText>
-          <Button3D label="Borrar mis datos" variant="outline" icon={<Trash2 color={colors.dangerText} size={18} />} onPress={() => setDeleting(true)} />
-        </SettingSection>
-        <MenuRow icon={Info} title="Sobre VIRA y ayuda profesional" onPress={() => router.push('/about')} />
-      </ScrollView>
-      <DeleteDataSheet visible={deleting} onClose={() => setDeleting(false)} />
-    </SafeAreaView>
+    <ScreenBackground>
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <ScrollView contentContainerStyle={styles.content}>
+          <View style={styles.header}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Volver" onPress={goBackOrHome} hitSlop={10} style={styles.back}>
+              <ArrowLeft color={colors.text} size={24} />
+            </Pressable>
+            <AppText variant="title" accessibilityRole="header">
+              Ajustes
+            </AppText>
+          </View>
+          <SettingSection title="Apariencia">
+            <ChoiceGroup label="Tema" options={THEME_OPTIONS} value={settings.theme} onChange={(theme) => updateSettings({ theme })} />
+          </SettingSection>
+          <SettingSection title="Tu meta">
+            <ChoiceGroup label="Minutos de práctica al día" options={GOAL_OPTIONS} value={dailyGoal} onChange={setDailyGoal} />
+          </SettingSection>
+          <NotificationSettings />
+          <SettingSection title="Experiencia">
+            <SettingSwitch label="Sonidos" detail="Efectos al acertar y al completar etapas." value={settings.sounds} onChange={(sounds) => updateSettings({ sounds })} />
+            <SettingSwitch label="Vibración" detail="Respuesta táctil al tocar y al acertar." value={settings.haptics} onChange={(haptics) => updateSettings({ haptics })} />
+            <SettingSwitch label="Reducir movimiento" detail="Menos animaciones y transiciones más simples." value={settings.reduceMotion} onChange={(reduceMotion) => updateSettings({ reduceMotion })} />
+          </SettingSection>
+          <SettingSection title="Privacidad">
+            <AppText tone="muted">Todo lo que haces en VIRA se guarda solo en este teléfono.</AppText>
+            <Button3D label="Borrar mis datos" variant="outline" icon={<Trash2 color={colors.dangerText} size={18} />} onPress={() => setDeleting(true)} />
+          </SettingSection>
+          <MenuRow icon={Info} title="Sobre VIRA y ayuda profesional" onPress={() => router.push('/about')} />
+        </ScrollView>
+        <DeleteDataSheet visible={deleting} onClose={() => setDeleting(false)} />
+      </SafeAreaView>
+    </ScreenBackground>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
+  content: { paddingHorizontal: spacing.screen, paddingVertical: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   back: { width: MIN_TOUCH, height: MIN_TOUCH, justifyContent: 'center' },
   sheetButtons: { gap: spacing.sm },

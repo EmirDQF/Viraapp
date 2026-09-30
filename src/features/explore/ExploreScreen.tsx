@@ -17,6 +17,7 @@ import { spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import type { ModuleId } from '@/types/game';
 import { useTabBarSpace } from '@/components/ui/GlassTabBar';
+import { ScreenBackground } from '@/components/ui/ScreenBackground';
 
 function SectionTitle({ title, children }: { readonly title: string; readonly children?: ReactNode }) {
   return (
@@ -51,42 +52,44 @@ export function ExploreScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: tabSpace }]}>
-        <AppText variant="title" accessibilityRole="header">
-          Explorar
-        </AppText>
-        <RegiSays pose="resilient" message="Aquí entiendes el porqué de cada tema. Saber cómo funciona tu mente también es entrenarla." size={78} />
-        <SectionTitle title="Recomendado para ti" />
-        {recommended.map((id) => renderTopic(id, true))}
-        {others.length > 0 ? <SectionTitle title="Más temas" /> : null}
-        {others.map((id) => renderTopic(id, false))}
-        <SectionTitle title="Recursos confiables" />
-        <Card style={styles.resources}>
-          {RESOURCES.map((link) => (
-            <LinkRow key={link.url} link={link} />
-          ))}
-          <AppText variant="caption" tone="muted">
-            Solo enlazamos sitios oficiales y de salud pública. VIRA no reemplaza a un profesional.
+    <ScreenBackground>
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <ScrollView contentContainerStyle={[styles.content, { paddingBottom: tabSpace }]}>
+          <AppText variant="display" accessibilityRole="header">
+            Explorar
           </AppText>
-        </Card>
-        <SectionTitle title="Eventos y campañas cerca de ti">
-          <Badge label="Datos de ejemplo" color={colors.surfaceAlt} textColor={colors.textMuted} />
-        </SectionTitle>
-        <AppText tone="muted">
-          Participar siempre es voluntario. Pronto verás actividades reales de tu zona; por ahora son ejemplos.
-        </AppText>
-        {SAMPLE_EVENTS.map((event) => (
-          <EventCard key={event.id} event={event} interested={interested.includes(event.id)} onToggle={toggleEvent} />
-        ))}
-      </ScrollView>
-    </SafeAreaView>
+          <RegiSays pose="resilient" message="Aquí entiendes el porqué de cada tema. Saber cómo funciona tu mente también es entrenarla." size={78} />
+          <SectionTitle title="Recomendado para ti" />
+          {recommended.map((id) => renderTopic(id, true))}
+          {others.length > 0 ? <SectionTitle title="Más temas" /> : null}
+          {others.map((id) => renderTopic(id, false))}
+          <SectionTitle title="Recursos confiables" />
+          <Card style={styles.resources}>
+            {RESOURCES.map((link) => (
+              <LinkRow key={link.url} link={link} />
+            ))}
+            <AppText variant="caption" tone="muted">
+              Solo enlazamos sitios oficiales y de salud pública. VIRA no reemplaza a un profesional.
+            </AppText>
+          </Card>
+          <SectionTitle title="Eventos y campañas cerca de ti">
+            <Badge label="Datos de ejemplo" color={colors.surfaceAlt} textColor={colors.textMuted} />
+          </SectionTitle>
+          <AppText tone="muted">
+            Participar siempre es voluntario. Pronto verás actividades reales de tu zona; por ahora son ejemplos.
+          </AppText>
+          {SAMPLE_EVENTS.map((event) => (
+            <EventCard key={event.id} event={event} interested={interested.includes(event.id)} onToggle={toggleEvent} />
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    </ScreenBackground>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
+  content: { paddingHorizontal: spacing.screen, paddingVertical: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
   sectionTitle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm, flexWrap: 'wrap', marginTop: spacing.sm },
   resources: { gap: spacing.xs },
 });

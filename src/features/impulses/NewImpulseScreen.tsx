@@ -16,6 +16,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { MIN_TOUCH, MODULE_COLORS, radius, spacing } from '@/theme/tokens';
 import { fontFamily } from '@/theme/typography';
 import { useTheme } from '@/theme/useTheme';
+import { ScreenBackground } from '@/components/ui/ScreenBackground';
 
 const TONE = MODULE_COLORS.enfriador;
 
@@ -47,63 +48,65 @@ export function NewImpulseScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-      <View style={styles.header}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Cerrar" onPress={goBackOrHome} hitSlop={10} style={styles.close}>
-          <X color={colors.textMuted} size={26} />
-        </Pressable>
-        <AppText variant="heading" accessibilityRole="header">
-          Nuevo impulso
-        </AppText>
-      </View>
-      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-        <RegiSays pose="calm" message="Un impulso no es una necesidad. Anótalo y date unos minutos antes de decidir." />
-        <View style={styles.chips}>
-          {IMPULSE_PRESETS.map((preset) => (
-            <Pressable
-              key={preset.title}
-              accessibilityRole="button"
-              accessibilityLabel={`Usar: ${preset.title}`}
-              accessibilityState={{ selected: title === preset.title }}
-              onPress={() => setTitle(preset.title)}
-              style={[styles.chip, { borderColor: title === preset.title ? TONE.base : colors.border, backgroundColor: title === preset.title ? TONE.soft : colors.surface }]}
-            >
-              <AppText variant="caption">{preset.title}</AppText>
-            </Pressable>
-          ))}
+    <ScreenBackground>
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <View style={styles.header}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Cerrar" onPress={goBackOrHome} hitSlop={10} style={styles.close}>
+            <X color={colors.textMuted} size={26} />
+          </Pressable>
+          <AppText variant="heading" accessibilityRole="header">
+            Nuevo impulso
+          </AppText>
         </View>
-        <TextInput
-          value={title}
-          onChangeText={setTitle}
-          placeholder="¿Qué quieres hacer ahora mismo?"
-          placeholderTextColor={colors.textMuted}
-          accessibilityLabel="Impulso"
-          maxLength={IMPULSE_TITLE_MAX}
-          style={[styles.input, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
-        />
-        <AppText variant="subtitle">¿Cuánto quieres esperar?</AppText>
-        <View style={styles.chips} accessibilityRole="radiogroup">
-          {TIMER_OPTIONS.map((option) => (
-            <Pressable
-              key={option}
-              accessibilityRole="radio"
-              accessibilityState={{ checked: minutes === option }}
-              aria-checked={minutes === option}
-              accessibilityLabel={`${option} minutos`}
-              onPress={() => setMinutes(option)}
-              style={[styles.timer, { backgroundColor: minutes === option ? TONE.base : colors.surface, borderColor: minutes === option ? TONE.base : colors.border }]}
-            >
-              <AppText variant="bodyStrong" color={minutes === option ? TONE.on : colors.text}>
-                {option} min
-              </AppText>
-            </Pressable>
-          ))}
+        <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+          <RegiSays pose="calm" message="Un impulso no es una necesidad. Anótalo y date unos minutos antes de decidir." />
+          <View style={styles.chips}>
+            {IMPULSE_PRESETS.map((preset) => (
+              <Pressable
+                key={preset.title}
+                accessibilityRole="button"
+                accessibilityLabel={`Usar: ${preset.title}`}
+                accessibilityState={{ selected: title === preset.title }}
+                onPress={() => setTitle(preset.title)}
+                style={[styles.chip, { borderColor: title === preset.title ? TONE.base : colors.border, backgroundColor: title === preset.title ? TONE.soft : colors.surface }]}
+              >
+                <AppText variant="caption">{preset.title}</AppText>
+              </Pressable>
+            ))}
+          </View>
+          <TextInput
+            value={title}
+            onChangeText={setTitle}
+            placeholder="¿Qué quieres hacer ahora mismo?"
+            placeholderTextColor={colors.textMuted}
+            accessibilityLabel="Impulso"
+            maxLength={IMPULSE_TITLE_MAX}
+            style={[styles.input, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
+          />
+          <AppText variant="subtitle">¿Cuánto quieres esperar?</AppText>
+          <View style={styles.chips} accessibilityRole="radiogroup">
+            {TIMER_OPTIONS.map((option) => (
+              <Pressable
+                key={option}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: minutes === option }}
+                aria-checked={minutes === option}
+                accessibilityLabel={`${option} minutos`}
+                onPress={() => setMinutes(option)}
+                style={[styles.timer, { backgroundColor: minutes === option ? TONE.base : colors.surface, borderColor: minutes === option ? TONE.base : colors.border }]}
+              >
+                <AppText variant="bodyStrong" color={minutes === option ? TONE.on : colors.text}>
+                  {option} min
+                </AppText>
+              </Pressable>
+            ))}
+          </View>
+        </ScrollView>
+        <View style={styles.footer}>
+          <Button3D label={`Esperar ${minutes} minutos`} disabled={!valid} tone={{ face: TONE.base, shadow: TONE.deep, text: TONE.on }} onPress={() => void save()} />
         </View>
-      </ScrollView>
-      <View style={styles.footer}>
-        <Button3D label={`Esperar ${minutes} minutos`} disabled={!valid} tone={{ face: TONE.base, shadow: TONE.deep, text: TONE.on }} onPress={() => void save()} />
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </ScreenBackground>
   );
 }
 
@@ -111,7 +114,7 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.md },
   close: { width: MIN_TOUCH, height: MIN_TOUCH, alignItems: 'center', justifyContent: 'center' },
-  body: { padding: spacing.lg, gap: spacing.md },
+  body: { paddingHorizontal: spacing.screen, paddingVertical: spacing.lg, gap: spacing.md },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   chip: { borderWidth: 1.5, borderRadius: radius.pill, paddingHorizontal: spacing.md, minHeight: MIN_TOUCH, justifyContent: 'center' },
   input: { borderWidth: 1.5, borderRadius: radius.lg, padding: spacing.md, fontFamily: fontFamily.semibold, fontSize: 16, minHeight: 54 },
