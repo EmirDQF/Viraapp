@@ -1,3 +1,11 @@
+import {
+  Nunito_400Regular,
+  Nunito_600SemiBold,
+  Nunito_700Bold,
+  Nunito_800ExtraBold,
+  Nunito_900Black,
+  useFonts,
+} from '@expo-google-fonts/nunito';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -10,8 +18,17 @@ import { useTheme } from '@/theme/useTheme';
 export default function RootLayout() {
   const hydrated = useStoreHydrated();
   const { colors, isDark } = useTheme();
+  // Si la fuente falla (sin red en web, por ejemplo) seguimos con la del sistema en lugar de bloquear la app.
+  const [fontsLoaded, fontError] = useFonts({
+    Nunito_400Regular,
+    Nunito_600SemiBold,
+    Nunito_700Bold,
+    Nunito_800ExtraBold,
+    Nunito_900Black,
+  });
+  const fontsReady = fontsLoaded || fontError !== null;
 
-  if (!hydrated) {
+  if (!hydrated || !fontsReady) {
     return (
       <View style={[styles.loading, { backgroundColor: colors.background }]}>
         <AxoMascot mood="thinking" size={140} />

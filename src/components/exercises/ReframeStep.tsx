@@ -7,7 +7,7 @@ import { shuffle } from '@/lib/shuffle';
 import type { ReframeBlock, ReframeCase, ReframeExercise } from '@/types';
 import { radius, spacing, typography } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
-import { Button3D } from '@/components/Button3D';
+import { Button3D } from '@/components/ui/Button3D';
 import { FeedbackPanel } from '@/components/exercises/FeedbackPanel';
 import { StepLayout } from '@/components/exercises/StepLayout';
 import type { StepProps } from '@/components/exercises/types';

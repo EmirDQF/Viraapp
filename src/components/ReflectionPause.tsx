@@ -4,7 +4,7 @@ import { Modal, StyleSheet, Text, View } from 'react-native';
 import { radius, spacing, typography } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import { AxoMascot } from '@/components/AxoMascot';
-import { Button3D } from '@/components/Button3D';
+import { Button3D } from '@/components/ui/Button3D';
 
 const READING_SECONDS = 8;
 

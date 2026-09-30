@@ -5,7 +5,7 @@ import Animated, { ZoomIn } from 'react-native-reanimated';
 import { palette, radius, spacing, typography } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import { AxoMascot } from '@/components/AxoMascot';
-import { Button3D } from '@/components/Button3D';
+import { Button3D } from '@/components/ui/Button3D';
 import { Confetti } from '@/components/Confetti';
 
 interface VictoryModalProps {

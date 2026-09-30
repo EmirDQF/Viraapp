@@ -4,7 +4,7 @@ import Animated, { SlideInDown } from 'react-native-reanimated';
 
 import { radius, spacing, typography } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
-import { Button3D } from '@/components/Button3D';
+import { Button3D } from '@/components/ui/Button3D';
 
 interface FeedbackPanelProps {
   readonly tone: 'success' | 'retry';

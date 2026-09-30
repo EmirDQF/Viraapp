@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AxoSays } from '@/components/AxoMascot';
-import { Button3D } from '@/components/Button3D';
+import { Button3D } from '@/components/ui/Button3D';
 import { ExerciseRenderer } from '@/components/exercises/ExerciseRenderer';
 import { ProgressBar } from '@/components/ProgressBar';
 import { ReflectionPause } from '@/components/ReflectionPause';

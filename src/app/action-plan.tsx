@@ -5,7 +5,7 @@ import { Share, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { AxoMascot, AxoSays } from '@/components/AxoMascot';
-import { Button3D } from '@/components/Button3D';
+import { Button3D } from '@/components/ui/Button3D';
 import { Screen } from '@/components/Screen';
 import { getCrucible } from '@/data/crucibles';
 import { haptic } from '@/lib/haptics';

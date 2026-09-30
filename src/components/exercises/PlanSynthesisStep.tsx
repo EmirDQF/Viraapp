@@ -6,7 +6,7 @@ import { haptic } from '@/lib/haptics';
 import type { PlanSynthesisExercise } from '@/types';
 import { spacing, typography } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
-import { Button3D } from '@/components/Button3D';
+import { Button3D } from '@/components/ui/Button3D';
 import { OptionTile } from '@/components/OptionTile';
 import { StepLayout } from '@/components/exercises/StepLayout';
 import type { StepProps } from '@/components/exercises/types';

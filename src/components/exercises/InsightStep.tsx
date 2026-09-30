@@ -4,7 +4,7 @@ import type { InsightExercise } from '@/types';
 import { typography } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import { AxoMascot } from '@/components/AxoMascot';
-import { Button3D } from '@/components/Button3D';
+import { Button3D } from '@/components/ui/Button3D';
 import { ExerciseCard } from '@/components/ExerciseCard';
 import { StepLayout } from '@/components/exercises/StepLayout';
 import type { StepProps } from '@/components/exercises/types';

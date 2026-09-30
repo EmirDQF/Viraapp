@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { AxoSays } from '@/components/AxoMascot';
-import { Button3D } from '@/components/Button3D';
+import { Button3D } from '@/components/ui/Button3D';
 import { CrucibleIcon } from '@/components/CrucibleIcon';
 import { Screen } from '@/components/Screen';
 import { CRUCIBLES } from '@/data/crucibles';

@@ -7,7 +7,7 @@ import { haptic } from '@/lib/haptics';
 import type { CardSortExercise, ControlZone, SortCard } from '@/types';
 import { palette, radius, spacing, typography } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
-import { Button3D } from '@/components/Button3D';
+import { Button3D } from '@/components/ui/Button3D';
 import { FeedbackPanel } from '@/components/exercises/FeedbackPanel';
 import { StepLayout } from '@/components/exercises/StepLayout';
 import type { StepProps } from '@/components/exercises/types';

@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput,
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
 import { AxoMascot, AxoSays } from '@/components/AxoMascot';
-import { Button3D } from '@/components/Button3D';
+import { Button3D } from '@/components/ui/Button3D';
 import { ProgressBar } from '@/components/ProgressBar';
 import { Screen } from '@/components/Screen';
 import { MAX_AGE, MIN_AGE, validateBirthDate, type DateParts } from '@/lib/age';
