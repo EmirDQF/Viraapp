@@ -16,6 +16,7 @@ import type { ChatMessage } from '@/store/types';
 import { MIN_TOUCH, radius, spacing } from '@/theme/tokens';
 import { fontFamily } from '@/theme/typography';
 import { useTheme } from '@/theme/useTheme';
+import { useTabBarSpace } from '@/components/ui/GlassTabBar';
 
 const RESET_MS = 2200;
 const SUGGESTIONS = ['Tuve un mal día', 'Estoy estresado por un examen', 'Quiero organizarme mejor'] as const;
@@ -50,6 +51,7 @@ function EmptyChat({ onPick }: { readonly onPick: (text: string) => void }) {
 
 /** Chat con Regi IA (maqueta 5) con el botón fijo "Borrón y cuenta nueva" arriba a la izquierda. */
 export function ChatScreen() {
+  const tabSpace = useTabBarSpace();
   const { colors } = useTheme();
   const chat = useChat();
   const [draft, setDraft] = useState('');
@@ -89,7 +91,7 @@ export function ChatScreen() {
   const lastId = chat.messages.at(-1)?.id;
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background, paddingBottom: tabSpace }]} edges={['top']}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <Pressable
           accessibilityRole="button"

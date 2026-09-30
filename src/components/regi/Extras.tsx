@@ -1,6 +1,7 @@
 import { Circle, Defs, Ellipse, G, Path, RadialGradient, Stop } from 'react-native-svg';
 
 import { tensionPath, type RegiColors } from '@/lib/regi';
+import { gradients } from '@/theme/tokens';
 
 const TENSION_SPIKES = 18;
 
@@ -26,32 +27,54 @@ export function EmpatheticAura({ colors }: { readonly colors: RegiColors }) {
   );
 }
 
-/** Halo del color del módulo cuando Regi "brilla" por una buena decisión (glow > 0). */
+/**
+ * Halo cuando Regi "brilla" por una buena decisión (glow > 0): el color del módulo en el centro se funde con
+ * el degradado `regi` (lila) hacia fuera.
+ */
 export function GlowHalo({ id, color, intensity }: { readonly id: string; readonly color: string; readonly intensity: number }) {
+  const [regiInner, regiOuter] = gradients.regi;
   return (
     <G>
       <Defs>
         <RadialGradient id={id} cx="50%" cy="55%" r="50%">
-          <Stop offset="0%" stopColor={color} stopOpacity={0.55 * intensity} />
-          <Stop offset="70%" stopColor={color} stopOpacity={0.2 * intensity} />
-          <Stop offset="100%" stopColor={color} stopOpacity={0} />
+          <Stop offset="0%" stopColor={color} stopOpacity={0.6 * intensity} />
+          <Stop offset="45%" stopColor={regiOuter} stopOpacity={0.4 * intensity} />
+          <Stop offset="75%" stopColor={regiInner} stopOpacity={0.16 * intensity} />
+          <Stop offset="100%" stopColor={regiInner} stopOpacity={0} />
         </RadialGradient>
       </Defs>
-      <Circle cx={100} cy={104} r={94} fill={`url(#${id})`} />
+      <Circle cx={100} cy={104} r={96} fill={`url(#${id})`} />
     </G>
   );
 }
 
-/** Contorno gris y tenso cuando Regi refleja una mala decisión (glow < 0). */
-export function TensionOutline({ colors, intensity }: { readonly colors: RegiColors; readonly intensity: number }) {
+/** Contorno gris y tenso, con un halo apagado, cuando Regi refleja una mala decisión (glow < 0). */
+export function TensionOutline({
+  id,
+  colors,
+  intensity,
+}: {
+  readonly id: string;
+  readonly colors: RegiColors;
+  readonly intensity: number;
+}) {
   return (
-    <Path
-      d={tensionPath(100, 106, 90, TENSION_SPIKES)}
-      stroke={colors.tension}
-      strokeWidth={2.5}
-      strokeLinejoin="round"
-      fill="none"
-      opacity={0.35 + 0.5 * intensity}
-    />
+    <G>
+      <Defs>
+        <RadialGradient id={id} cx="50%" cy="55%" r="50%">
+          <Stop offset="0%" stopColor={colors.tension} stopOpacity={0.28 * intensity} />
+          <Stop offset="100%" stopColor={colors.tension} stopOpacity={0} />
+        </RadialGradient>
+      </Defs>
+      <Circle cx={100} cy={104} r={92} fill={`url(#${id})`} />
+      <Path
+        d={tensionPath(100, 106, 90, TENSION_SPIKES)}
+        stroke={colors.tension}
+        strokeWidth={2.5}
+        strokeLinejoin="round"
+        fill="none"
+        opacity={0.35 + 0.5 * intensity}
+      />
+    </G>
   );
 }

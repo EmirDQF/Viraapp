@@ -16,6 +16,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import type { ModuleId } from '@/types/game';
+import { useTabBarSpace } from '@/components/ui/GlassTabBar';
 
 function SectionTitle({ title, children }: { readonly title: string; readonly children?: ReactNode }) {
   return (
@@ -30,6 +31,7 @@ function SectionTitle({ title, children }: { readonly title: string; readonly ch
 
 /** Pestaña Explorar: cada tema explicado, temas recomendados, recursos confiables y eventos de ejemplo. */
 export function ExploreScreen() {
+  const tabSpace = useTabBarSpace();
   const { colors } = useTheme();
   const modules = useAppStore((state) => state.modules);
   const start = useAppStore((state) => state.onboarding.firstModule);
@@ -50,7 +52,7 @@ export function ExploreScreen() {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: tabSpace }]}>
         <AppText variant="title" accessibilityRole="header">
           Explorar
         </AppText>

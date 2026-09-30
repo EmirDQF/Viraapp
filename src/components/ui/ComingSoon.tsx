@@ -1,45 +1,22 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { RegiMascot, type RegiPose } from '@/components/regi/RegiMascot';
-import { AppText } from '@/components/ui/AppText';
-import { spacing } from '@/theme/tokens';
-import { useTheme } from '@/theme/useTheme';
+import { EmptyState, type EmptyStateProps } from '@/components/ui/EmptyState';
+import { ScreenBackground } from '@/components/ui/ScreenBackground';
 
-interface EmptyStateProps {
-  readonly title: string;
-  readonly message: string;
-  readonly pose?: RegiPose;
-  readonly children?: React.ReactNode;
-}
+export { EmptyState } from '@/components/ui/EmptyState';
 
-/** Estado vacío/amable con Regi: se usa en pantallas sin datos todavía. */
-export function EmptyState({ title, message, pose = 'calm', children }: EmptyStateProps) {
-  return (
-    <View style={styles.center}>
-      <RegiMascot pose={pose} size={160} />
-      <AppText variant="heading" align="center" accessibilityRole="header">
-        {title}
-      </AppText>
-      <AppText tone="muted" align="center">
-        {message}
-      </AppText>
-      {children}
-    </View>
-  );
-}
-
-/** Pantalla completa de estado vacío con área segura. */
+/** Pantalla completa de estado vacío con área segura y fondo vivo. */
 export function ComingSoon(props: EmptyStateProps) {
-  const { colors } = useTheme();
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>
-      <EmptyState {...props} />
-    </SafeAreaView>
+    <ScreenBackground variant="regi">
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <EmptyState {...props} />
+      </SafeAreaView>
+    </ScreenBackground>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md, padding: spacing.xl },
 });

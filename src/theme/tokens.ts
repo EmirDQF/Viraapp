@@ -123,6 +123,28 @@ export const blobColors = {
   dark: [brand.petrol, brand.lilac, brand.teal],
 } as const;
 
+export type BackgroundVariant = 'default' | 'aurora' | 'regi' | 'warm' | 'gold';
+
+interface BackgroundGradient {
+  readonly light: GradientStops;
+  readonly dark: GradientStops;
+  /** Manchas propias de la variante (si no, las del tema). */
+  readonly blobs?: readonly string[];
+}
+
+/** Fondos de pantalla (ScreenBackground) por variante, en claro y oscuro. */
+export const backgroundGradients: Readonly<Record<BackgroundVariant, BackgroundGradient>> = {
+  default: { light: gradients.daySky, dark: gradients.nightSky },
+  aurora: {
+    light: gradients.aurora,
+    dark: [brand.petrolNight, brand.petrolDeep],
+    blobs: [brand.sage, brand.lilacLight],
+  },
+  regi: { light: [brand.lilacSoft, brand.ivory], dark: [brand.petrolNight, '#1A1840'], blobs: [brand.lilac, brand.lilacLight] },
+  warm: { light: [brand.ivory, '#FFE9DC'], dark: [brand.petrolNight, '#2A1E1A'], blobs: [brand.coral, brand.amber] },
+  gold: { light: [brand.ivory, '#FFF4CC'], dark: [brand.petrolNight, '#2A2410'], blobs: [brand.goldLight, brand.amber] },
+};
+
 export interface ThemeColors {
   readonly background: string;
   readonly backgroundAlt: string;

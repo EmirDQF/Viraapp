@@ -1,23 +1,32 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useId, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { Easing, useAnimatedProps, useSharedValue, withTiming } from 'react-native-reanimated';
-import Svg, { Path } from 'react-native-svg';
+import Animated, { useAnimatedProps, useSharedValue, withSpring } from 'react-native-reanimated';
+import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
 import { clampProgress } from '@/components/ui/ProgressRing';
+import { spring } from '@/theme/motion';
+import { gradients, type GradientStops } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import { useReduceMotion } from '@/theme/useReduceMotion';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
-/** Barrido del arco en grados (abierto por abajo, como en el boceto del Inicio). */
+/** Barrido del arco en grados (abierto por abajo, como en la maqueta del Inicio). */
 const SWEEP_DEG = 240;
+/** El brillo es el mismo trazo, más ancho y translúcido, detrás del principal. */
+const GLOW_EXTRA = 10;
+const GLOW_OPACITY = 0.22;
 
 interface ProgressArcProps {
   readonly value: number;
   readonly size?: number;
   readonly strokeWidth?: number;
+  /** Color sólido (si no hay degradado). */
   readonly color?: string;
+  /** Degradado del trazo (aurora por defecto). */
+  readonly gradient?: GradientStops;
   readonly trackColor?: string;
+  readonly glow?: boolean;
   readonly children?: ReactNode;
   readonly accessibilityLabel?: string;
 }
@@ -36,18 +45,36 @@ export function arcPath(size: number, strokeWidth: number): string {
   return `M ${start.x} ${start.y} A ${r} ${r} 0 1 1 ${end.x} ${end.y}`;
 }
 
-/** Arco de progreso que rodea a Regi en el Inicio: cuánto falta para desbloquear el siguiente tema. */
-export function ProgressArc({ value, size = 280, strokeWidth = 16, color, trackColor, children, accessibilityLabel }: ProgressArcProps) {
+/**
+ * Arco de progreso que rodea a Regi en el Inicio: trazo con degradado aurora, extremo redondeado, brillo
+ * difuso y valor animado con resorte.
+ */
+export function ProgressArc({
+  value,
+  size = 280,
+  strokeWidth = 16,
+  color,
+  gradient = gradients.aurora,
+  trackColor,
+  glow = true,
+  children,
+  accessibilityLabel,
+}: ProgressArcProps) {
   const { colors } = useTheme();
   const reduceMotion = useReduceMotion();
+  const gradientId = `arc-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const progress = useSharedValue(0);
-  const r = size / 2 - strokeWidth / 2;
+  // El brillo sobresale del trazo: se reserva margen para que no se recorte.
+  const inset = glow ? GLOW_EXTRA / 2 : 0;
+  const inner = size - inset * 2;
+  const r = inner / 2 - strokeWidth / 2;
   const length = (2 * Math.PI * r * SWEEP_DEG) / 360;
-  const d = arcPath(size, strokeWidth);
+  const d = arcPath(inner, strokeWidth);
+  const stroke = color ?? `url(#${gradientId})`;
 
   useEffect(() => {
     const target = clampProgress(value);
-    progress.value = reduceMotion ? target : withTiming(target, { duration: 900, easing: Easing.out(Easing.cubic) });
+    progress.value = reduceMotion ? target : withSpring(target, spring.gentle);
   }, [progress, reduceMotion, value]);
 
   const animatedProps = useAnimatedProps(() => ({ strokeDashoffset: length * (1 - progress.value) }));
@@ -60,11 +87,30 @@ export function ProgressArc({ value, size = 280, strokeWidth = 16, color, trackC
       accessibilityValue={{ min: 0, max: 100, now: Math.round(clampProgress(value) * 100) }}
       style={{ width: size, height: size }}
     >
-      <Svg width={size} height={size}>
+      <Svg width={size} height={size} viewBox={`${-inset} ${-inset} ${size} ${size}`}>
+        <Defs>
+          <LinearGradient id={gradientId} x1="0" y1="1" x2="1" y2="0">
+            {gradient.map((stop, index) => (
+              <Stop key={stop} offset={index / (gradient.length - 1)} stopColor={stop} />
+            ))}
+          </LinearGradient>
+        </Defs>
         <Path d={d} stroke={trackColor ?? colors.border} strokeWidth={strokeWidth} strokeLinecap="round" fill="none" />
+        {glow ? (
+          <AnimatedPath
+            d={d}
+            stroke={stroke}
+            strokeOpacity={GLOW_OPACITY}
+            strokeWidth={strokeWidth + GLOW_EXTRA}
+            strokeLinecap="round"
+            fill="none"
+            strokeDasharray={`${length} ${length}`}
+            animatedProps={animatedProps}
+          />
+        ) : null}
         <AnimatedPath
           d={d}
-          stroke={color ?? colors.accent}
+          stroke={stroke}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           fill="none"

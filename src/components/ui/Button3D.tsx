@@ -1,11 +1,24 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { AppText } from '@/components/ui/AppText';
+import { darken, withAlpha } from '@/lib/color';
 import { haptic, type HapticKind } from '@/lib/haptics';
-import { BUTTON_LIP, MIN_TOUCH, radius, spacing, type ThemeColors } from '@/theme/tokens';
+import { spring } from '@/theme/motion';
+import {
+  brand,
+  BUTTON_HEIGHT,
+  BUTTON_LIP,
+  gradients,
+  MIN_TOUCH,
+  onGradient,
+  radius,
+  spacing,
+  type GradientStops,
+  type ThemeColors,
+} from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'stable' | 'success' | 'danger' | 'outline' | 'ghost';
@@ -33,13 +46,18 @@ interface Button3DProps {
   readonly accessibilityLabel?: string;
   readonly accessibilityHint?: string;
   readonly testID?: string;
-  /** Degradado opcional para la cara del botón (dos colores con contraste AA frente a `tone.text`). */
-  readonly gradient?: readonly [string, string];
+  /** Degradado para la cara del botón (todas sus paradas con contraste AA frente al texto). */
+  readonly gradient?: GradientStops;
 }
 
 interface ResolvedTone extends ButtonTone {
   readonly border: string;
+  readonly gradient?: GradientStops;
 }
+
+/** Oscurecimiento del labio respecto a la parada más oscura del degradado. */
+const LIP_SHADE = 0.25;
+const GLOSS_ALPHA = 0.22;
 
 function resolveTone(colors: ThemeColors, variant: ButtonVariant, disabled: boolean, tone?: ButtonTone): ResolvedTone {
   if (disabled) {
@@ -49,10 +67,22 @@ function resolveTone(colors: ThemeColors, variant: ButtonVariant, disabled: bool
     return { ...tone, border: tone.face };
   }
   const map: Record<ButtonVariant, ResolvedTone> = {
-    primary: { face: colors.primary, shadow: colors.primaryShadow, text: colors.onPrimary, border: colors.primary },
+    primary: {
+      face: brand.petrolDeep,
+      shadow: darken(brand.petrolDeep, LIP_SHADE),
+      text: onGradient.auroraButton,
+      border: brand.petrolDeep,
+      gradient: gradients.auroraButton,
+    },
+    accent: {
+      face: brand.coral,
+      shadow: colors.accentShadow,
+      text: onGradient.sunrise,
+      border: brand.coral,
+      gradient: gradients.sunrise,
+    },
     stable: { face: colors.stable, shadow: colors.stableShadow, text: colors.onPrimary, border: colors.stable },
     secondary: { face: colors.secondary, shadow: colors.secondaryShadow, text: colors.onSecondary, border: colors.secondary },
-    accent: { face: colors.accent, shadow: colors.accentShadow, text: colors.onAccent, border: colors.accent },
     success: { face: colors.success, shadow: colors.successShadow, text: colors.onSuccess, border: colors.success },
     danger: { face: colors.danger, shadow: colors.dangerShadow, text: colors.onDanger, border: colors.danger },
     outline: { face: colors.surface, shadow: colors.border, text: colors.text, border: colors.border },
@@ -61,9 +91,12 @@ function resolveTone(colors: ThemeColors, variant: ButtonVariant, disabled: bool
   return map[variant];
 }
 
-const HEIGHT: Record<ButtonSize, number> = { sm: MIN_TOUCH, md: 54, lg: 62 };
+const HEIGHT: Record<ButtonSize, number> = { sm: MIN_TOUCH, md: BUTTON_HEIGHT, lg: BUTTON_HEIGHT + 6 };
 
-/** Botón 3D estilo Duolingo: la cara "se hunde" sobre su labio al pulsar. */
+/**
+ * Botón 3D estilo Duolingo 2026: cara con degradado y brillo sobre un labio de 5 px del tono profundo; al
+ * pulsar la cara "se hunde" con un resorte y vibra. `primary` = aurora, `accent` = sunrise.
+ */
 export function Button3D({
   label,
   onPress,
@@ -85,7 +118,9 @@ export function Button3D({
   const resolvedSize: ButtonSize = size ?? (compact ? 'sm' : 'md');
   const inactive = disabled || loading;
   const resolved = resolveTone(colors, variant, inactive, tone);
+  const faceGradient = inactive ? undefined : (gradient ?? resolved.gradient);
   const hasLip = variant !== 'ghost';
+  const hasGloss = hasLip && variant !== 'outline' && !inactive;
 
   const faceStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: pressed.value * (hasLip ? BUTTON_LIP : 1) }],
@@ -106,10 +141,10 @@ export function Button3D({
       disabled={inactive}
       testID={testID}
       onPressIn={() => {
-        pressed.value = withTiming(1, { duration: 60 });
+        pressed.set(withSpring(1, spring.snappy));
       }}
       onPressOut={() => {
-        pressed.value = withSpring(0, { damping: 14, stiffness: 280 });
+        pressed.set(withSpring(0, spring.snappy));
       }}
       onPress={handlePress}
       style={[styles.wrapper, hasLip && styles.withLip]}
@@ -123,12 +158,21 @@ export function Button3D({
           faceStyle,
         ]}
       >
-        {gradient && !inactive ? (
+        {faceGradient ? (
           <LinearGradient
-            colors={gradient}
+            colors={faceGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[StyleSheet.absoluteFill, styles.gradient]}
+          />
+        ) : null}
+        {hasGloss ? (
+          <LinearGradient
+            colors={[withAlpha(brand.white, GLOSS_ALPHA), withAlpha(brand.white, 0)]}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={styles.gloss}
+            pointerEvents="none"
           />
         ) : null}
         {loading ? <ActivityIndicator color={resolved.text} /> : icon}
@@ -149,11 +193,11 @@ export function Button3D({
 const styles = StyleSheet.create({
   wrapper: { alignSelf: 'stretch' },
   withLip: { paddingBottom: BUTTON_LIP },
-  lip: { position: 'absolute', left: 0, right: 0, top: BUTTON_LIP, bottom: 0, borderRadius: radius.lg },
+  lip: { position: 'absolute', left: 0, right: 0, top: BUTTON_LIP, bottom: 0, borderRadius: radius.md },
   face: {
     overflow: 'hidden',
-    borderRadius: radius.lg,
-    borderWidth: 2,
+    borderRadius: radius.md,
+    borderWidth: 1.5,
     paddingHorizontal: spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
@@ -161,7 +205,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   faceSmall: { paddingHorizontal: spacing.md },
-  gradient: { borderRadius: radius.lg - 2 },
+  gradient: { borderRadius: radius.md - 1.5 },
+  gloss: { position: 'absolute', top: 0, left: 0, right: 0, height: '50%' },
   labelSmall: { fontSize: 13 },
   labelLarge: { fontSize: 18 },
 });

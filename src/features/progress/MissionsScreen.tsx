@@ -11,11 +11,13 @@ import { useAppStore } from '@/store/useAppStore';
 import { radius, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import type { ModuleId } from '@/types/game';
+import { useTabBarSpace } from '@/components/ui/GlassTabBar';
 
 const NOTICE_MS = 3200;
 
 /** Pestaña Misiones: el camino completo (6 temas × 13 etapas). Se puede volver a cualquier tema y rejugarlo. */
 export function MissionsScreen() {
+  const tabSpace = useTabBarSpace();
   const { colors } = useTheme();
   const modules = useAppStore((state) => state.modules);
   const name = useAppStore((state) => state.user?.name ?? '');
@@ -53,7 +55,7 @@ export function MissionsScreen() {
         data={order}
         keyExtractor={(item) => item}
         renderItem={renderItem}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: tabSpace }]}
         initialNumToRender={2}
         windowSize={5}
         ListHeaderComponent={

@@ -24,6 +24,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { MODULE_COLORS, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import type { ModuleId, UnlockStatus } from '@/types/game';
+import { useTabBarSpace } from '@/components/ui/GlassTabBar';
 
 /** Orden de los gajos en la ruleta, en sentido horario desde arriba (docs/IMAGENES 2.jpg). */
 const DIAL_ORDER: readonly ModuleId[] = ['hoy', 'freno', 'descarga', 'enfriador', 'muro', 'ancla'];
@@ -139,6 +140,7 @@ function SelectedModuleCard({ id, status }: { readonly id: ModuleId; readonly st
 }
 
 export function HomeScreen() {
+  const tabSpace = useTabBarSpace();
   const { colors } = useTheme();
   const modules = useAppStore((state) => state.modules);
   const start = useAppStore((state) => state.onboarding.firstModule);
@@ -150,7 +152,7 @@ export function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: tabSpace }]}>
         <StatsRow />
         <ProgressHero />
         <DailyGoal />

@@ -11,7 +11,7 @@ import Animated, {
 import Svg, { G } from 'react-native-svg';
 
 import { AppText } from '@/components/ui/AppText';
-import { Head, Tail, Torso } from '@/components/regi/Body';
+import { ContactShadow, Head, Tail, Torso } from '@/components/regi/Body';
 import { EmpatheticAura, GlowHalo, TensionOutline } from '@/components/regi/Extras';
 import { Face } from '@/components/regi/Face';
 import { Gills } from '@/components/regi/Gills';
@@ -36,14 +36,23 @@ interface RegiMascotProps {
   readonly glowColor?: string;
 }
 
-const RegiFigure = memo(function RegiFigure({ pose, colors }: { readonly pose: RegiPose; readonly colors: RegiColors }) {
+const RegiFigure = memo(function RegiFigure({
+  pose,
+  colors,
+  idPrefix,
+}: {
+  readonly pose: RegiPose;
+  readonly colors: RegiColors;
+  readonly idPrefix: string;
+}) {
   return (
     <Svg viewBox="0 0 200 200" width="100%" height="100%">
       <G>
+        <ContactShadow colors={colors} />
         <Tail colors={colors} pose={pose} />
         <Torso colors={colors} />
         <Gills colors={colors} />
-        <Head colors={colors} />
+        <Head colors={colors} idPrefix={idPrefix} />
         <Face colors={colors} pose={pose} />
         <Hands colors={colors} pose={pose} />
       </G>
@@ -67,7 +76,7 @@ const RegiBackdrop = memo(function RegiBackdrop({
   return (
     <Svg viewBox="0 0 200 200" width="100%" height="100%">
       {glow > 0 ? <GlowHalo id={gradientId} color={glowColor} intensity={glow} /> : null}
-      {glow < 0 ? <TensionOutline colors={colors} intensity={-glow} /> : null}
+      {glow < 0 ? <TensionOutline id={`${gradientId}-tension`} colors={colors} intensity={-glow} /> : null}
       {pose === 'empathetic' ? <EmpatheticAura colors={colors} /> : null}
     </Svg>
   );
@@ -125,7 +134,7 @@ export function RegiMascot({ pose = 'calm', size = 160, glow = 0, glowColor = RE
         ) : null}
       </Animated.View>
       <Animated.View style={[StyleSheet.absoluteFill, figureStyle]}>
-        <RegiFigure pose={pose} colors={colors} />
+        <RegiFigure pose={pose} colors={colors} idPrefix={gradientId} />
       </Animated.View>
     </View>
   );

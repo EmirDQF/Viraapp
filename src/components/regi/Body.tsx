@@ -1,4 +1,4 @@
-import { Ellipse, G, Path } from 'react-native-svg';
+import { Defs, Ellipse, G, Path, RadialGradient, Stop } from 'react-native-svg';
 
 import type { RegiColors, RegiPose } from '@/lib/regi';
 
@@ -22,12 +22,29 @@ export function Torso({ colors }: { readonly colors: RegiColors }) {
   );
 }
 
-/** Cabeza grande y redonda (estilo chibi) con una sombra suave bajo la barbilla. */
-export function Head({ colors }: { readonly colors: RegiColors }) {
+/**
+ * Cabeza grande y redonda (estilo chibi) con un brillo de luz difuso arriba a la izquierda, que le da volumen
+ * sin contornos duros. `idPrefix` hace únicos los degradados (en web los <defs> de SVG son globales).
+ */
+export function Head({ colors, idPrefix }: { readonly colors: RegiColors; readonly idPrefix: string }) {
+  const glossId = `${idPrefix}-gloss`;
   return (
     <G>
+      <Defs>
+        <RadialGradient id={glossId} cx="35%" cy="25%" r="45%">
+          <Stop offset="0%" stopColor={colors.shine} stopOpacity={0.55} />
+          <Stop offset="60%" stopColor={colors.shine} stopOpacity={0.12} />
+          <Stop offset="100%" stopColor={colors.shine} stopOpacity={0} />
+        </RadialGradient>
+      </Defs>
       <Ellipse cx={100} cy={66} rx={56} ry={46} fill={colors.body} />
-      <Ellipse cx={84} cy={40} rx={16} ry={8} fill={colors.shine} opacity={0.25} />
+      <Ellipse cx={100} cy={66} rx={56} ry={46} fill={`url(#${glossId})`} />
+      <Ellipse cx={82} cy={38} rx={13} ry={6} fill={colors.shine} opacity={0.45} transform="rotate(-18 82 38)" />
     </G>
   );
+}
+
+/** Sombra de contacto elíptica bajo los pies: ancla a Regi al suelo. */
+export function ContactShadow({ colors }: { readonly colors: RegiColors }) {
+  return <Ellipse cx={100} cy={185} rx={48} ry={7} fill={colors.ink} opacity={0.14} />;
 }

@@ -17,6 +17,7 @@ import { visibleStreak } from '@/lib/streak';
 import { useAppStore } from '@/store/useAppStore';
 import { MODULE_COLORS, feedback, radius, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
+import { useTabBarSpace } from '@/components/ui/GlassTabBar';
 
 /** Color de la llama de racha (naranja del Freno de Mano). */
 const STREAK_COLOR = MODULE_COLORS.freno.base;
@@ -62,12 +63,13 @@ function useProfileData() {
 
 /** Pestaña Mi: perfil, nivel y XP, estadísticas, logros, herramientas de bienestar y ajustes. */
 export function ProfileScreen() {
+  const tabSpace = useTabBarSpace();
   const { colors } = useTheme();
   const { name, xp, level, stages, completedModules, streak, resisted, achievements } = useProfileData();
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: tabSpace }]}>
         <View style={styles.hero}>
           <RegiMascot pose="growth" size={96} glow={Math.min(1, level.level / 9)} />
           <View style={styles.flex}>
