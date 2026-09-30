@@ -66,7 +66,6 @@ const WedgeLabel = memo(function WedgeLabel({ id, angle, size, midRadius, locked
         style={[
           styles.label,
           { width, left: size / 2 - width / 2, top: size / 2 - midRadius - 36 },
-          locked && styles.lockedLabel,
         ]}
       >
         <IconTile color={tone.base} gradient={[lighten(tone.base, 0.45), tone.base, tone.deep]} size={ICON_TILE}>
@@ -104,9 +103,10 @@ const WheelArt = memo(function WheelArt({ modules, statuses, size, outer, inner,
           const tone = MODULE_COLORS[id];
           return (
             <RadialGradient key={id} id={`${idPrefix}-${id}`} cx={center} cy={center} r={outer} gradientUnits="userSpaceOnUse">
-              <Stop offset={inner / outer} stopColor={tone.deep} />
+              {/* El nombre del módulo va sobre el gajo: ninguna parada puede bajar del contraste de `base`. */}
+              <Stop offset={inner / outer} stopColor={tone.on === brand.ink ? tone.base : tone.deep} />
               <Stop offset="0.7" stopColor={tone.base} />
-              <Stop offset="1" stopColor={lighten(tone.base, 0.22)} />
+              <Stop offset="1" stopColor={tone.on === brand.ink ? lighten(tone.base, 0.25) : tone.base} />
             </RadialGradient>
           );
         })}
@@ -307,7 +307,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
   arrow: { width: ARROW_WIDTH, height: MIN_TOUCH, alignItems: 'center', justifyContent: 'center' },
   label: { position: 'absolute', alignItems: 'center', gap: 3, height: 76, justifyContent: 'flex-start' },
-  lockedLabel: { opacity: 0.8 },
   labelText: { fontSize: 9.5, lineHeight: 11, letterSpacing: 0.5 },
   hub: { position: 'absolute', width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
 });

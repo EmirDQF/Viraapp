@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { ArrowLeft, ChartColumn, History, Inbox, Plus } from 'lucide-react-native';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -77,7 +77,7 @@ function Stats({ impulses }: { readonly impulses: readonly Impulse[] }) {
   );
 }
 
-function Header() {
+const Header = memo(function Header() {
   return (
     <LinearGradient colors={TONE_GRADIENT} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
       <AnimatedPressable accessibilityRole="button" accessibilityLabel="Volver" onPress={goBackOrHome} hitSlop={10} style={styles.back}>
@@ -88,9 +88,9 @@ function Header() {
       </AppText>
     </LinearGradient>
   );
-}
+});
 
-function AddPill() {
+const AddPill = memo(function AddPill() {
   const { isDark } = useTheme();
   return (
     <AnimatedPressable
@@ -110,9 +110,9 @@ function AddPill() {
       </View>
     </AnimatedPressable>
   );
-}
+});
 
-function TabBar({ tab, onChange }: { readonly tab: Tab; readonly onChange: (tab: Tab) => void }) {
+const TabBar = memo(function TabBar({ tab, onChange }: { readonly tab: Tab; readonly onChange: (tab: Tab) => void }) {
   const { colors } = useTheme();
   return (
     <GlassCard padded={false} radius={radius.pill} elevation="lg" style={styles.tabsCard}>
@@ -140,7 +140,7 @@ function TabBar({ tab, onChange }: { readonly tab: Tab; readonly onChange: (tab:
       </View>
     </GlassCard>
   );
-}
+});
 
 /** Buzón de Impulsos (maqueta 7): anota un impulso, espera con un temporizador y decide con calma. */
 export function ImpulsesScreen() {

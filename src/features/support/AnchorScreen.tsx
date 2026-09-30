@@ -64,8 +64,8 @@ export function AnchorScreen() {
     <View style={[styles.root, { backgroundColor: brand.inkDeep }]}>
       {photo ? <Image source={{ uri: photo }} style={StyleSheet.absoluteFill} contentFit="cover" accessibilityLabel="Tu foto feliz" /> : null}
       <LinearGradient
-        colors={[withAlpha(brand.inkDeep, 0.55), withAlpha(brand.inkDeep, 0.1), withAlpha(brand.inkDeep, 0.9)]}
-        locations={[0, 0.35, 1]}
+        colors={[withAlpha(brand.inkDeep, 0.6), withAlpha(brand.inkDeep, 0.55), withAlpha(brand.inkDeep, 0.9)]}
+        locations={[0, 0.45, 1]}
         style={StyleSheet.absoluteFill}
       />
       <SafeAreaView style={styles.safe}>
