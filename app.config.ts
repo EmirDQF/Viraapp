@@ -17,7 +17,9 @@ const config: ExpoConfig = {
   // Se conserva "tenaz": es el esquema de deep links (tenaz://). Cambiarlo rompería los enlaces
   // y notificaciones que ya apuntan a la app.
   scheme: 'tenaz',
-  version: '1.0.0',
+  // Cuenta personal de Expo dueña del proyecto en EAS (no la organización).
+  owner: 'emirvirapp',
+  version: '2.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
@@ -25,6 +27,8 @@ const config: ExpoConfig = {
     supportsTablet: true,
   },
   android: {
+    // Identificador del APK en Android. No debe cambiar después de instalarlo: sería otra app.
+    package: 'pe.vira.app',
     adaptiveIcon: {
       backgroundColor: PETROL,
       foregroundImage: './assets/android-icon-foreground.png',
@@ -38,6 +42,10 @@ const config: ExpoConfig = {
     bundler: 'metro',
     // Salida "server" para habilitar las rutas de API (src/app/api/chat+api.ts) con la clave solo en el servidor.
     output: 'server',
+  },
+  extra: {
+    // Proyecto de EAS @emirvirapp/tenaz (creado con eas init). No es un secreto.
+    eas: { projectId: '25e7077d-cc4a-4bc6-97cf-c8baa2babc87' },
   },
   plugins: [
     // `origin`: dónde está desplegada la API, para que la app instalada resuelva /api/chat en producción.
