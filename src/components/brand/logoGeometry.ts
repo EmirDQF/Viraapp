@@ -4,13 +4,13 @@
  * componente <ViraLogo /> y el script de íconos (scripts/generate-icons.mjs, que corre en Node).
  */
 
-/** Colores de ilustración del logo (constante de marca, no de interfaz). */
+/** Colores de ilustración del logo (constante de marca, no de interfaz). Paleta vívida 2026: petróleo, coral y menta. */
 export const LOGO = {
-  background: '#24576A',
+  background: '#16708F',
   figure: '#FFFFFF',
-  coral: '#E99479',
-  sage: '#A8C8B5',
-  eye: '#24576A',
+  coral: '#FF7A59',
+  sage: '#5ED3A0',
+  eye: '#16708F',
 } as const;
 
 export const LOGO_VIEWBOX = 120;

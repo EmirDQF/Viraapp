@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1, gap: 2 },
   mood: { gap: spacing.sm },
   faces: { flexDirection: 'row', justifyContent: 'space-between' },
-  face: { width: FACE, height: FACE, borderRadius: radius.pill, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  face: { minWidth: FACE, minHeight: FACE, borderRadius: radius.pill, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   emoji: { fontSize: 26, lineHeight: 32 },
   support: { gap: spacing.sm },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },

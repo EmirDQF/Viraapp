@@ -9,11 +9,12 @@ import {
 } from '@expo-google-fonts/nunito';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ReduceMotion, ReducedMotionConfig } from 'react-native-reanimated';
 
 import { RegiMascot } from '@/components/regi/RegiMascot';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { useNotificationRouting } from '@/features/notifications/useNotificationRouting';
 import { usePreferencesSync } from '@/features/settings/usePreferencesSync';
 import { useAppStore, useStoreHydrated } from '@/store/useAppStore';
@@ -41,7 +42,7 @@ export default function RootLayout() {
     return (
       <View style={[styles.loading, { backgroundColor: colors.background }]}>
         <RegiMascot pose="calm" size={140} />
-        <ActivityIndicator color={colors.primary} size="large" />
+        <Skeleton width={160} height={14} radius={999} />
       </View>
     );
   }

@@ -4,8 +4,10 @@ import type { ExpoConfig } from 'expo/config';
  * Configuración de Expo de VIRA. Se usa app.config.ts (en lugar de app.json) para poder documentar
  * con comentarios las decisiones que no deben cambiarse.
  */
-const PETROL = '#24576A';
-const PETROL_NIGHT = '#122A33';
+/** Paleta vívida 2026: petróleo para el ícono adaptativo, el splash claro y el acento de notificaciones. */
+const PETROL = '#16708F';
+/** Fondo oscuro de la app, también en el splash en modo oscuro. */
+const PETROL_NIGHT = '#0B2029';
 
 const config: ExpoConfig = {
   name: 'VIRA',

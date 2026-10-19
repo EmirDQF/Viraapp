@@ -60,6 +60,6 @@ export function IntensityScale({ label, value, onChange }: IntensityScaleProps) 
 const styles = StyleSheet.create({
   root: { gap: spacing.sm },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, justifyContent: 'space-between' },
-  cell: { width: MIN_TOUCH + 8, height: MIN_TOUCH + 4, borderRadius: radius.lg, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  cell: { minWidth: MIN_TOUCH + 8, minHeight: MIN_TOUCH + 4, paddingHorizontal: spacing.xs, borderRadius: radius.lg, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   ends: { flexDirection: 'row', justifyContent: 'space-between' },
 });
