@@ -1,31 +1,29 @@
-import { memo, useEffect, useId } from 'react';
+import { memo, useEffect, useId, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, {
-  Easing,
-  cancelAnimation,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { Easing, cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import Svg, { G } from 'react-native-svg';
 
 import { AppText } from '@/components/ui/AppText';
 import { ContactShadow, Head, Tail, Torso } from '@/components/regi/Body';
 import { EmpatheticAura, GlowHalo, TensionOutline } from '@/components/regi/Extras';
-import { Face } from '@/components/regi/Face';
+import { Face, OpenEyes } from '@/components/regi/Face';
 import { Gills } from '@/components/regi/Gills';
 import { Hands } from '@/components/regi/Hands';
+import { useRegiMotion, type RegiReaction } from '@/components/regi/useRegiMotion';
 import { REGI, clampGlow, regiAccessibilityLabel, regiPalette, type RegiColors, type RegiPose } from '@/lib/regi';
 import { radius, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import { useReduceMotion } from '@/theme/useReduceMotion';
 
 export type { RegiPose } from '@/lib/regi';
+export type { RegiReaction } from '@/components/regi/useRegiMotion';
 
-const BREATH_MS = 1600;
-const BREATH_LIFT = -3;
-const SWAY_DEG = 3;
+const HALO_MS = 2400;
+const POSE_FADE_MS = 260;
+/** Puntos de giro (en % del lienzo 200×200): centro de la cabeza para branquias y ojos, base para respirar. */
+const HEAD_ORIGIN = '50% 35%';
+const EYES_ORIGIN = '50% 35.5%';
+const FEET_ORIGIN = '50% 92%';
 
 interface RegiMascotProps {
   readonly pose?: RegiPose;
@@ -34,45 +32,55 @@ interface RegiMascotProps {
   readonly glow?: number;
   /** Color del halo cuando glow > 0 (normalmente el color del módulo). */
   readonly glowColor?: string;
+  /** Reacción que se reproduce cada vez que cambia `reactionKey` (salto, inclinar, baile, risa). */
+  readonly reaction?: RegiReaction | null;
+  readonly reactionKey?: number;
 }
 
-const RegiFigure = memo(function RegiFigure({
-  pose,
-  colors,
-  idPrefix,
-}: {
-  readonly pose: RegiPose;
+interface LayerProps {
   readonly colors: RegiColors;
-  readonly idPrefix: string;
-}) {
+}
+
+/** Cuerpo, cola, manos y boca: lo que cambia con la pose. Los ojos abiertos van en su propia capa. */
+const RegiFigure = memo(function RegiFigure({ pose, colors, idPrefix }: LayerProps & { readonly pose: RegiPose; readonly idPrefix: string }) {
   return (
     <Svg viewBox="0 0 200 200" width="100%" height="100%">
       <G>
         <ContactShadow colors={colors} />
         <Tail colors={colors} pose={pose} />
         <Torso colors={colors} />
-        <Gills colors={colors} />
         <Head colors={colors} idPrefix={idPrefix} />
-        <Face colors={colors} pose={pose} />
+        <Face colors={colors} pose={pose} openEyes={false} />
         <Hands colors={colors} pose={pose} />
       </G>
     </Svg>
   );
 });
 
-const RegiBackdrop = memo(function RegiBackdrop({
-  pose,
-  glow,
-  glowColor,
-  colors,
-  gradientId,
-}: {
+const GillLayer = memo(function GillLayer({ colors, side }: LayerProps & { readonly side: 'left' | 'right' }) {
+  return (
+    <Svg viewBox="0 0 200 200" width="100%" height="100%">
+      <Gills colors={colors} side={side} />
+    </Svg>
+  );
+});
+
+const EyesLayer = memo(function EyesLayer({ colors }: LayerProps) {
+  return (
+    <Svg viewBox="0 0 200 200" width="100%" height="100%">
+      <OpenEyes colors={colors} />
+    </Svg>
+  );
+});
+
+interface BackdropProps extends LayerProps {
   readonly pose: RegiPose;
   readonly glow: number;
   readonly glowColor: string;
-  readonly colors: RegiColors;
   readonly gradientId: string;
-}) {
+}
+
+const RegiBackdrop = memo(function RegiBackdrop({ pose, glow, glowColor, colors, gradientId }: BackdropProps) {
   return (
     <Svg viewBox="0 0 200 200" width="100%" height="100%">
       {glow > 0 ? <GlowHalo id={gradientId} color={glowColor} intensity={glow} /> : null}
@@ -82,59 +90,85 @@ const RegiBackdrop = memo(function RegiBackdrop({
   );
 });
 
-/** Regi, el ajolote guía de VIRA. Respira despacio y respeta "reducir movimiento". */
-export function RegiMascot({ pose = 'calm', size = 160, glow = 0, glowColor = REGI.leafHalo }: RegiMascotProps) {
+/** Pulso suave del halo (solo si hay halo que mostrar). */
+function useHaloPulse(active: boolean, reduceMotion: boolean) {
+  const pulse = useSharedValue(0);
+  useEffect(() => {
+    if (!active || reduceMotion) {
+      cancelAnimation(pulse);
+      pulse.value = 0;
+      return;
+    }
+    pulse.value = withRepeat(withTiming(1, { duration: HALO_MS, easing: Easing.inOut(Easing.sin) }), -1, true);
+    return () => cancelAnimation(pulse);
+  }, [active, pulse, reduceMotion]);
+  return useAnimatedStyle(() => ({ opacity: 0.85 + pulse.value * 0.15, transform: [{ scale: 1 + pulse.value * 0.03 }] }));
+}
+
+interface PoseLayers {
+  readonly current: RegiPose;
+  readonly previous: RegiPose | null;
+}
+
+/**
+ * Transición suave entre poses: la anterior se desvanece mientras aparece la nueva. La pose mostrada se
+ * deriva de la prop durante el render (sin efecto extra); el efecto solo anima y limpia la capa saliente.
+ */
+function usePoseCrossfade(pose: RegiPose, reduceMotion: boolean) {
+  const [shown, setShown] = useState<PoseLayers>({ current: pose, previous: null });
+  if (shown.current !== pose) setShown({ current: pose, previous: reduceMotion ? null : shown.current });
+  const fade = useSharedValue(1);
+  const { previous } = shown;
+  useEffect(() => {
+    if (previous === null) return;
+    fade.value = 0;
+    fade.value = withTiming(1, { duration: POSE_FADE_MS });
+    const timer = setTimeout(() => setShown((value) => ({ current: value.current, previous: null })), POSE_FADE_MS + 40);
+    return () => clearTimeout(timer);
+  }, [fade, previous]);
+  const incoming = useAnimatedStyle(() => ({ opacity: fade.value }));
+  const outgoing = useAnimatedStyle(() => ({ opacity: 1 - fade.value }));
+  return { ...shown, incoming, outgoing };
+}
+
+/** Regi, el ajolote guía de VIRA: respira, flota, parpadea, mueve las branquias y reacciona. */
+export function RegiMascot({ pose = 'calm', size = 160, glow = 0, glowColor = REGI.leafHalo, reaction = null, reactionKey = 0 }: RegiMascotProps) {
   const reduceMotion = useReduceMotion();
   const value = clampGlow(glow);
   // Id único por instancia: en web los <defs> de SVG son globales y colisionarían entre varios Regi.
   const gradientId = `regiGlow-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const colors = regiPalette(value);
   const hasBackdrop = value !== 0 || pose === 'empathetic';
-  const breath = useSharedValue(0);
-  const pulse = useSharedValue(0);
-  const sway = useSharedValue(0);
-
-  useEffect(() => {
-    if (reduceMotion) {
-      breath.value = 0;
-      pulse.value = 0;
-      sway.value = 0;
-      return;
-    }
-    const ease = Easing.inOut(Easing.sin);
-    breath.value = withRepeat(withTiming(1, { duration: BREATH_MS, easing: ease }), -1, true);
-    // El pulso solo corre si hay halo o contorno que mostrar (evita trabajo continuo en el hilo de UI).
-    pulse.value = hasBackdrop ? withRepeat(withTiming(1, { duration: BREATH_MS * 1.5, easing: ease }), -1, true) : 0;
-    sway.value = pose === 'growth' ? withRepeat(withTiming(1, { duration: BREATH_MS, easing: ease }), -1, true) : 0;
-    return () => {
-      cancelAnimation(breath);
-      cancelAnimation(pulse);
-      cancelAnimation(sway);
-    };
-  }, [breath, hasBackdrop, pose, pulse, reduceMotion, sway]);
-
-  const figureStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: breath.value * BREATH_LIFT }, { rotate: `${(sway.value * 2 - 1) * SWAY_DEG * (pose === 'growth' ? 1 : 0)}deg` }],
-  }));
-  const haloStyle = useAnimatedStyle(() => ({
-    opacity: 0.85 + pulse.value * 0.15,
-    transform: [{ scale: 1 + pulse.value * 0.03 }],
-  }));
+  const haloStyle = useHaloPulse(hasBackdrop, reduceMotion);
+  const motion = useRegiMotion(size, reaction, reactionKey, reduceMotion);
+  const poses = usePoseCrossfade(pose, reduceMotion);
 
   return (
-    <View
-      accessible
-      accessibilityRole="image"
-      accessibilityLabel={regiAccessibilityLabel(pose, value)}
-      style={{ width: size, height: size }}
-    >
+    <View accessible accessibilityRole="image" accessibilityLabel={regiAccessibilityLabel(pose, value)} style={{ width: size, height: size }}>
       <Animated.View style={[StyleSheet.absoluteFill, haloStyle]}>
-        {hasBackdrop ? (
-          <RegiBackdrop pose={pose} glow={value} glowColor={glowColor} colors={colors} gradientId={gradientId} />
-        ) : null}
+        {hasBackdrop ? <RegiBackdrop pose={pose} glow={value} glowColor={glowColor} colors={colors} gradientId={gradientId} /> : null}
       </Animated.View>
-      <Animated.View style={[StyleSheet.absoluteFill, figureStyle]}>
-        <RegiFigure pose={pose} colors={colors} idPrefix={gradientId} />
+      <Animated.View pointerEvents="none" style={[styles.sparkle, { backgroundColor: glowColor, borderRadius: size / 2 }, motion.sparkle]} />
+      <Animated.View style={[StyleSheet.absoluteFill, styles.feet, motion.body]}>
+        <Animated.View style={[StyleSheet.absoluteFill, styles.head, motion.gillLeft]}>
+          <GillLayer colors={colors} side="left" />
+        </Animated.View>
+        <Animated.View style={[StyleSheet.absoluteFill, styles.head, motion.gillRight]}>
+          <GillLayer colors={colors} side="right" />
+        </Animated.View>
+        {poses.previous ? (
+          <Animated.View style={[StyleSheet.absoluteFill, poses.outgoing]}>
+            <RegiFigure pose={poses.previous} colors={colors} idPrefix={`${gradientId}-prev`} />
+          </Animated.View>
+        ) : null}
+        <Animated.View style={[StyleSheet.absoluteFill, poses.incoming]}>
+          <RegiFigure pose={poses.current} colors={colors} idPrefix={gradientId} />
+        </Animated.View>
+        {poses.current === 'empathetic' ? null : (
+          <Animated.View style={[StyleSheet.absoluteFill, styles.eyes, motion.eyes]}>
+            <EyesLayer colors={colors} />
+          </Animated.View>
+        )}
       </Animated.View>
     </View>
   );
@@ -166,6 +200,10 @@ export function RegiSays({ pose = 'calm', message, size = 96, glow, glowColor }:
 }
 
 const styles = StyleSheet.create({
+  sparkle: { position: 'absolute', top: '12%', left: '12%', right: '12%', bottom: '12%' },
+  feet: { transformOrigin: FEET_ORIGIN },
+  head: { transformOrigin: HEAD_ORIGIN },
+  eyes: { transformOrigin: EYES_ORIGIN },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   bubble: { flex: 1, borderWidth: 1.5, borderRadius: radius.xl, padding: spacing.md },
   tail: {

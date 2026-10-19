@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ViraLogo } from '@/components/brand/ViraLogo';
 import { ModuleIcon } from '@/components/game/ModuleIcon';
 import { ProgressBar } from '@/components/ProgressBar';
-import { RegiMascot } from '@/components/regi/RegiMascot';
+import { InteractiveRegi } from '@/components/regi/InteractiveRegi';
 import { AppText } from '@/components/ui/AppText';
 import { Button3D } from '@/components/ui/Button3D';
 import { Card } from '@/components/ui/Card';
@@ -23,6 +23,7 @@ import { MODULE_ORDER, MODULES } from '@/data/modules/catalog';
 import { STAGES_PER_MODULE } from '@/data/stages';
 import { openModule, openStage } from '@/features/game/navigation';
 import { ModuleDial } from '@/features/home/ModuleDial';
+import { TAP_LINES, pickRegiLine } from '@/data/regiLines';
 import { JourneyCard, LessonOfDayCard, PersonalizeCard, useLessonOfDay } from '@/features/home/PersonalTiles';
 import { RegiEvolutionCelebration } from '@/features/journey/RegiEvolution';
 import { dailyGoalProgress, minutesToday } from '@/lib/gamification/daily';
@@ -85,6 +86,15 @@ function Header() {
 
 function ProgressHero() {
   const modules = useAppStore((state) => state.modules);
+  const focusAreas = useAppStore((state) => state.focusAreas);
+  const streakCount = visibleStreak(useAppStore((state) => state.streak));
+  const hour = new Date().getHours();
+  const dayOfMonth = new Date().getDate();
+  // La primera vez que lo tocan, Regi dice una frase según la hora, la racha y el foco; luego, las de siempre.
+  const lines = useMemo(
+    () => [pickRegiLine({ hour, streak: streakCount, focusAreas, seed: dayOfMonth }), ...TAP_LINES],
+    [dayOfMonth, focusAreas, hour, streakCount],
+  );
   const start = useAppStore((state) => state.onboarding.firstModule);
   const current = currentModule(modules, start);
   const next = nextStage(modules, start);
@@ -110,7 +120,7 @@ function ProgressHero() {
           size={HERO_ARC}
           accessibilityLabel={`Progreso del tema actual: ${Math.round(fraction * 100)} por ciento`}
         >
-          <RegiMascot pose={fraction > 0 ? 'growth' : 'calm'} size={HERO_REGI} />
+          <InteractiveRegi pose={fraction > 0 ? 'growth' : 'calm'} size={HERO_REGI} lines={lines} />
         </ProgressArc>
         <AppText variant="bodyStrong" tone="muted" align="center" style={styles.caption}>
           {caption}

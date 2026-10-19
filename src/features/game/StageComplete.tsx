@@ -39,7 +39,7 @@ export function StageComplete({ xp, score, bestCombo, tone, hasNext, onNext, onE
       {score >= 1 ? <Confetti /> : null}
       <ScrollView contentContainerStyle={styles.body}>
         <Animated.View entering={ZoomIn.springify().damping(14)} style={styles.hero}>
-          <RegiMascot pose="growth" size={170} glow={0.6} glowColor={tone.base} />
+          <RegiMascot pose="growth" size={170} glow={0.6} glowColor={tone.base} reaction="dance" reactionKey={1} />
           <AppText variant="title" align="center" accessibilityRole="header" accessibilityLiveRegion="polite">
             {headline(score)}
           </AppText>

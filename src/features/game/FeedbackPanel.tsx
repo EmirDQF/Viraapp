@@ -42,7 +42,7 @@ export function FeedbackPanel({ correct, message, onContinue, continueLabel = 'C
       >
         <View style={styles.inner}>
           <View style={styles.row}>
-            <RegiMascot pose={correct ? 'growth' : 'empathetic'} size={72} glow={correct ? 0.6 : 0} />
+            <RegiMascot pose={correct ? 'growth' : 'empathetic'} size={72} glow={correct ? 0.6 : 0} reaction={correct ? 'jump' : 'tilt'} reactionKey={1} />
             <View style={styles.text}>
               <View style={styles.titleRow}>
                 {correct ? <CheckCircle2 color={colors.successText} size={22} /> : <Heart color={colors.text} size={20} />}

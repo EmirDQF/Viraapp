@@ -25,17 +25,19 @@ function Frond({ colors, transform }: { readonly colors: RegiColors; readonly tr
 
 const LEFT_FRONDS = ['translate(58 44) rotate(-140)', 'translate(50 62) rotate(-172)', 'translate(52 80) rotate(160)'];
 
+interface GillsProps {
+  readonly colors: RegiColors;
+  /** Qué lado dibujar: cada lado puede ir en su propia capa para ondear con desfase. */
+  readonly side?: 'left' | 'right' | 'both';
+}
+
 /** Tres branquias por lado; el lado derecho es el reflejo del izquierdo. */
-export function Gills({ colors }: { readonly colors: RegiColors }) {
-  const side = LEFT_FRONDS.map((transform) => <Frond key={transform} colors={colors} transform={transform} />);
+export function Gills({ colors, side = 'both' }: GillsProps) {
+  const fronds = LEFT_FRONDS.map((transform) => <Frond key={transform} colors={colors} transform={transform} />);
   return (
     <G>
-      <G>{side}</G>
-      <G transform="translate(200 0) scale(-1 1)">
-        {LEFT_FRONDS.map((transform) => (
-          <Frond key={transform} colors={colors} transform={transform} />
-        ))}
-      </G>
+      {side !== 'right' ? <G>{fronds}</G> : null}
+      {side !== 'left' ? <G transform="translate(200 0) scale(-1 1)">{fronds}</G> : null}
     </G>
   );
 }

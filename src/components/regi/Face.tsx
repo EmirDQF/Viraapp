@@ -2,7 +2,8 @@ import { Circle, Ellipse, G, Path } from 'react-native-svg';
 
 import type { RegiColors, RegiPose } from '@/lib/regi';
 
-function OpenEyes({ colors }: { readonly colors: RegiColors }) {
+/** Ojos abiertos. Se exportan aparte para poder animar el parpadeo en su propia capa. */
+export function OpenEyes({ colors }: { readonly colors: RegiColors }) {
   return (
     <G>
       {[80, 120].map((cx) => (
@@ -46,13 +47,20 @@ function Mouth({ colors, pose }: { readonly colors: RegiColors; readonly pose: R
   }
 }
 
+interface FaceProps {
+  readonly colors: RegiColors;
+  readonly pose: RegiPose;
+  /** false cuando los ojos abiertos se dibujan en otra capa (para parpadear). */
+  readonly openEyes?: boolean;
+}
+
 /** Rasgos mínimos: ojos, boca y mejillas. Las expresiones son sutiles, como pide la guía. */
-export function Face({ colors, pose }: { readonly colors: RegiColors; readonly pose: RegiPose }) {
+export function Face({ colors, pose, openEyes = true }: FaceProps) {
   return (
     <G>
       <Ellipse cx={65} cy={84} rx={8} ry={5} fill={colors.cheek} opacity={0.6} />
       <Ellipse cx={135} cy={84} rx={8} ry={5} fill={colors.cheek} opacity={0.6} />
-      {pose === 'empathetic' ? <SoftEyes colors={colors} /> : <OpenEyes colors={colors} />}
+      {pose === 'empathetic' ? <SoftEyes colors={colors} /> : openEyes ? <OpenEyes colors={colors} /> : null}
       <Mouth colors={colors} pose={pose} />
     </G>
   );
