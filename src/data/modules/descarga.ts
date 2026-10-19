@@ -93,6 +93,8 @@ export const descarga: ModuleContent = {
       { text: 'Imaginas todos los escenarios en que el examen sale mal.', answer: 'left', why: 'Anticipar catástrofes alimenta la rumiación.' },
       { text: 'Haces una lista: "lo que depende de mí / lo que no".', answer: 'right', why: 'Separar lo controlable ordena la mente.' },
       { text: 'Te quedas mirando el techo pensando "¿por qué a mí?".', answer: 'left', why: 'Preguntas sin salida mantienen el círculo.' },
+      { text: 'Escribir en una hoja lo que te preocupa antes de dormir.', answer: 'right', why: 'Sacarlo de la cabeza baja el sobrepensamiento.' },
+      { text: 'Repetir la misma preocupación toda la noche.', answer: 'left', why: 'Darle vueltas gasta energía sin resolver nada.' },
     ],
   },
   wordRain: {

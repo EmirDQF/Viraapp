@@ -74,6 +74,8 @@ export const muro: ModuleContent = {
       { text: '"Me eligieron porque preparé bien la entrevista".', answer: 'right', why: 'Es evidencia de tu capacidad.' },
       { text: '"Superé esa semana difícil pidiendo ayuda y organizándome".', answer: 'right', why: 'Eso son habilidades, no suerte.' },
       { text: '"Si salió bien, seguro fue casualidad".', answer: 'left', why: 'Es el síndrome del impostor hablando.' },
+      { text: 'Buscar evidencia antes de creer «soy un fracaso».', answer: 'right', why: 'Revisar las pruebas cambia el pensamiento y la emoción.' },
+      { text: 'Suponer que todos piensan mal de ti.', answer: 'left', why: 'Leer la mente es una trampa: no tienes pruebas.' },
     ],
   },
   wordRain: {
@@ -133,6 +135,8 @@ export const muro: ModuleContent = {
       { text: 'Me eligieron por casualidad', answer: 'right' },
       { text: 'Superé una semana difícil pidiendo ayuda', answer: 'left' },
       { text: 'No cuenta porque fue fácil', answer: 'right' },
+      { text: 'Buscar un pensamiento alternativo realista', answer: 'right' },
+      { text: 'Creer que todo salió mal por tu culpa', answer: 'left' },
     ],
   },
   rewind: {

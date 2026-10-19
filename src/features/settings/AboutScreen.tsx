@@ -7,6 +7,7 @@ import { ViraLogo } from '@/components/brand/ViraLogo';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
 import { DEFAULT_HELPLINES } from '@/data/helplines';
+import { SOURCES } from '@/data/sources';
 import { HelplineRow } from '@/features/chat/CrisisCard';
 import { goBackOrHome } from '@/features/game/navigation';
 import { MIN_TOUCH, spacing } from '@/theme/tokens';
@@ -59,6 +60,24 @@ export function AboutScreen() {
           {DEFAULT_HELPLINES.helplines.map((line) => (
             <HelplineRow key={line.id} line={line} />
           ))}
+          <AppText variant="heading" accessibilityRole="header">
+            Fuentes
+          </AppText>
+          <AppText tone="muted">
+            VIRA es el producto creativo del curso Desarrollo de Resiliencia. Su contenido se basa en la terapia cognitivo-conductual (TCC) y la terapia dialéctico-conductual (DBT).
+          </AppText>
+          <Card style={styles.card}>
+            {SOURCES.map((source) => (
+              <View key={source.id} style={styles.source}>
+                <AppText variant="caption" selectable>
+                  {source.apa}
+                </AppText>
+                <AppText variant="caption" tone="muted">
+                  {source.usedFor}
+                </AppText>
+              </View>
+            ))}
+          </Card>
         </ScrollView>
       </SafeAreaView>
     </ScreenBackground>
@@ -72,4 +91,5 @@ const styles = StyleSheet.create({
   logo: { alignItems: 'center', gap: spacing.xs },
   card: { gap: spacing.sm },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  source: { gap: 2, paddingVertical: spacing.xs },
 });

@@ -54,6 +54,25 @@ export interface EvidenceItem {
   readonly source: 'manual' | 'game';
 }
 
+/** Límites del caso propio (se validan también al leer de AsyncStorage). */
+export const OWN_CASE_TITLE_MAX = 60;
+export const OWN_CASE_FIELD_MAX = 600;
+
+/** Lo que el usuario escribe en "Escribe tu propio caso". */
+export interface OwnCaseDraft {
+  readonly title: string;
+  readonly impulses: string;
+  readonly thoughts: string;
+  readonly frustration: string;
+  readonly technique: string;
+}
+
+export interface OwnCase extends OwnCaseDraft {
+  readonly id: string;
+  /** Marca de tiempo ISO. */
+  readonly createdAt: string;
+}
+
 export interface LegacyData {
   readonly activeCrucible: string | null;
   readonly crucibleProgress: unknown;
@@ -85,6 +104,10 @@ export interface PersistedState {
   readonly focusAreas: readonly FocusArea[];
   /** Momentos en los que más le cuesta (frases de Regi y recomendaciones). */
   readonly hardMoments: readonly HardMoment[];
+  /** Ids de los casos del Laboratorio ya resueltos. */
+  readonly solvedCases: readonly string[];
+  /** Casos propios: se guardan solo en el teléfono. */
+  readonly ownCases: readonly OwnCase[];
 }
 
 export interface UserActions {
@@ -125,6 +148,13 @@ export interface WellbeingActions {
   setAnchorPhoto: (uri: string | null) => void;
 }
 
+export interface CasesActions {
+  /** Marca un caso como resuelto; la primera vez suma XP. */
+  solveCase: (id: string) => void;
+  addOwnCase: (draft: OwnCaseDraft) => void;
+  removeOwnCase: (id: string) => void;
+}
+
 export interface SettingsActions {
   updateSettings: (patch: Partial<Settings>) => void;
 }
@@ -141,4 +171,5 @@ export type AppState = PersistedState &
   SettingsActions &
   ChatActions &
   WellbeingActions &
+  CasesActions &
   RootActions;

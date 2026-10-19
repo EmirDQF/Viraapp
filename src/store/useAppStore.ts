@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DEFAULT_PERSISTED, STORE_VERSION, migrateState } from '@/store/migrations';
+import { createCasesSlice } from '@/store/slices/casesSlice';
 import { createChatSlice } from '@/store/slices/chatSlice';
 import { createGamificationSlice } from '@/store/slices/gamificationSlice';
 import { createProgressSlice } from '@/store/slices/progressSlice';
@@ -26,6 +27,7 @@ export const useAppStore = create<AppState>()(
       ...createSettingsSlice(...args),
       ...createChatSlice(...args),
       ...createWellbeingSlice(...args),
+      ...createCasesSlice(...args),
       resetAll: () => args[0]({ ...DEFAULT_PERSISTED }),
     }),
     {
@@ -58,6 +60,8 @@ export const useAppStore = create<AppState>()(
         anchorPhotoUri: state.anchorPhotoUri,
         focusAreas: state.focusAreas,
         hardMoments: state.hardMoments,
+        solvedCases: state.solvedCases,
+        ownCases: state.ownCases,
       }),
     },
   ),

@@ -74,6 +74,8 @@ export const enfriador: ModuleContent = {
       { text: 'Poner un temporizador de 20 minutos antes de pedir comida.', answer: 'right', why: 'La pausa distingue antojo de necesidad.' },
       { text: 'Dejar el celular en otra habitación mientras haces tu tarea.', answer: 'right', why: 'Alejar la tentación reduce la lucha.' },
       { text: 'Ver un episodio más aunque mañana tengas clase temprano.', answer: 'left', why: 'El alivio de hoy es el cansancio de mañana.' },
+      { text: 'Esperar 10 minutos antes de comprar esa oferta.', answer: 'right', why: 'La regla de los 10 minutos deja pasar el pico del impulso.' },
+      { text: 'Comprar al toque porque «se acaba hoy».', answer: 'left', why: 'La urgencia de las ofertas empuja a decidir sin pensar.' },
     ],
   },
   wordRain: {
@@ -133,6 +135,8 @@ export const enfriador: ModuleContent = {
       { text: 'Pagar el pasaje para ir a clases', answer: 'left' },
       { text: 'Revisar redes "solo un segundo" en plena tarea', answer: 'right' },
       { text: 'Comprar los materiales del curso', answer: 'left' },
+      { text: 'Surfear el impulso respirando hasta que baje', answer: 'right' },
+      { text: 'Comprar algo para calmar la frustración', answer: 'left' },
     ],
   },
   rewind: {

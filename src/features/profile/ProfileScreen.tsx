@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Anchor, Flame, Hourglass, Info, Layers, Settings, ShieldCheck, Trophy, Users, type LucideIcon } from 'lucide-react-native';
+import { Anchor, Clapperboard, Flame, Hourglass, Info, Layers, Settings, ShieldCheck, Trophy, Users, type LucideIcon } from 'lucide-react-native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -167,6 +167,14 @@ export function ProfileScreen() {
                 iconColor={tools.descarga.on}
                 onPress={() => router.push('/anchor')}
               />
+              <MenuRow
+                icon={Clapperboard}
+                title="Laboratorio de casos"
+                subtitle="Personajes de cine y series, y tus propios casos"
+                color={tools.hoy.base}
+                iconColor={tools.hoy.on}
+                onPress={() => router.push('/cases')}
+              />
             </Card>
           </View>
 
@@ -175,7 +183,7 @@ export function ProfileScreen() {
             <MenuRow
               icon={Info}
               title="Sobre VIRA y ayuda profesional"
-              subtitle="Líneas de ayuda y descargo"
+              subtitle="Líneas de ayuda, descargo y fuentes"
               color={colors.regi}
               iconColor={colors.onRegi}
               onPress={() => router.push('/about')}

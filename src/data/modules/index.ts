@@ -1,8 +1,10 @@
 /**
- * Cargador del contenido del juego: valida cada módulo con zod al cargarlo y completa las rondas hasta ~10
- * preguntas con el contenido heredado. Si un módulo estuviera mal formado, falla con un error claro.
+ * Cargador del contenido del juego: valida cada módulo con zod al cargarlo, suma las preguntas de los ejes
+ * del curso y completa las rondas hasta ~10 preguntas con el contenido heredado. Si un módulo estuviera mal
+ * formado, falla con un error claro.
  */
 import { ancla } from '@/data/modules/ancla';
+import { COURSE_QUESTIONS } from '@/data/modules/courseQuestions';
 import { descarga } from '@/data/modules/descarga';
 import { enfriador } from '@/data/modules/enfriador';
 import { freno } from '@/data/modules/freno';
@@ -10,6 +12,7 @@ import { hoy } from '@/data/modules/hoy';
 import { LEGACY_POOLS, fillRound, type LegacyPool } from '@/data/modules/legacyQuestions';
 import { muro } from '@/data/modules/muro';
 import { moduleContentSchema } from '@/data/modules/schema';
+import { shuffleQuestion } from '@/lib/quiz';
 import type { ModuleContent } from '@/types/content';
 import type { ModuleId } from '@/types/game';
 
@@ -34,7 +37,13 @@ function prepare(id: ModuleId): ModuleContent {
   }
   const content = RAW[id];
   const pool = LEGACY_POOLS[POOL_FOR[id]];
-  const rounds = content.rounds.map((round, index) => fillRound(round, pool, `${id}-${index}`));
+  const course = COURSE_QUESTIONS[id];
+  // Primero las preguntas propias del módulo, luego las de los ejes del curso (con opciones mezcladas) y,
+  // si aún faltan, el relleno heredado.
+  const rounds = content.rounds.map((round, index) => {
+    const extra = (course?.[index] ?? []).map((question, position) => shuffleQuestion(question, `${id}-${index}-${position}`));
+    return fillRound([...round, ...extra], pool, `${id}-${index}`);
+  });
   return { ...content, rounds: [rounds[0], rounds[1], rounds[2]] };
 }
 

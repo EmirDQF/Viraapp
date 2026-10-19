@@ -74,6 +74,8 @@ export const freno: ModuleContent = {
       { text: 'Tirar la puerta y encerrarte.', answer: 'left', why: 'La emoción decidió por ti.' },
       { text: 'Decir "necesito un momento, ya vuelvo".', answer: 'right', why: 'Es un freno claro y respetuoso.' },
       { text: 'Responder con sarcasmo en el grupo.', answer: 'left', why: 'El sarcasmo en caliente hiere y complica.' },
+      { text: 'Aplicar STOP: parar, tomar aire, observar y luego responder.', answer: 'right', why: 'STOP abre una pausa entre sentir y actuar.' },
+      { text: 'Escribir un comentario hiriente en caliente.', answer: 'left', why: 'Lo que se dice en caliente no se puede borrar.' },
     ],
   },
   wordRain: {
@@ -133,6 +135,8 @@ export const freno: ModuleContent = {
       { text: 'Decir "hablemos cuando estemos más tranquilos"', answer: 'right' },
       { text: 'Tirar el celular', answer: 'left' },
       { text: 'Escribir lo que sientes antes de enviar nada', answer: 'right' },
+      { text: 'Usar la técnica STOP', answer: 'right' },
+      { text: 'Decir lo primero que se te viene a la mente', answer: 'left' },
     ],
   },
   rewind: {

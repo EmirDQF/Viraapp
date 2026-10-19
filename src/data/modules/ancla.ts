@@ -74,6 +74,8 @@ export const ancla: ModuleContent = {
       { text: 'Llamar a tu hermana y contarle lo que pasa.', answer: 'right', why: 'Pedir apoyo a alguien concreto funciona.' },
       { text: 'Publicar "nadie me entiende" en redes.', answer: 'left', why: 'Es dramático y poco claro.' },
       { text: 'Proponer a un amigo ir por un café porque lo necesitas.', answer: 'right', why: 'Es una invitación directa y sana.' },
+      { text: 'Hacer el grounding 5-4-3-2-1 cuando la ansiedad sube.', answer: 'right', why: 'Los sentidos te traen al presente.' },
+      { text: 'Aislarte y no contarle a nadie que estás mal.', answer: 'left', why: 'Pedir apoyo a tiempo también es fuerza.' },
     ],
   },
   wordRain: {
@@ -138,6 +140,8 @@ export const ancla: ModuleContent = {
       { text: '"Nadie me quiere" en redes', answer: 'right' },
       { text: 'Llamar a un familiar', answer: 'left' },
       { text: 'Dejar de responder a todos', answer: 'right' },
+      { text: 'Respiración cuadrada 4-4-4-4', answer: 'right' },
+      { text: 'Encerrarte sin hablar con nadie', answer: 'left' },
     ],
   },
   rewind: {

@@ -74,6 +74,8 @@ export const hoy: ModuleContent = {
       { text: '"Guardar la ropa que está en la silla".', answer: 'right', why: 'Se hace en minutos.' },
       { text: '"Buscar dos fuentes para el trabajo".', answer: 'right', why: 'Es un paso claro.' },
       { text: '"Aprender inglés este mes".', answer: 'left', why: 'Mejor: "practicar 10 minutos hoy".' },
+      { text: 'Dividir el trabajo final en tres micropasos.', answer: 'right', why: 'Lo pequeño se siente posible y te ayuda a empezar.' },
+      { text: 'Dejar todo para la noche anterior.', answer: 'left', why: 'Postergar suma estrés y frustración.' },
     ],
   },
   wordRain: {
@@ -139,6 +141,8 @@ export const hoy: ModuleContent = {
       { text: 'Organizar todo el semestre', answer: 'right' },
       { text: 'Enviar un correo al profesor', answer: 'left' },
       { text: 'Cambiar todos mis hábitos', answer: 'right' },
+      { text: 'Elegir 3 prioridades para hoy', answer: 'right' },
+      { text: 'Abrir redes «solo un ratito» antes de empezar', answer: 'left' },
     ],
   },
   rewind: {

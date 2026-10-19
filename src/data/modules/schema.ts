@@ -5,6 +5,9 @@ import { MODULE_ORDER } from '@/data/modules/catalog';
 
 const text = z.string().trim().min(1);
 
+/** Mínimo de ejercicios en las etapas de práctica (swipe y prueba final). */
+export const MIN_EXERCISES = 8;
+
 export const quizQuestionSchema = z
   .object({ prompt: text, options: z.array(text).min(2).max(4), answer: z.number().int().min(0), why: text })
   .refine((question) => question.answer < question.options.length, { message: 'La respuesta debe ser una de las opciones' });
@@ -28,7 +31,7 @@ export const moduleContentSchema = z.object({
     prompt: text,
     left: text,
     right: text,
-    cards: z.array(z.object({ text, answer: side, why: text })).min(4),
+    cards: z.array(z.object({ text, answer: side, why: text })).min(MIN_EXERCISES),
   }),
   wordRain: z.object({ good: z.array(text).length(8), bad: z.array(text).length(8), phrase: text }),
   simulator: z.object({
@@ -61,7 +64,7 @@ export const moduleContentSchema = z.object({
     left: text,
     right: text,
     seconds: z.number().int().min(15).max(120),
-    items: z.array(z.object({ text, answer: side })).min(6),
+    items: z.array(z.object({ text, answer: side })).min(MIN_EXERCISES),
   }),
   rewind: z.object({ summary: z.array(text).min(2), reward: text }),
 });

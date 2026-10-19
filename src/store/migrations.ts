@@ -8,10 +8,13 @@ import { MODULE_ORDER } from '@/data/modules/catalog';
 import { MAX_MINUTES, MIN_MINUTES } from '@/lib/impulses';
 import { FOCUS_AREA_IDS, HARD_MOMENT_IDS } from '@/lib/personalize';
 import { MAX_CONTACTS } from '@/lib/support';
-import { EVIDENCE_ICONS, type PersistedState, type Settings } from '@/store/types';
+import { EVIDENCE_ICONS, OWN_CASE_FIELD_MAX, OWN_CASE_TITLE_MAX, type PersistedState, type Settings } from '@/store/types';
 
-/** v3: perfil personalizado (focusAreas, hardMoments y onboarding.personalized). */
-export const STORE_VERSION = 3;
+/**
+ * v3: perfil personalizado (focusAreas, hardMoments y onboarding.personalized).
+ * v4: Laboratorio de casos (solvedCases y ownCases).
+ */
+export const STORE_VERSION = 4;
 
 export const DEFAULT_SETTINGS: Settings = {
   theme: 'system',
@@ -48,6 +51,8 @@ export const DEFAULT_PERSISTED: PersistedState = {
   anchorPhotoUri: null,
   focusAreas: [],
   hardMoments: [],
+  solvedCases: [],
+  ownCases: [],
 };
 
 /** Máximo de mensajes de chat guardados en el teléfono. */
@@ -84,6 +89,16 @@ const evidenceSchema = z.object({
   source: z.enum(['manual', 'game']),
 });
 const contactSchema = z.object({ id: z.string().min(1), name: z.string().min(1).max(40), phone: z.string().regex(/^\+?\d{3,15}$/) });
+const caseField = z.string().max(OWN_CASE_FIELD_MAX);
+const ownCaseSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1).max(OWN_CASE_TITLE_MAX),
+  impulses: caseField,
+  thoughts: caseField,
+  frustration: caseField,
+  technique: caseField,
+  createdAt: isoDateTime,
+});
 const legacySchema = z.object({ activeCrucible: z.string().nullable(), crucibleProgress: z.unknown() }).nullable();
 const streakSchema = z.object({ count: z.number().int().min(0), lastActiveDate: isoDay.nullable() });
 const moduleProgressSchema = z.object({
@@ -188,6 +203,8 @@ function readV2(raw: Record<string, unknown>): PersistedState {
     anchorPhotoUri: safe(z.string().nullable(), raw.anchorPhotoUri, null),
     focusAreas: safeEnumSet(FOCUS_AREA_IDS, raw.focusAreas),
     hardMoments: safeEnumSet(HARD_MOMENT_IDS, raw.hardMoments),
+    solvedCases: [...new Set(safeList(z.string().min(1).max(60), raw.solvedCases))],
+    ownCases: safeList(ownCaseSchema, raw.ownCases),
   };
 }
 

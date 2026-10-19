@@ -1,3 +1,5 @@
+import { router } from 'expo-router';
+import { Clapperboard } from 'lucide-react-native';
 import { useCallback, useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,7 +15,7 @@ import { TopicCard } from '@/features/explore/TopicCard';
 import { recommendModules } from '@/lib/explore';
 import { moduleOrder, moduleStatus } from '@/lib/gamification/progress';
 import { useAppStore } from '@/store/useAppStore';
-import { spacing } from '@/theme/tokens';
+import { gradients, onGradient, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import type { ModuleId } from '@/types/game';
 import { useTabBarSpace } from '@/components/ui/GlassTabBar';
@@ -59,6 +61,24 @@ export function ExploreScreen() {
             Explorar
           </AppText>
           <RegiSays pose="resilient" message="Aquí entiendes el porqué de cada tema. Saber cómo funciona tu mente también es entrenarla." size={78} />
+          <Card
+            variant="gradient"
+            gradient={gradients.sunrise}
+            onPress={() => router.push('/cases')}
+            accessibilityLabel="Laboratorio de casos"
+            accessibilityHint="Analiza personajes de películas y series con las preguntas del curso"
+            style={styles.lab}
+          >
+            <Clapperboard color={onGradient.sunrise} size={32} />
+            <View style={styles.flex}>
+              <AppText variant="subtitle" color={onGradient.sunrise}>
+                Laboratorio de casos
+              </AppText>
+              <AppText variant="caption" color={onGradient.sunrise}>
+                Intensamente, Whiplash, Coco y más: descubre impulsos, pensamientos y frustración en cada personaje.
+              </AppText>
+            </View>
+          </Card>
           <SectionTitle title="Recomendado para ti" />
           {recommended.map((id) => renderTopic(id, true))}
           {others.length > 0 ? <SectionTitle title="Más temas" /> : null}
@@ -92,4 +112,6 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: spacing.screen, paddingVertical: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
   sectionTitle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm, flexWrap: 'wrap', marginTop: spacing.sm },
   resources: { gap: spacing.xs },
+  lab: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  flex: { flex: 1, gap: 2 },
 });
