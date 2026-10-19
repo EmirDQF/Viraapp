@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { ArrowLeft, Info, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, Info, Target, Trash2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,12 +9,13 @@ import { Button3D } from '@/components/ui/Button3D';
 import { Sheet } from '@/components/ui/Sheet';
 import { goBackOrHome } from '@/features/game/navigation';
 import { MenuRow } from '@/features/profile/MenuRow';
+import { GOAL_OPTIONS } from '@/features/onboarding/FocusSteps';
 import { ChoiceGroup, SettingSection, SettingSwitch } from '@/features/settings/SettingControls';
 import { cancelAllNotifications, notificationsSupported } from '@/lib/notifications';
 import { requestPermission } from '@/lib/permissions';
 import { REMINDER_HOURS, formatHour } from '@/lib/reminders';
 import { useAppStore } from '@/store/useAppStore';
-import type { DailyGoalMinutes, ThemePreference } from '@/store/types';
+import type { ThemePreference } from '@/store/types';
 import { MIN_TOUCH, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 import { ScreenBackground } from '@/components/ui/ScreenBackground';
@@ -23,11 +24,6 @@ const THEME_OPTIONS: readonly { value: ThemePreference; label: string }[] = [
   { value: 'system', label: 'Sistema' },
   { value: 'light', label: 'Claro' },
   { value: 'dark', label: 'Oscuro' },
-];
-const GOAL_OPTIONS: readonly { value: DailyGoalMinutes; label: string }[] = [
-  { value: 5, label: '5 min' },
-  { value: 10, label: '10 min' },
-  { value: 15, label: '15 min' },
 ];
 const HOUR_OPTIONS = REMINDER_HOURS.map((hour) => ({ value: hour, label: formatHour(hour) }));
 
@@ -131,6 +127,7 @@ export function SettingsScreen() {
           <SettingSection title="Apariencia">
             <ChoiceGroup label="Tema" options={THEME_OPTIONS} value={settings.theme} onChange={(theme) => updateSettings({ theme })} />
           </SettingSection>
+          <MenuRow icon={Target} title="Mis objetivos" subtitle="Qué quieres mejorar y cuándo te cuesta más" onPress={() => router.push('/goals')} />
           <SettingSection title="Tu meta">
             <ChoiceGroup label="Minutos de práctica al día" options={GOAL_OPTIONS} value={dailyGoal} onChange={setDailyGoal} />
           </SettingSection>

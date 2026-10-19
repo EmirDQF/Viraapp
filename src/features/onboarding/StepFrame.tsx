@@ -12,7 +12,7 @@ import { ScreenBackground } from '@/components/ui/ScreenBackground';
 import { gradients, MIN_TOUCH, radius, spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
-export const ONBOARDING_STEPS = 4;
+export const ONBOARDING_STEPS = 8;
 
 interface StepFrameProps {
   readonly step: number;
@@ -22,7 +22,7 @@ interface StepFrameProps {
   readonly footer: ReactNode;
 }
 
-/** Marco común de los 4 pasos: saludo, barra "n / 4" con degradado aurora, contenido y pie fijo. */
+/** Marco común de los pasos del onboarding: saludo, barra "n / total" con degradado aurora, contenido y pie fijo. */
 export function StepFrame({ step, title = '¡Hola! Ayúdanos a personalizar tu camino ✨', onBack, children, footer }: StepFrameProps) {
   const { colors } = useTheme();
   return (

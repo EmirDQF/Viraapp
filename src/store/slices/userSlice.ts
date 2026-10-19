@@ -13,4 +13,10 @@ export const createUserSlice: StateCreator<AppState, [], [], UserActions> = (set
     })),
   completeOnboarding: (firstModule) =>
     set((current) => ({ onboarding: { ...current.onboarding, completed: true, firstModule } })),
+  setFocus: (focusAreas, hardMoments) =>
+    set((current) => ({
+      focusAreas: [...new Set(focusAreas)],
+      hardMoments: [...new Set(hardMoments)],
+      onboarding: { ...current.onboarding, personalized: true },
+    })),
 });

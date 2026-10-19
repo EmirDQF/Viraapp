@@ -1,4 +1,5 @@
 import type { Impulse, ImpulseStatus } from '@/lib/impulses';
+import type { FocusArea, HardMoment } from '@/lib/personalize';
 import type { TrustedContact } from '@/lib/support';
 import type { ModuleId, ModulesProgress, StagePointer } from '@/types/game';
 import type { Streak, User } from '@/types/user';
@@ -9,6 +10,8 @@ export type PermissionState = 'granted' | 'denied' | 'skipped' | 'unknown';
 export interface OnboardingState {
   readonly completed: boolean;
   readonly firstModule: ModuleId | null;
+  /** true cuando el usuario ya respondió "¿Qué quieres mejorar?" (en el onboarding o desde Ajustes). */
+  readonly personalized: boolean;
   readonly permissions: Readonly<Record<PermissionKey, PermissionState>>;
 }
 
@@ -78,12 +81,18 @@ export interface PersistedState {
   readonly contacts: readonly TrustedContact[];
   /** Foto feliz elegida para la Pantalla Ancla (URI local; nunca sale del teléfono). */
   readonly anchorPhotoUri: string | null;
+  /** Lo que el usuario quiere mejorar: ordena la ruta y elige la lección del día. */
+  readonly focusAreas: readonly FocusArea[];
+  /** Momentos en los que más le cuesta (frases de Regi y recomendaciones). */
+  readonly hardMoments: readonly HardMoment[];
 }
 
 export interface UserActions {
   setUser: (name: string, birthDate: string) => void;
   setPermission: (key: PermissionKey, state: PermissionState) => void;
   completeOnboarding: (firstModule: ModuleId | null) => void;
+  /** Guarda "¿Qué quieres mejorar?" y "¿Cuándo te cuesta más?" y marca el perfil como personalizado. */
+  setFocus: (focusAreas: readonly FocusArea[], hardMoments: readonly HardMoment[]) => void;
 }
 
 export interface ProgressActions {

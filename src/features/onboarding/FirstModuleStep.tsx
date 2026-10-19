@@ -19,12 +19,12 @@ interface FirstModuleStepProps {
   readonly onFinish: () => void;
 }
 
-/** Paso 4: qué habilidad quiere trabajar primero. Ese tema queda desbloqueado para empezar. */
+/** Paso 8: qué habilidad quiere trabajar primero. Ese tema queda desbloqueado para empezar. */
 export function FirstModuleStep({ selected, onSelect, onBack, onFinish }: FirstModuleStepProps) {
   const { colors } = useTheme();
   return (
     <StepFrame
-      step={4}
+      step={8}
       title="¿Por dónde quieres empezar?"
       onBack={onBack}
       footer={<Button3D label="Empezar mi camino" size="lg" haptics="success" onPress={onFinish} />}

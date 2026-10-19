@@ -13,17 +13,19 @@ interface ChipProps {
   readonly onPress: () => void;
   readonly icon?: LucideIcon;
   readonly accessibilityLabel?: string;
+  /** "checkbox" para selecciones múltiples (anuncia marcado / no marcado). */
+  readonly role?: 'button' | 'checkbox';
 }
 
 /** Opción seleccionable en píldora (filtros, respuestas rápidas). */
-export function Chip({ label, selected = false, onPress, icon: Icon, accessibilityLabel }: ChipProps) {
+export function Chip({ label, selected = false, onPress, icon: Icon, accessibilityLabel, role = 'button' }: ChipProps) {
   const { colors } = useTheme();
   const text = selected ? colors.onPrimary : colors.text;
   return (
     <AnimatedPressable
-      accessibilityRole="button"
+      accessibilityRole={role}
       accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityState={{ selected }}
+      accessibilityState={role === 'checkbox' ? { checked: selected } : { selected }}
       haptics="selection"
       onPress={onPress}
       style={[

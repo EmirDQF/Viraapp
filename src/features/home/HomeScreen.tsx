@@ -23,6 +23,7 @@ import { MODULE_ORDER, MODULES } from '@/data/modules/catalog';
 import { STAGES_PER_MODULE } from '@/data/stages';
 import { openModule, openStage } from '@/features/game/navigation';
 import { ModuleDial } from '@/features/home/ModuleDial';
+import { LessonOfDayCard, PersonalizeCard, useLessonOfDay } from '@/features/home/PersonalTiles';
 import { dailyGoalProgress, minutesToday } from '@/lib/gamification/daily';
 import { currentModule, followingModule, moduleCompletion, moduleOrder, moduleStatus, nextStage } from '@/lib/gamification/progress';
 import { lighten } from '@/lib/color';
@@ -130,7 +131,10 @@ function NextMissionTile() {
   const modules = useAppStore((state) => state.modules);
   const start = useAppStore((state) => state.onboarding.firstModule);
   const next = nextStage(modules, start);
-  if (!next) return null;
+  const lesson = useLessonOfDay();
+  // Si la lección del día ya es la siguiente misión, no se repite la misma tarjeta dos veces.
+  const sameAsLesson = !lesson.isReview && lesson.pointer.moduleId === next?.moduleId && lesson.pointer.stage === next?.stage;
+  if (!next || sameAsLesson) return null;
   const tone = MODULE_COLORS[next.moduleId];
   const meta = MODULES[next.moduleId];
   return (
@@ -267,6 +271,8 @@ export function HomeScreen() {
             <ProgressHero />
           </Animated.View>
           <Animated.View entering={enter(2)} style={styles.bento}>
+            <PersonalizeCard />
+            <LessonOfDayCard />
             <NextMissionTile />
             <View style={styles.bentoRow}>
               <DailyGoalTile />

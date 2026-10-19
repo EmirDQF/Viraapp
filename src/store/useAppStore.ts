@@ -56,6 +56,8 @@ export const useAppStore = create<AppState>()(
         evidence: state.evidence,
         contacts: state.contacts,
         anchorPhotoUri: state.anchorPhotoUri,
+        focusAreas: state.focusAreas,
+        hardMoments: state.hardMoments,
       }),
     },
   ),

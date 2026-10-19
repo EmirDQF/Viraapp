@@ -6,10 +6,12 @@ import { z } from 'zod';
 
 import { MODULE_ORDER } from '@/data/modules/catalog';
 import { MAX_MINUTES, MIN_MINUTES } from '@/lib/impulses';
+import { FOCUS_AREA_IDS, HARD_MOMENT_IDS } from '@/lib/personalize';
 import { MAX_CONTACTS } from '@/lib/support';
 import { EVIDENCE_ICONS, type PersistedState, type Settings } from '@/store/types';
 
-export const STORE_VERSION = 2;
+/** v3: perfil personalizado (focusAreas, hardMoments y onboarding.personalized). */
+export const STORE_VERSION = 3;
 
 export const DEFAULT_SETTINGS: Settings = {
   theme: 'system',
@@ -25,6 +27,7 @@ export const DEFAULT_PERSISTED: PersistedState = {
   onboarding: {
     completed: false,
     firstModule: null,
+    personalized: false,
     permissions: { calendar: 'unknown', notifications: 'unknown', photos: 'unknown', news: 'unknown' },
   },
   modules: {},
@@ -43,6 +46,8 @@ export const DEFAULT_PERSISTED: PersistedState = {
   evidence: [],
   contacts: [],
   anchorPhotoUri: null,
+  focusAreas: [],
+  hardMoments: [],
 };
 
 /** Máximo de mensajes de chat guardados en el teléfono. */
@@ -105,6 +110,11 @@ function safeList<T>(schema: z.ZodType<T>, value: unknown): T[] {
   });
 }
 
+/** Lista de valores de un enum: descarta los desconocidos y los repetidos. */
+function safeEnumSet<T extends string>(values: readonly T[], value: unknown): T[] {
+  return [...new Set(safeList(z.enum(values as [T, ...T[]]) as unknown as z.ZodType<T>, value))];
+}
+
 function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
 }
@@ -142,6 +152,7 @@ function readOnboarding(value: unknown, hasUser: boolean): PersistedState['onboa
   return {
     completed: safe(z.boolean(), raw.completed, hasUser),
     firstModule: safe(moduleId.nullable(), raw.firstModule, null) as PersistedState['onboarding']['firstModule'],
+    personalized: safe(z.boolean(), raw.personalized, false),
     permissions: {
       calendar: safe(permission, perms.calendar, defaults.calendar),
       notifications: safe(permission, perms.notifications, defaults.notifications),
@@ -151,7 +162,7 @@ function readOnboarding(value: unknown, hasUser: boolean): PersistedState['onboa
   };
 }
 
-/** Normaliza un estado v2 (o parcialmente válido) campo por campo. */
+/** Normaliza un estado v2 o posterior (o parcialmente válido) campo por campo; lo que falta toma su valor por defecto. */
 function readV2(raw: Record<string, unknown>): PersistedState {
   const user = safe(userSchema.nullable(), raw.user, null);
   const lastPlayed = safe(z.object({ moduleId, stage: z.number().int().min(0).max(12) }).nullable(), raw.lastPlayed, null);
@@ -175,6 +186,8 @@ function readV2(raw: Record<string, unknown>): PersistedState {
     evidence: safeList(evidenceSchema, raw.evidence),
     contacts: safeList(contactSchema, raw.contacts).slice(0, MAX_CONTACTS),
     anchorPhotoUri: safe(z.string().nullable(), raw.anchorPhotoUri, null),
+    focusAreas: safeEnumSet(FOCUS_AREA_IDS, raw.focusAreas),
+    hardMoments: safeEnumSet(HARD_MOMENT_IDS, raw.hardMoments),
   };
 }
 

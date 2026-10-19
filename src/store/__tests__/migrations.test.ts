@@ -10,8 +10,8 @@ const V1_STATE = {
 };
 
 describe('migrateState', () => {
-  test('la versión actual del store es la 2', () => {
-    expect(STORE_VERSION).toBe(2);
+  test('la versión actual del store es la 3', () => {
+    expect(STORE_VERSION).toBe(3);
   });
 
   test('v1 → v2 conserva usuario, XP y racha', () => {
@@ -110,5 +110,31 @@ describe('migrateState', () => {
     const legacy = { activeCrucible: 'academic', crucibleProgress: { academic: {} } };
     const migrated = migrateState({ ...DEFAULT_PERSISTED, legacy }, 2);
     expect(migrated.legacy).toEqual(legacy);
+  });
+
+  test('v2 → v3: el progreso se conserva y el perfil nuevo empieza vacío y sin personalizar', () => {
+    const { focusAreas: _f, hardMoments: _h, ...v2 } = { ...DEFAULT_PERSISTED, xp: 80 };
+    const migrated = migrateState({ ...v2, onboarding: { completed: true, firstModule: 'freno', permissions: {} } }, 2);
+    expect(migrated.xp).toBe(80);
+    expect(migrated.focusAreas).toEqual([]);
+    expect(migrated.hardMoments).toEqual([]);
+    expect(migrated.onboarding.completed).toBe(true);
+    expect(migrated.onboarding.firstModule).toBe('freno');
+    expect(migrated.onboarding.personalized).toBe(false);
+  });
+
+  test('v3: áreas de foco y momentos se validan uno a uno y sin duplicados', () => {
+    const migrated = migrateState(
+      {
+        ...DEFAULT_PERSISTED,
+        focusAreas: ['impulsos', 'inventada', 'impulsos', 'ansiedad'],
+        hardMoments: ['noche', 7, 'noche'],
+        onboarding: { ...DEFAULT_PERSISTED.onboarding, completed: true, personalized: true },
+      },
+      3,
+    );
+    expect(migrated.focusAreas).toEqual(['impulsos', 'ansiedad']);
+    expect(migrated.hardMoments).toEqual(['noche']);
+    expect(migrated.onboarding.personalized).toBe(true);
   });
 });

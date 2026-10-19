@@ -45,7 +45,7 @@ function cardState(keys: readonly PermissionKey[], permissions: Readonly<Record<
   return 'unknown';
 }
 
-/** Paso 3: permisos opcionales. Cada uno se pide solo al pulsar su botón; negarlo nunca bloquea. */
+/** Paso 7: permisos opcionales. Cada uno se pide solo al pulsar su botón; negarlo nunca bloquea. */
 export function PermissionsStep({ onBack, onNext }: { readonly onBack: () => void; readonly onNext: () => void }) {
   const { colors } = useTheme();
   const permissions = useAppStore((state) => state.onboarding.permissions);
@@ -73,7 +73,7 @@ export function PermissionsStep({ onBack, onNext }: { readonly onBack: () => voi
 
   return (
     <StepFrame
-      step={3}
+      step={7}
       onBack={onBack}
       footer={
         <>
