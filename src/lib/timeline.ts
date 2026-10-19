@@ -232,6 +232,19 @@ export function lowMoodStreak(events: readonly TimelineEvent[], now: Date): numb
   return streak;
 }
 
+/** Último check-in de ánimo de hoy, o null si aún no lo hizo. */
+export function moodToday(events: readonly TimelineEvent[], now: Date): MoodValue | null {
+  const today = toIsoDate(now);
+  const moods = [...events].sort(byOldest).filter((event) => event.kind === 'mood' && dayOf(event.at) === today);
+  const last = moods[moods.length - 1];
+  return last && last.kind === 'mood' ? last.value : null;
+}
+
+/** Impulsos anotados en los últimos `days` días (incluido hoy). */
+export function recentImpulseCount(events: readonly TimelineEvent[], now: Date, days = 3): number {
+  return eventsIn(events, lastDays(now, days)).filter((event) => event.kind === 'impulse' && event.status === 'registered').length;
+}
+
 export type RegiStage = 'cria' | 'juvenil' | 'adulto' | 'sabio';
 
 export const REGI_STAGES: readonly { readonly id: RegiStage; readonly name: string; readonly minXp: number }[] = [

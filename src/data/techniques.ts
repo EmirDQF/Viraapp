@@ -205,3 +205,14 @@ export function isTechniqueId(value: unknown): value is TechniqueId {
 export function techniqueSeconds(id: TechniqueId): number {
   return TECHNIQUES[id].steps.reduce((total, step) => total + step.seconds, 0);
 }
+
+export type BreathPhase = 'in' | 'hold' | 'out';
+
+/** Fase de respiración que sugiere el texto de un paso (para animar el círculo), o null si no es de respirar. */
+export function breathPhase(text: string): BreathPhase | null {
+  const lower = text.toLowerCase();
+  if (lower.includes('inhala')) return 'in';
+  if (lower.includes('exhala') || lower.includes('suelta')) return 'out';
+  if (lower.includes('sostén') || lower.includes('sosten')) return 'hold';
+  return null;
+}

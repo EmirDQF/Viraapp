@@ -24,6 +24,7 @@ import { STAGES_PER_MODULE } from '@/data/stages';
 import { openModule, openStage } from '@/features/game/navigation';
 import { ModuleDial } from '@/features/home/ModuleDial';
 import { TAP_LINES, pickRegiLine } from '@/data/regiLines';
+import { LowMoodSupport, MoodCheckIn, SosButton, TechniqueSuggestionCard } from '@/features/home/HelpTiles';
 import { JourneyCard, LessonOfDayCard, PersonalizeCard, useLessonOfDay } from '@/features/home/PersonalTiles';
 import { RegiEvolutionCelebration } from '@/features/journey/RegiEvolution';
 import { dailyGoalProgress, minutesToday } from '@/lib/gamification/daily';
@@ -275,8 +276,10 @@ export function HomeScreen() {
     <ScreenBackground>
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView contentContainerStyle={[styles.content, { paddingBottom: tabSpace + spacing.lg }]}>
-          <Animated.View entering={enter(0)}>
+          <Animated.View entering={enter(0)} style={styles.bento}>
             <Header />
+            <SosButton />
+            <LowMoodSupport />
           </Animated.View>
           <Animated.View entering={enter(1)}>
             <ProgressHero />
@@ -289,6 +292,8 @@ export function HomeScreen() {
               <DailyGoalTile />
               <ImpulsesTile />
             </View>
+            <MoodCheckIn />
+            <TechniqueSuggestionCard />
             <JourneyCard />
           </Animated.View>
           <Animated.View entering={enter(3)} style={styles.dialSection}>

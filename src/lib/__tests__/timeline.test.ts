@@ -5,6 +5,8 @@ import {
   journeySections,
   lowMoodStreak,
   milestones,
+  moodToday,
+  recentImpulseCount,
   regiStageFor,
   weekSummary,
   weeklyTrend,
@@ -150,5 +152,19 @@ describe('journeySections', () => {
 
   test('sin eventos no hay secciones', () => {
     expect(journeySections([])).toEqual([]);
+  });
+});
+
+describe('señales para el recomendador', () => {
+  const registered = (at: string): TimelineEvent => ({ id: `r${(counter += 1)}`, at, kind: 'impulse', status: 'registered', label: 'x' });
+
+  test('moodToday devuelve el último ánimo de hoy o null', () => {
+    expect(moodToday([], NOW)).toBeNull();
+    expect(moodToday([mood(day(18), 1)], NOW)).toBeNull();
+    expect(moodToday([mood(day(19, 9), 2), mood(day(19, 15), 4)], NOW)).toBe(4);
+  });
+
+  test('recentImpulseCount cuenta los impulsos anotados en los últimos 3 días', () => {
+    expect(recentImpulseCount([registered(day(19)), registered(day(17)), registered(day(10)), resisted(day(19))], NOW)).toBe(2);
   });
 });
