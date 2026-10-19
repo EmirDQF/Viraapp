@@ -2,6 +2,7 @@ import type { StateCreator } from 'zustand';
 
 import { addPracticeMinutes } from '@/lib/gamification/daily';
 import { registerActivity } from '@/lib/streak';
+import { withEvent } from '@/store/timelineEvents';
 import type { AppState, GamificationActions } from '@/store/types';
 
 export const createGamificationSlice: StateCreator<AppState, [], [], GamificationActions> = (set) => ({
@@ -14,9 +15,13 @@ export const createGamificationSlice: StateCreator<AppState, [], [], Gamificatio
     })),
   setDailyGoal: (minutes) => set({ dailyGoalMinutes: minutes }),
   earnReward: (badge) =>
-    set((current) => ({
-      goldenKeys: current.goldenKeys + 1,
-      chestsOpened: current.chestsOpened + 1,
-      badges: badge && !current.badges.includes(badge) ? [...current.badges, badge] : current.badges,
-    })),
+    set((current) => {
+      const isNew = badge !== null && !current.badges.includes(badge);
+      return {
+        goldenKeys: current.goldenKeys + 1,
+        chestsOpened: current.chestsOpened + 1,
+        badges: isNew ? [...current.badges, badge] : current.badges,
+        timeline: isNew ? withEvent(current.timeline, { kind: 'badge', label: badge }) : current.timeline,
+      };
+    }),
 });

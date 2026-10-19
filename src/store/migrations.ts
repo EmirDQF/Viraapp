@@ -6,15 +6,19 @@ import { z } from 'zod';
 
 import { MODULE_ORDER } from '@/data/modules/catalog';
 import { MAX_MINUTES, MIN_MINUTES } from '@/lib/impulses';
+import { TECHNIQUE_IDS } from '@/data/techniques';
+import type { Impulse } from '@/lib/impulses';
 import { FOCUS_AREA_IDS, HARD_MOMENT_IDS } from '@/lib/personalize';
+import { MAX_TIMELINE, REGI_STAGES, regiStageFor, type RegiStage as RegiStageId, type TimelineEvent } from '@/lib/timeline';
 import { MAX_CONTACTS } from '@/lib/support';
 import { EVIDENCE_ICONS, OWN_CASE_FIELD_MAX, OWN_CASE_TITLE_MAX, type PersistedState, type Settings } from '@/store/types';
 
 /**
  * v3: perfil personalizado (focusAreas, hardMoments y onboarding.personalized).
  * v4: Laboratorio de casos (solvedCases y ownCases).
+ * v5: cronología "Mi camino" (timeline, rellenada con los impulsos previos) y regiStageSeen.
  */
-export const STORE_VERSION = 4;
+export const STORE_VERSION = 5;
 
 export const DEFAULT_SETTINGS: Settings = {
   theme: 'system',
@@ -53,6 +57,8 @@ export const DEFAULT_PERSISTED: PersistedState = {
   hardMoments: [],
   solvedCases: [],
   ownCases: [],
+  timeline: [],
+  regiStageSeen: 'cria',
 };
 
 /** Máximo de mensajes de chat guardados en el teléfono. */
@@ -99,6 +105,29 @@ const ownCaseSchema = z.object({
   technique: caseField,
   createdAt: isoDateTime,
 });
+const eventBase = { id: z.string().min(1), at: isoDateTime };
+const timelineEventSchema = z.discriminatedUnion('kind', [
+  z.object({
+    ...eventBase,
+    kind: z.literal('lesson'),
+    moduleId,
+    stage: z.number().int().min(0).max(12),
+    minutes: z.number().min(0).max(60),
+    score: z.number().min(0).max(1),
+  }),
+  z.object({ ...eventBase, kind: z.literal('impulse'), status: z.enum(['registered', 'resisted', 'gave_in']), label: z.string().max(80) }),
+  z.object({ ...eventBase, kind: z.literal('mood'), value: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]) }),
+  z.object({
+    ...eventBase,
+    kind: z.literal('sos'),
+    technique: z.enum(TECHNIQUE_IDS),
+    before: z.number().int().min(1).max(10),
+    after: z.number().int().min(1).max(10),
+  }),
+  z.object({ ...eventBase, kind: z.literal('technique'), technique: z.enum(TECHNIQUE_IDS), minutes: z.number().min(0).max(60) }),
+  z.object({ ...eventBase, kind: z.literal('badge'), label: z.string().min(1).max(60) }),
+  z.object({ ...eventBase, kind: z.literal('case'), caseId: z.string().min(1).max(60) }),
+]);
 const legacySchema = z.object({ activeCrucible: z.string().nullable(), crucibleProgress: z.unknown() }).nullable();
 const streakSchema = z.object({ count: z.number().int().min(0), lastActiveDate: isoDay.nullable() });
 const moduleProgressSchema = z.object({
@@ -128,6 +157,22 @@ function safeList<T>(schema: z.ZodType<T>, value: unknown): T[] {
 /** Lista de valores de un enum: descarta los desconocidos y los repetidos. */
 function safeEnumSet<T extends string>(values: readonly T[], value: unknown): T[] {
   return [...new Set(safeList(z.enum(values as [T, ...T[]]) as unknown as z.ZodType<T>, value))];
+}
+
+/** Datos anteriores a la v5: la cronología se reconstruye con los impulsos, que sí guardaban sus fechas. */
+function timelineFromImpulses(impulses: readonly Impulse[]): TimelineEvent[] {
+  const events = impulses.flatMap((impulse): TimelineEvent[] => {
+    const registered: TimelineEvent = { id: `bf-${impulse.id}`, at: impulse.createdAt, kind: 'impulse', status: 'registered', label: impulse.title };
+    const resolved = impulse.status === 'resisted' || impulse.status === 'gave_in';
+    if (!resolved || !impulse.resolvedAt) return [registered];
+    return [registered, { id: `bf-${impulse.id}-r`, at: impulse.resolvedAt, kind: 'impulse', status: impulse.status, label: impulse.title }];
+  });
+  return events.sort((a, b) => Date.parse(a.at) - Date.parse(b.at)).slice(-MAX_TIMELINE);
+}
+
+function readTimeline(value: unknown, impulses: readonly Impulse[]): TimelineEvent[] {
+  if (value === undefined) return timelineFromImpulses(impulses);
+  return safeList(timelineEventSchema as unknown as z.ZodType<TimelineEvent>, value).slice(-MAX_TIMELINE);
 }
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -182,12 +227,15 @@ function readV2(raw: Record<string, unknown>): PersistedState {
   const user = safe(userSchema.nullable(), raw.user, null);
   const lastPlayed = safe(z.object({ moduleId, stage: z.number().int().min(0).max(12) }).nullable(), raw.lastPlayed, null);
   const legacy = safe(legacySchema, raw.legacy, null);
+  const xp = safe(z.number().int().min(0), raw.xp, 0);
+  const impulses = safeList(impulseSchema, raw.impulses);
+  const regiStage = z.enum(REGI_STAGES.map((stage) => stage.id) as [RegiStageId, ...RegiStageId[]]);
   return {
     user,
     onboarding: readOnboarding(raw.onboarding, user !== null),
     modules: readModules(raw.modules),
     lastPlayed: lastPlayed as PersistedState['lastPlayed'],
-    xp: safe(z.number().int().min(0), raw.xp, 0),
+    xp,
     streak: safe(streakSchema, raw.streak, DEFAULT_PERSISTED.streak),
     dailyGoalMinutes: safe(z.union([z.literal(5), z.literal(10), z.literal(15)]), raw.dailyGoalMinutes, 10),
     today: safe(z.object({ date: isoDay.nullable(), minutes: z.number().min(0) }), raw.today, DEFAULT_PERSISTED.today),
@@ -197,7 +245,7 @@ function readV2(raw: Record<string, unknown>): PersistedState {
     settings: readSettings(raw.settings),
     legacy,
     chatMessages: safe(z.array(chatMessageSchema), raw.chatMessages, []).slice(-MAX_CHAT_MESSAGES),
-    impulses: safeList(impulseSchema, raw.impulses),
+    impulses,
     evidence: safeList(evidenceSchema, raw.evidence),
     contacts: safeList(contactSchema, raw.contacts).slice(0, MAX_CONTACTS),
     anchorPhotoUri: safe(z.string().nullable(), raw.anchorPhotoUri, null),
@@ -205,6 +253,9 @@ function readV2(raw: Record<string, unknown>): PersistedState {
     hardMoments: safeEnumSet(HARD_MOMENT_IDS, raw.hardMoments),
     solvedCases: [...new Set(safeList(z.string().min(1).max(60), raw.solvedCases))],
     ownCases: safeList(ownCaseSchema, raw.ownCases),
+    timeline: readTimeline(raw.timeline, impulses),
+    // Sin dato previo se parte de la etapa actual: no se celebran etapas alcanzadas antes de esta versión.
+    regiStageSeen: safe(regiStage, raw.regiStageSeen, regiStageFor(xp)),
   };
 }
 

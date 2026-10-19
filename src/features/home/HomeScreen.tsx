@@ -23,7 +23,8 @@ import { MODULE_ORDER, MODULES } from '@/data/modules/catalog';
 import { STAGES_PER_MODULE } from '@/data/stages';
 import { openModule, openStage } from '@/features/game/navigation';
 import { ModuleDial } from '@/features/home/ModuleDial';
-import { LessonOfDayCard, PersonalizeCard, useLessonOfDay } from '@/features/home/PersonalTiles';
+import { JourneyCard, LessonOfDayCard, PersonalizeCard, useLessonOfDay } from '@/features/home/PersonalTiles';
+import { RegiEvolutionCelebration } from '@/features/journey/RegiEvolution';
 import { dailyGoalProgress, minutesToday } from '@/lib/gamification/daily';
 import { currentModule, followingModule, moduleCompletion, moduleOrder, moduleStatus, nextStage } from '@/lib/gamification/progress';
 import { lighten } from '@/lib/color';
@@ -278,6 +279,7 @@ export function HomeScreen() {
               <DailyGoalTile />
               <ImpulsesTile />
             </View>
+            <JourneyCard />
           </Animated.View>
           <Animated.View entering={enter(3)} style={styles.dialSection}>
             <SectionHeader overline="Elige tu habilidad" title="Mente Resiliente" />
@@ -287,6 +289,7 @@ export function HomeScreen() {
           </Animated.View>
         </ScrollView>
       </SafeAreaView>
+      <RegiEvolutionCelebration />
     </ScreenBackground>
   );
 }

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Anchor, Clapperboard, Flame, Hourglass, Info, Layers, Settings, ShieldCheck, Trophy, Users, type LucideIcon } from 'lucide-react-native';
+import { Anchor, Clapperboard, Flame, Footprints, Hourglass, Info, Layers, Settings, ShieldCheck, Trophy, Users, type LucideIcon } from 'lucide-react-native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -135,6 +135,14 @@ export function ProfileScreen() {
           <View style={styles.section}>
             <SectionHeader title="Tus herramientas" />
             <Card padded={false} style={styles.menu}>
+              <MenuRow
+                icon={Footprints}
+                title="Mi camino"
+                subtitle="Tu semana, tus hitos y la evolución de Regi"
+                color={colors.regi}
+                iconColor={colors.onRegi}
+                onPress={() => router.push('/journey')}
+              />
               <MenuRow
                 icon={Trophy}
                 title="Muro de Evidencia"

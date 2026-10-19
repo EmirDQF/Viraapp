@@ -9,6 +9,7 @@ import { createChatSlice } from '@/store/slices/chatSlice';
 import { createGamificationSlice } from '@/store/slices/gamificationSlice';
 import { createProgressSlice } from '@/store/slices/progressSlice';
 import { createSettingsSlice } from '@/store/slices/settingsSlice';
+import { createTimelineSlice } from '@/store/slices/timelineSlice';
 import { createUserSlice } from '@/store/slices/userSlice';
 import { createWellbeingSlice } from '@/store/slices/wellbeingSlice';
 import type { AppState, PersistedState } from '@/store/types';
@@ -28,6 +29,7 @@ export const useAppStore = create<AppState>()(
       ...createChatSlice(...args),
       ...createWellbeingSlice(...args),
       ...createCasesSlice(...args),
+      ...createTimelineSlice(...args),
       resetAll: () => args[0]({ ...DEFAULT_PERSISTED }),
     }),
     {
@@ -62,6 +64,8 @@ export const useAppStore = create<AppState>()(
         hardMoments: state.hardMoments,
         solvedCases: state.solvedCases,
         ownCases: state.ownCases,
+        timeline: state.timeline,
+        regiStageSeen: state.regiStageSeen,
       }),
     },
   ),

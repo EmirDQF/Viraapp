@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 
+import { withEvent } from '@/store/timelineEvents';
 import { OWN_CASE_FIELD_MAX, OWN_CASE_TITLE_MAX, type AppState, type CasesActions, type OwnCaseDraft } from '@/store/types';
 
 /** XP por resolver un caso del Laboratorio por primera vez. */
@@ -22,7 +23,13 @@ function clean(draft: OwnCaseDraft): OwnCaseDraft {
 export const createCasesSlice: StateCreator<AppState, [], [], CasesActions> = (set) => ({
   solveCase: (id) =>
     set((current) =>
-      current.solvedCases.includes(id) ? {} : { solvedCases: [...current.solvedCases, id], xp: current.xp + CASE_SOLVED_XP },
+      current.solvedCases.includes(id)
+        ? {}
+        : {
+            solvedCases: [...current.solvedCases, id],
+            xp: current.xp + CASE_SOLVED_XP,
+            timeline: withEvent(current.timeline, { kind: 'case', caseId: id }),
+          },
     ),
   addOwnCase: (draft) =>
     set((current) => ({ ownCases: [{ ...clean(draft), id: newId(), createdAt: new Date().toISOString() }, ...current.ownCases] })),

@@ -1,5 +1,6 @@
 import type { Impulse, ImpulseStatus } from '@/lib/impulses';
 import type { FocusArea, HardMoment } from '@/lib/personalize';
+import type { NewTimelineEvent, RegiStage, TimelineEvent } from '@/lib/timeline';
 import type { TrustedContact } from '@/lib/support';
 import type { ModuleId, ModulesProgress, StagePointer } from '@/types/game';
 import type { Streak, User } from '@/types/user';
@@ -108,6 +109,10 @@ export interface PersistedState {
   readonly solvedCases: readonly string[];
   /** Casos propios: se guardan solo en el teléfono. */
   readonly ownCases: readonly OwnCase[];
+  /** "Mi camino": eventos del avance (append-only, máx. 500). */
+  readonly timeline: readonly TimelineEvent[];
+  /** Última etapa de Regi celebrada (para mostrar la animación solo una vez). */
+  readonly regiStageSeen: RegiStage;
 }
 
 export interface UserActions {
@@ -155,6 +160,12 @@ export interface CasesActions {
   removeOwnCase: (id: string) => void;
 }
 
+export interface TimelineActions {
+  /** Agrega un evento a la cronología (ánimo, SOS, técnica…). */
+  logEvent: (event: NewTimelineEvent) => void;
+  markRegiStageSeen: (stage: RegiStage) => void;
+}
+
 export interface SettingsActions {
   updateSettings: (patch: Partial<Settings>) => void;
 }
@@ -172,4 +183,5 @@ export type AppState = PersistedState &
   ChatActions &
   WellbeingActions &
   CasesActions &
+  TimelineActions &
   RootActions;

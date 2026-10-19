@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { ChevronRight, Route, Sparkles } from 'lucide-react-native';
+import { ChevronRight, Footprints, Route, Sparkles } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -33,6 +33,24 @@ export function PersonalizeCard() {
         <AppText variant="subtitle">Personaliza tu camino</AppText>
         <AppText variant="caption" tone="muted">
           Cuéntale a Regi qué quieres mejorar y te armará una ruta a tu medida.
+        </AppText>
+      </View>
+      <ChevronRight color={colors.textMuted} size={22} />
+    </Card>
+  );
+}
+
+/** Acceso a "Mi camino": la cronología del avance. */
+export function JourneyCard() {
+  const { colors } = useTheme();
+  const events = useAppStore((state) => state.timeline.length);
+  return (
+    <Card onPress={() => router.push('/journey')} accessibilityLabel="Mi camino" accessibilityHint="Abre la línea de tiempo de tu avance" style={styles.row}>
+      <IconTile icon={Footprints} color={colors.regi} iconColor={colors.onRegi} size={48} />
+      <View style={styles.flexText}>
+        <AppText variant="subtitle">Mi camino</AppText>
+        <AppText variant="caption" tone="muted">
+          {events > 0 ? 'Tu semana, tus hitos y cómo crece Regi.' : 'Aquí verás cada paso que des.'}
         </AppText>
       </View>
       <ChevronRight color={colors.textMuted} size={22} />
