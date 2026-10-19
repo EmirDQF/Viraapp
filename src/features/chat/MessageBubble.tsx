@@ -79,7 +79,7 @@ export const MessageBubble = memo(function MessageBubble({ message, typing }: { 
     <Animated.View entering={entering} style={[styles.row, mine && styles.rowMine]}>
       {mine ? null : (
         <View style={[styles.avatar, { backgroundColor: colors.regiSoft, borderColor: colors.glassBorder }]}>
-          <RegiMascot pose="calm" size={AVATAR} />
+          <RegiMascot pose="calm" size={AVATAR} still />
         </View>
       )}
       {mine ? (

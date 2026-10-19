@@ -35,6 +35,8 @@ interface RegiMascotProps {
   /** Reacción que se reproduce cada vez que cambia `reactionKey` (salto, inclinar, baile, risa). */
   readonly reaction?: RegiReaction | null;
   readonly reactionKey?: number;
+  /** Sin animaciones de reposo (avatares en listas largas, como el chat): ahorra un temporizador y bucles por instancia. */
+  readonly still?: boolean;
 }
 
 interface LayerProps {
@@ -132,8 +134,8 @@ function usePoseCrossfade(pose: RegiPose, reduceMotion: boolean) {
 }
 
 /** Regi, el ajolote guía de VIRA: respira, flota, parpadea, mueve las branquias y reacciona. */
-export function RegiMascot({ pose = 'calm', size = 160, glow = 0, glowColor = REGI.leafHalo, reaction = null, reactionKey = 0 }: RegiMascotProps) {
-  const reduceMotion = useReduceMotion();
+export function RegiMascot({ pose = 'calm', size = 160, glow = 0, glowColor = REGI.leafHalo, reaction = null, reactionKey = 0, still = false }: RegiMascotProps) {
+  const reduceMotion = useReduceMotion() || still;
   const value = clampGlow(glow);
   // Id único por instancia: en web los <defs> de SVG son globales y colisionarían entre varios Regi.
   const gradientId = `regiGlow-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;

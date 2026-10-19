@@ -13,15 +13,21 @@ import { ScreenBackground } from '@/components/ui/ScreenBackground';
 import { CASE_QUESTION_TITLES, type CaseStudy } from '@/data/cases';
 import { QuizMechanic } from '@/features/game/mechanics/QuizMechanic';
 import type { StageResult } from '@/lib/gamification/xp';
+import { lighten } from '@/lib/color';
 import { haptic } from '@/lib/haptics';
 import { useAppStore } from '@/store/useAppStore';
-import { MODULE_COLORS, spacing } from '@/theme/tokens';
+import { brand, MODULE_COLORS, spacing, type GradientStops, type ModuleTone } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 /** Minutos de práctica que cuenta resolver un caso (para la meta diaria). */
 const CASE_MINUTES = 3;
 
 type Phase = 'intro' | 'quiz' | 'done';
+
+/** Con texto oscuro el degradado va hacia lo claro: sobre el tono profundo el texto no llegaría a 4.5:1 (AA). */
+function challengeGradient(tone: ModuleTone): GradientStops {
+  return tone.on === brand.ink ? [lighten(tone.base, 0.2), tone.base] : [tone.base, tone.deep];
+}
 
 function Intro({ study, onStart }: { readonly study: CaseStudy; readonly onStart: () => void }) {
   const { colors } = useTheme();
@@ -57,7 +63,7 @@ function Done({ study, score }: { readonly study: CaseStudy; readonly score: num
   return (
     <ScrollView contentContainerStyle={styles.body}>
       <RegiSays pose={score >= 0.75 ? 'resilient' : 'empathetic'} message={study.feedback} />
-      <Card variant="gradient" gradient={[tone.base, tone.deep]} style={styles.list}>
+      <Card variant="gradient" gradient={challengeGradient(tone)} style={styles.list}>
         <View style={styles.challengeTitle}>
           <Sprout color={tone.on} size={20} />
           <AppText variant="subtitle" color={tone.on}>
