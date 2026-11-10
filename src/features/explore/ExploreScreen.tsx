@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RegiSays } from '@/components/regi/RegiMascot';
 import { AppText } from '@/components/ui/AppText';
+import { BackHeader } from '@/components/ui/BackHeader';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { RESOURCES, SAMPLE_EVENTS } from '@/data/explore';
@@ -32,7 +33,10 @@ function SectionTitle({ title, children }: { readonly title: string; readonly ch
   );
 }
 
-/** Pestaña Explorar: cada tema explicado, temas recomendados, recursos confiables y eventos de ejemplo. */
+/**
+ * "Más para explorar" (desde Explorar → Ver los 7 módulos): Laboratorio de casos, cada tema explicado, recursos
+ * confiables y eventos de ejemplo.
+ */
 export function ExploreScreen() {
   const tabSpace = useTabBarSpace();
   const { colors } = useTheme();
@@ -57,9 +61,7 @@ export function ExploreScreen() {
     <ScreenBackground>
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView contentContainerStyle={[styles.content, { paddingBottom: tabSpace }]}>
-          <AppText variant="display" accessibilityRole="header">
-            Explorar
-          </AppText>
+          <BackHeader title="Más para explorar" />
           <RegiSays pose="resilient" message="Aquí entiendes el porqué de cada tema. Saber cómo funciona tu mente también es entrenarla." size={78} />
           <Card
             variant="gradient"

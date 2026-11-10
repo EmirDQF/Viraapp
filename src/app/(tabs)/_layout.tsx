@@ -6,7 +6,7 @@ import { ICON_STROKE } from '@/components/ui/IconTile';
 import { useAppStore } from '@/store/useAppStore';
 import { useTheme } from '@/theme/useTheme';
 
-/** Barra inferior flotante de vidrio con 5 pestañas. */
+/** Barra inferior blanca con 5 pestañas: Inicio, Misiones, Chat, Explorar y Mi perfil. */
 export default function TabsLayout() {
   const { colors } = useTheme();
   const onboarded = useAppStore((state) => state.onboarding.completed);
@@ -35,7 +35,7 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="me"
-        options={{ title: 'Mi', tabBarIcon: ({ color, size }) => <User color={color} size={size} strokeWidth={ICON_STROKE} /> }}
+        options={{ title: 'Mi perfil', tabBarIcon: ({ color, size }) => <User color={color} size={size} strokeWidth={ICON_STROKE} /> }}
       />
     </Tabs>
   );
