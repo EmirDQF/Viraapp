@@ -1,4 +1,5 @@
 {
+  "enabledPlugins": {},
   "extraKnownMarketplaces": {
     "ecc": {
       "source": {
@@ -6,8 +7,5 @@
         "repo": "affaan-m/ECC"
       }
     }
-  },
-  "enabledPlugins": {
-    "ecc@ecc": true
   }
 }
