@@ -11,14 +11,16 @@ import type { Impulse } from '@/lib/impulses';
 import { FOCUS_AREA_IDS, HARD_MOMENT_IDS } from '@/lib/personalize';
 import { MAX_TIMELINE, REGI_STAGES, regiStageFor, type RegiStage as RegiStageId, type TimelineEvent } from '@/lib/timeline';
 import { MAX_CONTACTS } from '@/lib/support';
+import { readCaminoActivities, readCaminoJourneys } from '@/store/caminosMigration';
 import { EVIDENCE_ICONS, OWN_CASE_FIELD_MAX, OWN_CASE_TITLE_MAX, type PersistedState, type Settings } from '@/store/types';
 
 /**
  * v3: perfil personalizado (focusAreas, hardMoments y onboarding.personalized).
  * v4: Laboratorio de casos (solvedCases y ownCases).
  * v5: cronología "Mi camino" (timeline, rellenada con los impulsos previos) y regiStageSeen.
+ * v6: caminos PA3 (caminoJourneys y caminoActivities).
  */
-export const STORE_VERSION = 5;
+export const STORE_VERSION = 6;
 
 export const DEFAULT_SETTINGS: Settings = {
   theme: 'system',
@@ -59,6 +61,8 @@ export const DEFAULT_PERSISTED: PersistedState = {
   ownCases: [],
   timeline: [],
   regiStageSeen: 'cria',
+  caminoJourneys: {},
+  caminoActivities: {},
 };
 
 /** Máximo de mensajes de chat guardados en el teléfono. */
@@ -256,6 +260,8 @@ function readV2(raw: Record<string, unknown>): PersistedState {
     timeline: readTimeline(raw.timeline, impulses),
     // Sin dato previo se parte de la etapa actual: no se celebran etapas alcanzadas antes de esta versión.
     regiStageSeen: safe(regiStage, raw.regiStageSeen, regiStageFor(xp)),
+    caminoJourneys: readCaminoJourneys(raw.caminoJourneys),
+    caminoActivities: readCaminoActivities(raw.caminoActivities),
   };
 }
 

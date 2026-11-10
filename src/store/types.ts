@@ -1,7 +1,9 @@
 import type { Impulse, ImpulseStatus } from '@/lib/impulses';
 import type { FocusArea, HardMoment } from '@/lib/personalize';
 import type { NewTimelineEvent, RegiStage, TimelineEvent } from '@/lib/timeline';
+import type { CaminoActivities, CaminoJourneys, SituationAnswer } from '@/lib/caminos';
 import type { TrustedContact } from '@/lib/support';
+import type { Pa3ModuleId } from '@/data/caminos/types';
 import type { ModuleId, ModulesProgress, StagePointer } from '@/types/game';
 import type { Streak, User } from '@/types/user';
 
@@ -113,6 +115,10 @@ export interface PersistedState {
   readonly timeline: readonly TimelineEvent[];
   /** Última etapa de Regi celebrada (para mostrar la animación solo una vez). */
   readonly regiStageSeen: RegiStage;
+  /** Caminos PA3: respuestas al caso inicial de cada módulo (antes y ahora). */
+  readonly caminoJourneys: CaminoJourneys;
+  /** Caminos PA3: avance de cada actividad. */
+  readonly caminoActivities: CaminoActivities;
 }
 
 export interface UserActions {
@@ -166,6 +172,19 @@ export interface TimelineActions {
   markRegiStageSeen: (stage: RegiStage) => void;
 }
 
+export interface CaminosActions {
+  /** Guarda la respuesta al caso inicial ("before") o la de "Antes y ahora" ("after"). */
+  saveSituation: (moduleId: Pa3ModuleId, phase: 'before' | 'after', answer: Omit<SituationAnswer, 'at'>) => void;
+  /** Pausa una actividad guardando el paso y las respuestas del intento. */
+  pauseActivity: (activityId: string, step: number, answers: readonly number[]) => void;
+  /** Reintentar: empieza el intento desde cero (si ya estaba completa, lo sigue estando). */
+  restartActivity: (activityId: string) => void;
+  /** Marca la actividad como completada; la primera vez suma XP. */
+  completeActivity: (activityId: string) => void;
+  /** Vuelve a hacer el módulo desde el caso inicial (conserva las actividades completadas). */
+  resetModuleJourney: (moduleId: Pa3ModuleId) => void;
+}
+
 export interface SettingsActions {
   updateSettings: (patch: Partial<Settings>) => void;
 }
@@ -184,4 +203,5 @@ export type AppState = PersistedState &
   WellbeingActions &
   CasesActions &
   TimelineActions &
+  CaminosActions &
   RootActions;

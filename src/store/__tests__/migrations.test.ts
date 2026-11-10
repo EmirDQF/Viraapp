@@ -10,8 +10,8 @@ const V1_STATE = {
 };
 
 describe('migrateState', () => {
-  test('la versión actual del store es la 5', () => {
-    expect(STORE_VERSION).toBe(5);
+  test('la versión actual del store es la 6', () => {
+    expect(STORE_VERSION).toBe(6);
   });
 
   test('v1 → v2 conserva usuario, XP y racha', () => {

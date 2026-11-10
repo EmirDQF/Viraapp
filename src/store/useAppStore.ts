@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DEFAULT_PERSISTED, STORE_VERSION, migrateState } from '@/store/migrations';
+import { createCaminosSlice } from '@/store/slices/caminosSlice';
 import { createCasesSlice } from '@/store/slices/casesSlice';
 import { createChatSlice } from '@/store/slices/chatSlice';
 import { createGamificationSlice } from '@/store/slices/gamificationSlice';
@@ -30,6 +31,7 @@ export const useAppStore = create<AppState>()(
       ...createWellbeingSlice(...args),
       ...createCasesSlice(...args),
       ...createTimelineSlice(...args),
+      ...createCaminosSlice(...args),
       resetAll: () => args[0]({ ...DEFAULT_PERSISTED }),
     }),
     {
@@ -66,6 +68,8 @@ export const useAppStore = create<AppState>()(
         ownCases: state.ownCases,
         timeline: state.timeline,
         regiStageSeen: state.regiStageSeen,
+        caminoJourneys: state.caminoJourneys,
+        caminoActivities: state.caminoActivities,
       }),
     },
   ),
